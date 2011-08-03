@@ -8,12 +8,40 @@
 
 #import "NULDBTestAddress.h"
 
+#import "NULDBTestUtilities.h"
+
+
 @implementation NULDBTestAddress
 
-@synthesize street, city, state, postalCode;
+@synthesize uniqueID, street, city, state, postalCode;
+
+#pragma mark NSObject
+- (id)init {
+    self = [super init];
+    if(self)
+        self.uniqueID = NSMakeCollectable(CFUUIDCreateString(NULL, CFUUIDCreate(NULL)));
+
+    return self;
+}
+
+- (BOOL)isEqual:(id)object {
+    if(![object isKindOfClass:[NULDBTestAddress class]])
+        return NO;
+    
+    NULDBTestAddress *address = (NULDBTestAddress *)object;
+    
+    return ([street isEqualToString:address.street]
+            && [city isEqualToString:address.city]
+            && [state isEqualToString:address.state]
+            && [postalCode isEqualToString:address.postalCode]);
+}
+
+- (NSUInteger)hash {
+    return [[NSString stringWithFormat:@"%@%@%@%@", street, city, state, postalCode] hash];
+}
 
 
-#pragma mark NULDBSerializable
+#pragma mark NULDBPlistTransformable
 - (id)initWithPropertyList:(NSDictionary *)values {
     self = [self init];
     if(self) {

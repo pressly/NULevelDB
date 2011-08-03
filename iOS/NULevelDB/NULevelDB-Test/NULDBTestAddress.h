@@ -11,7 +11,9 @@
 #import "NULDBDB.h"
 
 
-@interface NULDBTestAddress : NSObject<NULDBSerializable>
+@interface NULDBTestAddress : NSObject<NULDBPlistTransformable>
+
+@property (retain) NSString *uniqueID;
 
 @property (retain) NSString *street;
 @property (retain) NSString *city;
