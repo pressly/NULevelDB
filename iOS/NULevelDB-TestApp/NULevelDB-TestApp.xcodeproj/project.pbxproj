@@ -30,6 +30,34 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		4E08722A13E9B58C006C04F1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4E08722413E9B58C006C04F1 /* NULevelDB.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4E683FEA13E2027800D9EBCF;
+			remoteInfo = leveldb;
+		};
+		4E08722C13E9B58C006C04F1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4E08722413E9B58C006C04F1 /* NULevelDB.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4E6840F413E3220F00D9EBCF;
+			remoteInfo = NULevelDB;
+		};
+		4E08722E13E9B58C006C04F1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4E08722413E9B58C006C04F1 /* NULevelDB.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4E68412713E33FCD00D9EBCF;
+			remoteInfo = "NULevelDB-Test";
+		};
+		4E08723113E9B592006C04F1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4E08722413E9B58C006C04F1 /* NULevelDB.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4E6840F313E3220F00D9EBCF;
+			remoteInfo = NULevelDB;
+		};
 		4E68417C13E344F900D9EBCF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4E68414B13E344F800D9EBCF /* Project object */;
@@ -40,6 +68,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4E08722413E9B58C006C04F1 /* NULevelDB.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NULevelDB.xcodeproj; path = ../NULevelDB/NULevelDB.xcodeproj; sourceTree = "<group>"; };
 		4E68415413E344F800D9EBCF /* NULevelDB-TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "NULevelDB-TestApp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E68415813E344F800D9EBCF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		4E68415A13E344F800D9EBCF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -92,6 +121,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4E08722513E9B58C006C04F1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4E08722B13E9B58C006C04F1 /* libleveldb.a */,
+				4E08722D13E9B58C006C04F1 /* libNULevelDB.a */,
+				4E08722F13E9B58C006C04F1 /* NULevelDB-Test.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		4E68414913E344F800D9EBCF = {
 			isa = PBXGroup;
 			children = (
@@ -99,6 +138,7 @@
 				4E68417E13E344F900D9EBCF /* NULevelDB-TestAppTests */,
 				4E68415713E344F800D9EBCF /* Frameworks */,
 				4E68415513E344F800D9EBCF /* Products */,
+				4E08722413E9B58C006C04F1 /* NULevelDB.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -181,6 +221,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4E08723213E9B592006C04F1 /* PBXTargetDependency */,
 			);
 			name = "NULevelDB-TestApp";
 			productName = "NULevelDB-TestApp";
@@ -221,6 +262,12 @@
 			mainGroup = 4E68414913E344F800D9EBCF;
 			productRefGroup = 4E68415513E344F800D9EBCF /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 4E08722513E9B58C006C04F1 /* Products */;
+					ProjectRef = 4E08722413E9B58C006C04F1 /* NULevelDB.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				4E68415313E344F800D9EBCF /* NULevelDB-TestApp */,
@@ -228,6 +275,30 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		4E08722B13E9B58C006C04F1 /* libleveldb.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libleveldb.a;
+			remoteRef = 4E08722A13E9B58C006C04F1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4E08722D13E9B58C006C04F1 /* libNULevelDB.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libNULevelDB.a;
+			remoteRef = 4E08722C13E9B58C006C04F1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4E08722F13E9B58C006C04F1 /* NULevelDB-Test.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "NULevelDB-Test.octest";
+			remoteRef = 4E08722E13E9B58C006C04F1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		4E68415213E344F800D9EBCF /* Resources */ = {
@@ -289,6 +360,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4E08723213E9B592006C04F1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = NULevelDB;
+			targetProxy = 4E08723113E9B592006C04F1 /* PBXContainerItemProxy */;
+		};
 		4E68417D13E344F900D9EBCF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4E68415313E344F800D9EBCF /* NULevelDB-TestApp */;
