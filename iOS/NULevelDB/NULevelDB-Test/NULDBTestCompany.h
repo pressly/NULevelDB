@@ -8,6 +8,20 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NULDBTestCompany : NSObject
+#import "NULDBDB.h"
+
+
+@class NULDBTestPerson, NULDBTestAddress;
+
+@interface NULDBTestCompany : NSObject<NULDBSerializable>
+
+@property (retain) NSString *name;
+@property (retain) NULDBTestPerson *supervisor;
+@property (retain) NSArray *workers; // persons
+@property (retain) NSDictionary *management; // persons keyed by title
+@property (retain) NULDBTestAddress *mainAddress;
+@property (retain) NSDictionary *secondaryAddresses; // addresses keyed by purpose
+
++ (NULDBTestCompany *)randomCompany;
 
 @end
