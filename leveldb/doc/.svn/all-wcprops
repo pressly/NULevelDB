@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 26
+/svn/!svn/ver/44/trunk/doc
+END
+impl.html
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/28/trunk/doc/impl.html
+END
+log_format.txt
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/23/trunk/doc/log_format.txt
+END
+index.html
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/28/trunk/doc/index.html
+END
+doc.css
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svn/!svn/ver/23/trunk/doc/doc.css
+END
+benchmark.html
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/44/trunk/doc/benchmark.html
+END
+table_format.txt
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/23/trunk/doc/table_format.txt
+END
