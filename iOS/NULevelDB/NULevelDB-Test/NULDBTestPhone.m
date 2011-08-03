@@ -10,6 +10,8 @@
 
 @implementation NULDBTestPhone
 
+@synthesize areaCode, exchange, line;
+
 - (id)initWithAreaCode:(NSUInteger)a exchange:(NSUInteger)e line:(NSUInteger)l {
     self = [super init];
     if(self) {
@@ -38,17 +40,17 @@
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super init];
     if(self) {
-        self.areaCode = [aDecoder decodeObjectForKey:@"a"];
-        self.exchange = [aDecoder decodeObjectForKey:@"e"];
-        self.line = [aDecoder decodeObjectForKey:@"l"];
+        self.areaCode = [aDecoder decodeIntegerForKey:@"a"];
+        self.exchange = [aDecoder decodeIntegerForKey:@"e"];
+        self.line = [aDecoder decodeIntegerForKey:@"l"];
     }
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-    [aCoder encodeObject:areaCode forKey:@"a"];
-    [aCoder encodeObject:exchange forKey:@"e"];
-    [aCoder encodeObject:line forKey:@"l"];
+    [aCoder encodeInteger:areaCode forKey:@"a"];
+    [aCoder encodeInteger:exchange forKey:@"e"];
+    [aCoder encodeInteger:line forKey:@"l"];
 }
 
 @end

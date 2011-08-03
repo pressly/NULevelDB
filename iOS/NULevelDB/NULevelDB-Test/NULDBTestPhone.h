@@ -13,8 +13,8 @@
 - (id)initWithAreaCode:(NSUInteger)a exchange:(NSUInteger)e line:(NSUInteger)l;
 - (id)initWithNumber:(NSString *)number;
 
-@property (retain) NSUInteger areaCode;
-@property (retain) NSUInteger exchange;
-@property (retain) NSUInteger line;
+@property NSInteger areaCode;
+@property NSInteger exchange;
+@property NSInteger line;
 
 @end
