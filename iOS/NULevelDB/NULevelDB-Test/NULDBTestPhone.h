@@ -13,8 +13,8 @@
 - (id)initWithAreaCode:(NSUInteger)a exchange:(NSUInteger)e line:(NSUInteger)l;
 - (id)initWithNumber:(NSString *)number;
 
-@property NSInteger areaCode;
-@property NSInteger exchange;
-@property NSInteger line;
+@property NSInteger areaCode; // must be < 1000
+@property NSInteger exchange; // must be < 1000
+@property NSInteger line; // must be < 10000
 
 @end
