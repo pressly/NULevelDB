@@ -8,16 +8,11 @@
 
 #import "NULDBTestUtilities.h"
 
-@implementation NULDBTestUtilities
 
-- (id)init
-{
-    self = [super init];
-    if (self) {
-        // Initialization code here.
-    }
-    
-    return self;
+NSString *NULDBRandomName( void ) {
+    return nil;
 }
+
+@implementation NULDBTestUtilities
 
 @end
