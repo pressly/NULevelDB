@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		4E0871DF13E989B3006C04F1 /* NULDBTestPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E8D489F13E89F15003F5B1A /* NULDBTestPhone.m */; };
+		4E46AAC813E9F6590099A846 /* NULDBTestCompany.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E46AAC713E9F6590099A846 /* NULDBTestCompany.m */; };
+		4E46AACC13E9F8DB0099A846 /* NULDBTestUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E46AACA13E9F8DB0099A846 /* NULDBTestUtilities.h */; };
+		4E46AACD13E9F8DB0099A846 /* NULDBTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E46AACB13E9F8DB0099A846 /* NULDBTestUtilities.m */; };
 		4E683FEE13E2027800D9EBCF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E683FED13E2027800D9EBCF /* Foundation.framework */; };
 		4E68401E13E2029900D9EBCF /* builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4E683FF813E2029900D9EBCF /* builder.cc */; };
 		4E68401F13E2029900D9EBCF /* builder.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E683FF913E2029900D9EBCF /* builder.h */; };
@@ -130,6 +133,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4E46AAC613E9F6590099A846 /* NULDBTestCompany.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBTestCompany.h; sourceTree = "<group>"; };
+		4E46AAC713E9F6590099A846 /* NULDBTestCompany.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NULDBTestCompany.m; sourceTree = "<group>"; };
+		4E46AACA13E9F8DB0099A846 /* NULDBTestUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBTestUtilities.h; sourceTree = "<group>"; };
+		4E46AACB13E9F8DB0099A846 /* NULDBTestUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NULDBTestUtilities.m; sourceTree = "<group>"; };
 		4E683FEA13E2027800D9EBCF /* libleveldb.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libleveldb.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E683FED13E2027800D9EBCF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		4E683FF813E2029900D9EBCF /* builder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = builder.cc; sourceTree = "<group>"; };
@@ -454,6 +461,8 @@
 			children = (
 				4E68413513E33FCE00D9EBCF /* NULevelDB_Test.h */,
 				4E68413713E33FCE00D9EBCF /* NULevelDB_Test.m */,
+				4E46AAC613E9F6590099A846 /* NULDBTestCompany.h */,
+				4E46AAC713E9F6590099A846 /* NULDBTestCompany.m */,
 				4E8D489813E89EE9003F5B1A /* NULDBTestPerson.h */,
 				4E8D489913E89EE9003F5B1A /* NULDBTestPerson.m */,
 				4E8D489B13E89F00003F5B1A /* NULDBTestAddress.h */,
@@ -461,6 +470,8 @@
 				4E8D489E13E89F15003F5B1A /* NULDBTestPhone.h */,
 				4E8D489F13E89F15003F5B1A /* NULDBTestPhone.m */,
 				4E68413013E33FCE00D9EBCF /* Supporting Files */,
+				4E46AACA13E9F8DB0099A846 /* NULDBTestUtilities.h */,
+				4E46AACB13E9F8DB0099A846 /* NULDBTestUtilities.m */,
 			);
 			path = "NULevelDB-Test";
 			sourceTree = "<group>";
@@ -577,6 +588,7 @@
 				4E6841F713E34C7900D9EBCF /* testharness.h in Headers */,
 				4E6841F913E34C7900D9EBCF /* testutil.h in Headers */,
 				4E8D48A013E89F15003F5B1A /* NULDBTestPhone.h in Headers */,
+				4E46AACC13E9F8DB0099A846 /* NULDBTestUtilities.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -746,6 +758,7 @@
 				4E6841EF13E34C7900D9EBCF /* logging.cc in Sources */,
 				4E6841F213E34C7900D9EBCF /* options.cc in Sources */,
 				4E6841F513E34C7900D9EBCF /* status.cc in Sources */,
+				4E46AACD13E9F8DB0099A846 /* NULDBTestUtilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -771,6 +784,7 @@
 				4E8D489A13E89EE9003F5B1A /* NULDBTestPerson.m in Sources */,
 				4E8D489D13E89F00003F5B1A /* NULDBTestAddress.m in Sources */,
 				4E0871DF13E989B3006C04F1 /* NULDBTestPhone.m in Sources */,
+				4E46AAC813E9F6590099A846 /* NULDBTestCompany.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
