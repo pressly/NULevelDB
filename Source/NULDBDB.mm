@@ -34,11 +34,11 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 
 - (void)storeDictionary:(NSDictionary *)dict forKey:(NSString *)key;
 - (NSDictionary *)unserializeDictionary:(NSDictionary *)storedDict;
-- (void)deleteStoredDictionaryForKey:(NSString *)key;
+- (void)deleteStoredDictionary:(NSDictionary *)key;
 
 - (void)storeArray:(NSArray *)array forKey:(NSString *)key;
 - (NSArray *)unserializeArrayForKey:(NSString *)key;
-- (void)deleteStoredArrayForKey:(NSString *)key;
+- (void)deleteStoredArrayContentsForKey:(NSString *)key;
 
 @end
 
@@ -174,14 +174,20 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
  * TODO: Use a more compact, binary key format with keys of identical lengths
  */
 
-#define NULDBClassKey(_class_name_) ([NSString stringWithFormat:@"%@:NUClass", _class_name_])
-#define NULDBKeyIsClass(_key_) ([_key_ hasSuffix:@"NUClass"])
+#define NULDBClassToken(_class_name_) ([NSString stringWithFormat:@"%@:NUClass", _class_name_])
+#define NULDBIsClassToken(_key_) ([_key_ hasSuffix:@"NUClass"])
+#define NULDBClassFromToken(_key_) ([_key_ substringToIndex:[_key_ rangeOfString:@":"].location])
 
-#define NULDBPropertyKey(_class_name, _prop_name_, _obj_key_ ) ([NSString stringWithFormat:@"%@:%@:%@:NUProperty", _class_name, _obj_key_, _prop_name_])
-#define NULDBKeyIsProperty(_key_) ([_key_ hasSuffix:@"NUProperty"])
+#define NULDBPropertyKey(_class_name_, _prop_name_, _obj_key_ ) ([NSString stringWithFormat:@"%@:%@|%@:NUProperty", _prop_name_, _obj_key_, _class_name_])
+#define NULDBIsPropertyKey(_key_) ([_key_ hasSuffix:@"NUProperty"])
+#define NULDBProppertyIdentifierFromKey(_key_) ([_key_ substringToIndex:[_key_ rangeOfString:@"="].location])
 
-#define NULDBArrayKey(_key_, _index_) [NSString stringWithFormat:@"%u:%@:NUArray", _index_, _key_]
-#define NULDBKeyIsArray(_key_) ([_key_ hasSuffix:@"NUArray"])
+#define NULDBArrayToken(_key_, _count_) ([NSString stringWithFormat:@"%u:NUArray", _count_, _key_])
+#define NULDBIsArrayToken(_key_) ([_key_ hasSuffix:@"NUArray"])
+
+#define NULDBArrayIndexKey(_key_, _index_) ([NSString stringWithFormat:@"%u:%@:NUIndex", _index_, _key_])
+#define NULDBIsArrayIndexKey(_key_) ([_key_ hasSuffix:@"NUIndex"])
+#define NULDBArrayCountFromKey(_key_) ([[_key_ substringToIndex:[_key_ rangeOfString:@":"].location] intValue])
 
 /*
  * TODO: Convert stored values and indexes to C++
@@ -214,7 +220,7 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 - (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj {
     
     NSString *className = NSStringFromClass([obj class]);
-    NSString *classKey = NULDBClassKey(className);
+    NSString *classKey = NULDBClassToken(className);
     NSArray *properties = [self storedValueForKey:className];
     NSString *key = [obj storageKey];
     
@@ -266,37 +272,50 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 
 - (NSDictionary *)unserializeDictionary:(NSDictionary *)storedDict {
     
-    return nil;
+    NSMutableDictionary *result = [NSMutableDictionary dictionaryWithCapacity:[storedDict count]];
+    
+    for(NSString *key in [storedDict allKeys])
+        [result setObject:[self storedObjectForKey:key] forKey:key];
+
+    return result;
 }
 
-- (void)deleteStoredDictionaryForKey:(NSString *)key {
-    
+- (void)deleteStoredDictionary:(NSDictionary *)storedDict {
+    for(NSString *key in [storedDict allKeys])
+        [self deleteStoredObjectForKey:key];
 }
 
 // Support for NULDBSerializable objects in the array
 - (void)storeArray:(NSArray *)array forKey:(NSString *)key {
-        
+    
+    NSString *propertyFragment = NULDBProppertyIdentifierFromKey(key);
     NSUInteger i=0;
     
     for(id object in array)
-        [self storeObject:object forKey:NULDBArrayKey(key, i)], i++;
+        [self storeObject:object forKey:NULDBArrayIndexKey(propertyFragment, i)], i++;
 
-    [self storeValue:[NSString stringWithFormat:@"NUArray:%@", [array count]] forKey:key];
+    [self storeValue:[NSString stringWithFormat:@"%@:NUArray", [array count]] forKey:key];
 }
 
 - (NSArray *)unserializeArrayForKey:(NSString *)key {
     
-    NSUInteger length = [[key substringToIndex:[key rangeOfString:@":"].location] intValue];
-    NSMutableArray *array = [NSMutableArray arrayWithCapacity:length];
+    NSString *propertyFragment = NULDBProppertyIdentifierFromKey(key);
+    NSUInteger count = NULDBArrayCountFromKey([self storedObjectForKey:key]);
+    NSMutableArray *array = [NSMutableArray arrayWithCapacity:count];
     
-    for(NSUInteger i=0; i<length; i++)
-        [array addObject:[self storedObjectForKey:NULDBArrayKey(key, i)]];
+    for(NSUInteger i=0; i<count; i++)
+        [array addObject:[self storedObjectForKey:NULDBArrayIndexKey(propertyFragment, i)]];
     
     return array;
 }
 
-- (void)deleteStoredArrayForKey:(NSString *)key {
+- (void)deleteStoredArrayContentsForKey:(NSString *)key {
     
+    NSString *propertyFragment = NULDBProppertyIdentifierFromKey(key);
+    NSUInteger count = NULDBArrayCountFromKey([self storedObjectForKey:key]);
+    
+    for(NSUInteger i=0; i<count; ++i)
+        [self deleteStoredObjectForKey:NULDBArrayIndexKey(propertyFragment, i)];
 }
 
 
@@ -315,10 +334,10 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
     
     if([storedObj isKindOfClass:[NSString class]]) {
         
-        if(NULDBKeyIsClass(storedObj)) {
+        if(NULDBIsClassToken(storedObj)) {
             
-            NSString *className = [self storedValueForKey:key];
-            Class objcClass = NSClassFromString(className);
+            NSString *className = NULDBClassFromToken(storedObj);
+            Class objcClass = NSClassFromString(storedObj);
             
             if(NULL == objcClass)
                 return nil;
@@ -333,7 +352,7 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
                 return storedObj;
         }
 
-        if(NULDBKeyIsArray(storedObj))
+        if(NULDBIsArrayToken(storedObj))
             return [self unserializeArrayForKey:key];
     }
 
@@ -342,28 +361,33 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 
 - (void)deleteStoredObjectForKey:(NSString *)key {
     
-    NSString *className = [self storedValueForKey:key];
-    Class objcClass = NSClassFromString(className);
-    NSArray *properties = [self storedValueForKey:className];
+    id storedObj = [self storedValueForKey:key];
     
-    if(nil == className || nil == properties)
-        return;
-    
-    
-    if([objcClass conformsToProtocol:@protocol(NSCoding)] || [objcClass instancesRespondToSelector:@selector(initWithDictionary:)])
-        [self deleteStoredValueForKey:key];
-    else
-        for(NSString *property in properties) {
+    if([storedObj isKindOfClass:[NSDictionary class]]) {
+        [self deleteStoredDictionary:storedObj];
+    }
+    else if([storedObj isKindOfClass:[NSString class]]) {
+        
+        if(NULDBIsClassToken(storedObj)) {
             
-            NSString *propKey = [NSString stringWithFormat:@"NUProperty:%@:%@:%@", className, key, property];
-            id propVal = [self storedObjectForKey:propKey];
-            id objVal = [self storedObjectForKey:propVal];
-            
-            if(objVal)
-                [self deleteStoredObjectForKey:propVal];
-            
-            [self deleteStoredValueForKey:propKey];
+            for(NSString *property in [self storedValueForKey:storedObj]) {
+                
+                NSString *propKey = [NSString stringWithFormat:@"NUProperty:%@:%@:%@", storedObj, key, property];
+                id propVal = [self storedObjectForKey:propKey];
+                id objVal = [self storedObjectForKey:propVal];
+                
+                if(objVal)
+                    [self deleteStoredObjectForKey:propVal];
+                
+                [self deleteStoredValueForKey:propKey];
+            }
         }
+        else if(NULDBIsArrayToken(storedObj)) {
+            [self deleteStoredArrayContentsForKey:key];
+        }
+    }
+    
+    [self deleteStoredValueForKey:key];
 }
 
 - (void)iterateWithStart:(NSString *)start limit:(NSString *)limit block:(BOOL (^)(NSString *key, id<NSCoding>value))block {
