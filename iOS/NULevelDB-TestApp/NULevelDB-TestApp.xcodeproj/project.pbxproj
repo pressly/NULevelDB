@@ -498,7 +498,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../../../../../bgulanowski/Developer/Products/Debug-iphonesimulator\"",
 				);
-				OTHER_LDFLAGS = "-all_load";
+				OTHER_LDFLAGS = (
+					"-all_load",
+					"-lstdc++",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = octest;
@@ -520,7 +523,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../../../../../bgulanowski/Developer/Products/Debug-iphonesimulator\"",
 				);
-				OTHER_LDFLAGS = "-all_load";
+				OTHER_LDFLAGS = (
+					"-all_load",
+					"-lstdc++",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = octest;
