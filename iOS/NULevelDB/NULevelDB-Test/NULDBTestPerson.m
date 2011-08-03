@@ -8,6 +8,10 @@
 
 #import "NULDBTestPerson.h"
 
+#import "NULDBTestPhone.h"
+#import "NULDBTestAddress.h"
+#import "NULDBTestUtilities.h"
+
 @implementation NULDBTestPerson
 
 @synthesize uniqueID, firstName, lastName, address, phone;
@@ -35,7 +39,11 @@ static NSArray *properties;
 }
 
 - (NSString *)storageKey {
-    return self.uniqueID;
+    return uniqueID;
+}
+
+- (void)awakeFromStorage:(NSString *)storageKey {
+    self.uniqueID = storageKey;
 }
 
 @end
