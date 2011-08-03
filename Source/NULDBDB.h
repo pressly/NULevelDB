@@ -15,6 +15,9 @@
 - (NSString *)storageKey;
 - (NSArray *)propertyNames;
 
+@optional
+- (void)awakeFromStorage:(NSString *)storageKey;
+
 @end
 
 // Protocol suitable for serializing internal/leaf nodes
@@ -44,6 +47,7 @@
 // Object graph serialization support
 // Arrays and dictionaries are handled automatically; sets are converted into arrays
 - (void)storeObject:(NSObject<NULDBSerializable> *)obj;
+- (void)storeDictionary:(NSDictionary *)plist forKey:(NSString *)key;
 - (id)storedObjectForKey:(NSString *)key;
 - (void)deleteStoredObjectForKey:(NSString *)key;
 

@@ -32,7 +32,6 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 
 - (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj;
 
-- (void)storeDictionary:(NSDictionary *)dict forKey:(NSString *)key;
 - (NSDictionary *)unserializeDictionary:(NSDictionary *)storedDict;
 - (void)deleteStoredDictionary:(NSDictionary *)key;
 
@@ -113,8 +112,9 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
     Status status = db->Put(write_options, k, v);
 #endif
     
-    if(!status.ok())
+    if(!status.ok()) {
         NSLog(@"Problem storing key/value pair in database: %s", status.ToString().c_str());
+    }
 }
 
 - (id)storedValueForKey:(id<NSCoding>)key {
@@ -137,7 +137,8 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 #endif
     
     if(!status.ok()) {
-        NSLog(@"Problem storing key/value pair in database: %s", status.ToString().c_str());
+        if(!status.IsNotFound())
+            NSLog(@"Problem retrieving value for key '%@' from database: %s", key, status.ToString().c_str());
         return nil;
     }
 
@@ -180,7 +181,14 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 
 #define NULDBPropertyKey(_class_name_, _prop_name_, _obj_key_ ) ([NSString stringWithFormat:@"%@:%@|%@:NUProperty", _prop_name_, _obj_key_, _class_name_])
 #define NULDBIsPropertyKey(_key_) ([_key_ hasSuffix:@"NUProperty"])
-#define NULDBProppertyIdentifierFromKey(_key_) ([_key_ substringToIndex:[_key_ rangeOfString:@"="].location])
+#define NULDBPropertyIdentifierFromKey(_key_) ([_key_ substringToIndex:[_key_ rangeOfString:@"="].location])
+
+static inline NSString *NULDBClassFromPropertyKey(NSString *key) {
+    
+    NSString *classFragment = [key substringFromIndex:[key rangeOfString:@"|"].location+1];
+    
+    return [classFragment substringToIndex:[key rangeOfString:@":"].location];
+}
 
 #define NULDBArrayToken(_key_, _count_) ([NSString stringWithFormat:@"%u:NUArray", _count_, _key_])
 #define NULDBIsArrayToken(_key_) ([_key_ hasSuffix:@"NUArray"])
@@ -198,7 +206,10 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
         [self _storeObject:obj];
     }
     else if([obj conformsToProtocol:@protocol(NULDBPlistTransformable)]) {
-        [self storeValue:[obj plistRepresentation] forKey:key];
+        [self storeValue:[NSDictionary dictionaryWithObjectsAndKeys:NSStringFromClass([obj class]), @"class",
+                          [obj plistRepresentation], @"object",
+                          nil]
+                  forKey:key];
     }
     else if([obj isKindOfClass:[NSArray class]]) {
         if([obj count])
@@ -221,15 +232,18 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
     
     NSString *className = NSStringFromClass([obj class]);
     NSString *classKey = NULDBClassToken(className);
-    NSArray *properties = [self storedValueForKey:className];
+    NSArray *properties = [self storedValueForKey:classKey];
     NSString *key = [obj storageKey];
+    
+    NSAssert1(nil != classKey, @"No key for class %@", className);
+    NSAssert1(nil != key, @"No storage key for object %@", obj);
     
     if(nil == properties) {
         properties = [obj propertyNames];
         [self storeValue:properties forKey:classKey];
     }
     
-    [self storeValue:className forKey:key];
+    [self storeValue:classKey forKey:key];
     
     for(NSString *property in properties)
         [self storeObject:[obj valueForKey:property] forKey:NULDBPropertyKey(className, property, key)];
@@ -239,7 +253,7 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 
 - (id)unserializeObjectForClass:(NSString *)className key:(NSString *)key {
 
-    NSArray *properties = [self storedValueForKey:className];
+    NSArray *properties = [self storedValueForKey:NULDBClassToken(className)];
     
     if([properties count] < 1)
         return nil;
@@ -253,13 +267,13 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 }
 
 // Support for NULDBSerializable objects in the dictionary
-- (void)storeDictionary:(NSDictionary *)dict forKey:(NSString *)key {
+- (void)storeDictionary:(NSDictionary *)plist forKey:(NSString *)key {
     
-    NSMutableDictionary *lookup = [NSMutableDictionary dictionaryWithCapacity:[dict count]];
+    NSMutableDictionary *lookup = [NSMutableDictionary dictionaryWithCapacity:[plist count]];
     
-    for(id dictKey in [dict allKeys]) {
+    for(id dictKey in [plist allKeys]) {
         
-        id value = [dict objectForKey:dictKey];
+        id value = [plist objectForKey:dictKey];
         
         if([value conformsToProtocol:@protocol(NULDBSerializable)])
             value = [self _storeObject:value]; // store the object and replace it with it's lookup key
@@ -274,8 +288,15 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
     
     NSMutableDictionary *result = [NSMutableDictionary dictionaryWithCapacity:[storedDict count]];
     
-    for(NSString *key in [storedDict allKeys])
-        [result setObject:[self storedObjectForKey:key] forKey:key];
+    for(NSString *key in [storedDict allKeys]) {
+        
+        id value = [self storedObjectForKey:key];
+        
+        if(value)
+            [result setObject:value forKey:key];
+        else
+            [result setObject:[storedDict objectForKey:key] forKey:key];
+    }
 
     return result;
 }
@@ -288,7 +309,7 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 // Support for NULDBSerializable objects in the array
 - (void)storeArray:(NSArray *)array forKey:(NSString *)key {
     
-    NSString *propertyFragment = NULDBProppertyIdentifierFromKey(key);
+    NSString *propertyFragment = NULDBPropertyIdentifierFromKey(key);
     NSUInteger i=0;
     
     for(id object in array)
@@ -299,7 +320,7 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 
 - (NSArray *)unserializeArrayForKey:(NSString *)key {
     
-    NSString *propertyFragment = NULDBProppertyIdentifierFromKey(key);
+    NSString *propertyFragment = NULDBPropertyIdentifierFromKey(key);
     NSUInteger count = NULDBArrayCountFromKey([self storedObjectForKey:key]);
     NSMutableArray *array = [NSMutableArray arrayWithCapacity:count];
     
@@ -311,7 +332,7 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 
 - (void)deleteStoredArrayContentsForKey:(NSString *)key {
     
-    NSString *propertyFragment = NULDBProppertyIdentifierFromKey(key);
+    NSString *propertyFragment = NULDBPropertyIdentifierFromKey(key);
     NSUInteger count = NULDBArrayCountFromKey([self storedObjectForKey:key]);
     
     for(NSUInteger i=0; i<count; ++i)
@@ -329,24 +350,28 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
     id storedObj = [self storedValueForKey:key];
         
     // the key is a property key but we don't really care about that; we just need to reconstruct the dictionary
-    if([storedObj isKindOfClass:[NSDictionary class]])
-        return [self unserializeDictionary:storedObj];
+    if([storedObj isKindOfClass:[NSDictionary class]] && NULDBIsPropertyKey(key)) {
+        
+        Class propClass = NSClassFromString([storedObj objectForKey:@"class"]);
+        
+        if([propClass conformsToProtocol:@protocol(NULDBPlistTransformable)])
+            return [[propClass alloc] initWithPropertyList:[storedObj objectForKey:@"object"]];
+        else
+            return [self unserializeDictionary:storedObj];
+    }
     
     if([storedObj isKindOfClass:[NSString class]]) {
         
         if(NULDBIsClassToken(storedObj)) {
             
             NSString *className = NULDBClassFromToken(storedObj);
-            Class objcClass = NSClassFromString(storedObj);
+            Class objcClass = NSClassFromString(className);
             
             if(NULL == objcClass)
                 return nil;
             
-            if([objcClass conformsToProtocol:@protocol(NULDBPlistTransformable)])
-                return [[objcClass alloc] initWithPropertyList:[self storedValueForKey:key]];
-            
             if([objcClass conformsToProtocol:@protocol(NULDBSerializable)])
-                return [self unserializeObjectForClass:className key:storedObj];
+                return [self unserializeObjectForClass:className key:key];
             
             if([objcClass conformsToProtocol:@protocol(NSCoding)])
                 return storedObj;
