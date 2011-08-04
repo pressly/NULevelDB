@@ -14,6 +14,7 @@
 #import "NULDBTestPhone.h"
 #import "NULDBTestPerson.h"
 #import "NULDBTestAddress.h"
+#import "NULDBTestCompany.h"
 
 
 @interface NULDBWrapper : NSObject<NULDBSerializable>
@@ -140,7 +141,9 @@
 
 - (void)testGraphSerialization {
     
+    NULDBTestCompany *company = [NULDBTestCompany randomCompany];
     
+    [db storeObject:company];
 }
 
 @end
