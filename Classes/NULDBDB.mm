@@ -181,7 +181,7 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 
 #define NULDBPropertyKey(_class_name_, _prop_name_, _obj_key_ ) ([NSString stringWithFormat:@"%@:%@|%@:NUProperty", _prop_name_, _obj_key_, _class_name_])
 #define NULDBIsPropertyKey(_key_) ([_key_ hasSuffix:@"NUProperty"])
-#define NULDBPropertyIdentifierFromKey(_key_) ([_key_ substringToIndex:[_key_ rangeOfString:@"="].location])
+#define NULDBPropertyIdentifierFromKey(_key_) ([_key_ substringToIndex:[_key_ rangeOfString:@"|"].location])
 
 static inline NSString *NULDBClassFromPropertyKey(NSString *key) {
     
@@ -315,7 +315,7 @@ static inline NSString *NULDBClassFromPropertyKey(NSString *key) {
     for(id object in array)
         [self storeObject:object forKey:NULDBArrayIndexKey(propertyFragment, i)], i++;
 
-    [self storeValue:[NSString stringWithFormat:@"%@:NUArray", [array count]] forKey:key];
+    [self storeValue:[NSString stringWithFormat:@"%u:NUArray", [array count]] forKey:key];
 }
 
 - (NSArray *)unserializeArrayForKey:(NSString *)key {
