@@ -144,6 +144,10 @@
     NULDBTestCompany *company = [NULDBTestCompany randomCompany];
     
     [db storeObject:company];
+    
+    NULDBTestCompany *a = [db storedObjectForKey:[company storageKey]];
+    
+    NSLog(@"%@", a);
 }
 
 @end
