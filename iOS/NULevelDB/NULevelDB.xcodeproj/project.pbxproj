@@ -10,7 +10,6 @@
 		4E0871DF13E989B3006C04F1 /* NULDBTestPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E8D489F13E89F15003F5B1A /* NULDBTestPhone.m */; };
 		4E46AAC813E9F6590099A846 /* NULDBTestCompany.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E46AAC713E9F6590099A846 /* NULDBTestCompany.m */; };
 		4E46AACC13E9F8DB0099A846 /* NULDBTestUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E46AACA13E9F8DB0099A846 /* NULDBTestUtilities.h */; };
-		4E46AACD13E9F8DB0099A846 /* NULDBTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E46AACB13E9F8DB0099A846 /* NULDBTestUtilities.m */; };
 		4E683FEE13E2027800D9EBCF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E683FED13E2027800D9EBCF /* Foundation.framework */; };
 		4E68401E13E2029900D9EBCF /* builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4E683FF813E2029900D9EBCF /* builder.cc */; };
 		4E68401F13E2029900D9EBCF /* builder.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E683FF913E2029900D9EBCF /* builder.h */; };
@@ -759,7 +758,6 @@
 				4E6841EF13E34C7900D9EBCF /* logging.cc in Sources */,
 				4E6841F213E34C7900D9EBCF /* options.cc in Sources */,
 				4E6841F513E34C7900D9EBCF /* status.cc in Sources */,
-				4E46AACD13E9F8DB0099A846 /* NULDBTestUtilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
