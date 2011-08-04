@@ -1,0 +1,490 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4E3CDCF113EB01D900366CD8 /* NULevelDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E3CDCF013EB01D900366CD8 /* NULevelDB.framework */; };
+		4E68415913E344F800D9EBCF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68415813E344F800D9EBCF /* UIKit.framework */; };
+		4E68415B13E344F800D9EBCF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68415A13E344F800D9EBCF /* Foundation.framework */; };
+		4E68415D13E344F800D9EBCF /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68415C13E344F800D9EBCF /* CoreGraphics.framework */; };
+		4E68416313E344F800D9EBCF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4E68416113E344F800D9EBCF /* InfoPlist.strings */; };
+		4E68416513E344F800D9EBCF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E68416413E344F800D9EBCF /* main.m */; };
+		4E68416913E344F800D9EBCF /* NULevelDB_TestAppAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E68416813E344F800D9EBCF /* NULevelDB_TestAppAppDelegate.m */; };
+		4E68416B13E344F800D9EBCF /* NULevelDB_TestAppViewController.h in Resources */ = {isa = PBXBuildFile; fileRef = 4E68416A13E344F800D9EBCF /* NULevelDB_TestAppViewController.h */; };
+		4E68416D13E344F800D9EBCF /* NULevelDB_TestAppViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E68416C13E344F800D9EBCF /* NULevelDB_TestAppViewController.m */; };
+		4E68417013E344F800D9EBCF /* NULevelDB_TestAppViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E68416E13E344F800D9EBCF /* NULevelDB_TestAppViewController.xib */; };
+		4E68417813E344F900D9EBCF /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68417713E344F900D9EBCF /* SenTestingKit.framework */; };
+		4E68417913E344F900D9EBCF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68415813E344F800D9EBCF /* UIKit.framework */; };
+		4E68417A13E344F900D9EBCF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68415A13E344F800D9EBCF /* Foundation.framework */; };
+		4E68417B13E344F900D9EBCF /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68415C13E344F800D9EBCF /* CoreGraphics.framework */; };
+		4E68418313E344F900D9EBCF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4E68418113E344F900D9EBCF /* InfoPlist.strings */; };
+		4E68418513E344F900D9EBCF /* NULevelDB_TestAppTests.h in Resources */ = {isa = PBXBuildFile; fileRef = 4E68418413E344F900D9EBCF /* NULevelDB_TestAppTests.h */; };
+		4E68418713E344F900D9EBCF /* NULevelDB_TestAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E68418613E344F900D9EBCF /* NULevelDB_TestAppTests.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4E68417C13E344F900D9EBCF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4E68414B13E344F800D9EBCF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4E68415313E344F800D9EBCF;
+			remoteInfo = "NULevelDB-TestApp";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		4E3CDCF013EB01D900366CD8 /* NULevelDB.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NULevelDB.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E68415413E344F800D9EBCF /* NULevelDB-TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "NULevelDB-TestApp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E68415813E344F800D9EBCF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		4E68415A13E344F800D9EBCF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		4E68415C13E344F800D9EBCF /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		4E68416013E344F800D9EBCF /* NULevelDB-TestApp-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NULevelDB-TestApp-Info.plist"; sourceTree = "<group>"; };
+		4E68416213E344F800D9EBCF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		4E68416413E344F800D9EBCF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		4E68416613E344F800D9EBCF /* NULevelDB-TestApp-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NULevelDB-TestApp-Prefix.pch"; sourceTree = "<group>"; };
+		4E68416713E344F800D9EBCF /* NULevelDB_TestAppAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NULevelDB_TestAppAppDelegate.h; sourceTree = "<group>"; };
+		4E68416813E344F800D9EBCF /* NULevelDB_TestAppAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NULevelDB_TestAppAppDelegate.m; sourceTree = "<group>"; };
+		4E68416A13E344F800D9EBCF /* NULevelDB_TestAppViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NULevelDB_TestAppViewController.h; sourceTree = "<group>"; };
+		4E68416C13E344F800D9EBCF /* NULevelDB_TestAppViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NULevelDB_TestAppViewController.m; sourceTree = "<group>"; };
+		4E68416F13E344F800D9EBCF /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/NULevelDB_TestAppViewController.xib; sourceTree = "<group>"; };
+		4E68417613E344F900D9EBCF /* NULevelDB-TestAppTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "NULevelDB-TestAppTests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E68417713E344F900D9EBCF /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		4E68418013E344F900D9EBCF /* NULevelDB-TestAppTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NULevelDB-TestAppTests-Info.plist"; sourceTree = "<group>"; };
+		4E68418213E344F900D9EBCF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		4E68418413E344F900D9EBCF /* NULevelDB_TestAppTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NULevelDB_TestAppTests.h; sourceTree = "<group>"; };
+		4E68418613E344F900D9EBCF /* NULevelDB_TestAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NULevelDB_TestAppTests.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4E68415113E344F800D9EBCF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E68415913E344F800D9EBCF /* UIKit.framework in Frameworks */,
+				4E68415B13E344F800D9EBCF /* Foundation.framework in Frameworks */,
+				4E68415D13E344F800D9EBCF /* CoreGraphics.framework in Frameworks */,
+				4E3CDCF113EB01D900366CD8 /* NULevelDB.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4E68417213E344F900D9EBCF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E68417813E344F900D9EBCF /* SenTestingKit.framework in Frameworks */,
+				4E68417913E344F900D9EBCF /* UIKit.framework in Frameworks */,
+				4E68417A13E344F900D9EBCF /* Foundation.framework in Frameworks */,
+				4E68417B13E344F900D9EBCF /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4E68414913E344F800D9EBCF = {
+			isa = PBXGroup;
+			children = (
+				4E68415E13E344F800D9EBCF /* NULevelDB-TestApp */,
+				4E68417E13E344F900D9EBCF /* NULevelDB-TestAppTests */,
+				4E68415713E344F800D9EBCF /* Frameworks */,
+				4E68415513E344F800D9EBCF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4E68415513E344F800D9EBCF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4E68415413E344F800D9EBCF /* NULevelDB-TestApp.app */,
+				4E68417613E344F900D9EBCF /* NULevelDB-TestAppTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4E68415713E344F800D9EBCF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4E68415813E344F800D9EBCF /* UIKit.framework */,
+				4E68415A13E344F800D9EBCF /* Foundation.framework */,
+				4E68415C13E344F800D9EBCF /* CoreGraphics.framework */,
+				4E68417713E344F900D9EBCF /* SenTestingKit.framework */,
+				4E3CDCF013EB01D900366CD8 /* NULevelDB.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4E68415E13E344F800D9EBCF /* NULevelDB-TestApp */ = {
+			isa = PBXGroup;
+			children = (
+				4E68416713E344F800D9EBCF /* NULevelDB_TestAppAppDelegate.h */,
+				4E68416813E344F800D9EBCF /* NULevelDB_TestAppAppDelegate.m */,
+				4E68416A13E344F800D9EBCF /* NULevelDB_TestAppViewController.h */,
+				4E68416C13E344F800D9EBCF /* NULevelDB_TestAppViewController.m */,
+				4E68416E13E344F800D9EBCF /* NULevelDB_TestAppViewController.xib */,
+				4E68415F13E344F800D9EBCF /* Supporting Files */,
+			);
+			path = "NULevelDB-TestApp";
+			sourceTree = "<group>";
+		};
+		4E68415F13E344F800D9EBCF /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4E68416013E344F800D9EBCF /* NULevelDB-TestApp-Info.plist */,
+				4E68416113E344F800D9EBCF /* InfoPlist.strings */,
+				4E68416413E344F800D9EBCF /* main.m */,
+				4E68416613E344F800D9EBCF /* NULevelDB-TestApp-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		4E68417E13E344F900D9EBCF /* NULevelDB-TestAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				4E68418413E344F900D9EBCF /* NULevelDB_TestAppTests.h */,
+				4E68418613E344F900D9EBCF /* NULevelDB_TestAppTests.m */,
+				4E68417F13E344F900D9EBCF /* Supporting Files */,
+			);
+			path = "NULevelDB-TestAppTests";
+			sourceTree = "<group>";
+		};
+		4E68417F13E344F900D9EBCF /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4E68418013E344F900D9EBCF /* NULevelDB-TestAppTests-Info.plist */,
+				4E68418113E344F900D9EBCF /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4E68415313E344F800D9EBCF /* NULevelDB-TestApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E68418A13E344F900D9EBCF /* Build configuration list for PBXNativeTarget "NULevelDB-TestApp" */;
+			buildPhases = (
+				4E68415013E344F800D9EBCF /* Sources */,
+				4E68415113E344F800D9EBCF /* Frameworks */,
+				4E68415213E344F800D9EBCF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "NULevelDB-TestApp";
+			productName = "NULevelDB-TestApp";
+			productReference = 4E68415413E344F800D9EBCF /* NULevelDB-TestApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		4E68417513E344F900D9EBCF /* NULevelDB-TestAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E68418D13E344F900D9EBCF /* Build configuration list for PBXNativeTarget "NULevelDB-TestAppTests" */;
+			buildPhases = (
+				4E68417113E344F900D9EBCF /* Sources */,
+				4E68417213E344F900D9EBCF /* Frameworks */,
+				4E68417313E344F900D9EBCF /* Resources */,
+				4E68417413E344F900D9EBCF /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4E68417D13E344F900D9EBCF /* PBXTargetDependency */,
+			);
+			name = "NULevelDB-TestAppTests";
+			productName = "NULevelDB-TestAppTests";
+			productReference = 4E68417613E344F900D9EBCF /* NULevelDB-TestAppTests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4E68414B13E344F800D9EBCF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
+			buildConfigurationList = 4E68414E13E344F800D9EBCF /* Build configuration list for PBXProject "NULevelDB-TestApp" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 4E68414913E344F800D9EBCF;
+			productRefGroup = 4E68415513E344F800D9EBCF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4E68415313E344F800D9EBCF /* NULevelDB-TestApp */,
+				4E68417513E344F900D9EBCF /* NULevelDB-TestAppTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4E68415213E344F800D9EBCF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E68416313E344F800D9EBCF /* InfoPlist.strings in Resources */,
+				4E68416B13E344F800D9EBCF /* NULevelDB_TestAppViewController.h in Resources */,
+				4E68417013E344F800D9EBCF /* NULevelDB_TestAppViewController.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4E68417313E344F900D9EBCF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E68418313E344F900D9EBCF /* InfoPlist.strings in Resources */,
+				4E68418513E344F900D9EBCF /* NULevelDB_TestAppTests.h in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4E68417413E344F900D9EBCF /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4E68415013E344F800D9EBCF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E68416513E344F800D9EBCF /* main.m in Sources */,
+				4E68416913E344F800D9EBCF /* NULevelDB_TestAppAppDelegate.m in Sources */,
+				4E68416D13E344F800D9EBCF /* NULevelDB_TestAppViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4E68417113E344F900D9EBCF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E68418713E344F900D9EBCF /* NULevelDB_TestAppTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4E68417D13E344F900D9EBCF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4E68415313E344F800D9EBCF /* NULevelDB-TestApp */;
+			targetProxy = 4E68417C13E344F900D9EBCF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		4E68416113E344F800D9EBCF /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4E68416213E344F800D9EBCF /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		4E68416E13E344F800D9EBCF /* NULevelDB_TestAppViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4E68416F13E344F800D9EBCF /* en */,
+			);
+			name = NULevelDB_TestAppViewController.xib;
+			sourceTree = "<group>";
+		};
+		4E68418113E344F900D9EBCF /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4E68418213E344F900D9EBCF /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		4E68418813E344F900D9EBCF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		4E68418913E344F900D9EBCF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		4E68418B13E344F900D9EBCF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "NULevelDB-TestApp/NULevelDB-TestApp-Prefix.pch";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = "NULevelDB-TestApp/NULevelDB-TestApp-Info.plist";
+				OTHER_CFLAGS = "-v";
+				OTHER_LDFLAGS = (
+					"-lstdc++",
+					"-all_load",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../Classes/";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		4E68418C13E344F900D9EBCF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "NULevelDB-TestApp/NULevelDB-TestApp-Prefix.pch";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = "NULevelDB-TestApp/NULevelDB-TestApp-Info.plist";
+				OTHER_CFLAGS = "-v";
+				OTHER_LDFLAGS = (
+					"-lstdc++",
+					"-all_load",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../Classes/";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		4E68418E13E344F900D9EBCF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/NULevelDB-TestApp.app/NULevelDB-TestApp";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "NULevelDB-TestApp/NULevelDB-TestApp-Prefix.pch";
+				INFOPLIST_FILE = "NULevelDB-TestAppTests/NULevelDB-TestAppTests-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../../../../bgulanowski/Developer/Products/Debug-iphonesimulator\"",
+				);
+				OTHER_LDFLAGS = (
+					"-all_load",
+					"-lstdc++",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		4E68418F13E344F900D9EBCF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/NULevelDB-TestApp.app/NULevelDB-TestApp";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "NULevelDB-TestApp/NULevelDB-TestApp-Prefix.pch";
+				INFOPLIST_FILE = "NULevelDB-TestAppTests/NULevelDB-TestAppTests-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../../../../bgulanowski/Developer/Products/Debug-iphonesimulator\"",
+				);
+				OTHER_LDFLAGS = (
+					"-all_load",
+					"-lstdc++",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4E68414E13E344F800D9EBCF /* Build configuration list for PBXProject "NULevelDB-TestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E68418813E344F900D9EBCF /* Debug */,
+				4E68418913E344F900D9EBCF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4E68418A13E344F900D9EBCF /* Build configuration list for PBXNativeTarget "NULevelDB-TestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E68418B13E344F900D9EBCF /* Debug */,
+				4E68418C13E344F900D9EBCF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4E68418D13E344F900D9EBCF /* Build configuration list for PBXNativeTarget "NULevelDB-TestAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E68418E13E344F900D9EBCF /* Debug */,
+				4E68418F13E344F900D9EBCF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4E68414B13E344F800D9EBCF /* Project object */;
+}
