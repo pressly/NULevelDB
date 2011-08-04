@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4E3CDCF213EB020D00366CD8 /* libleveldb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82780113EAF4A600C64821 /* libleveldb.a */; };
 		4E82772913EAF44500C64821 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82772813EAF44500C64821 /* Foundation.framework */; };
 		4E82772F13EAF44500C64821 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4E82772D13EAF44500C64821 /* InfoPlist.strings */; };
 		4E82773813EAF44500C64821 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82773713EAF44500C64821 /* SenTestingKit.framework */; };
@@ -17,7 +18,6 @@
 		4E82774313EAF44500C64821 /* NULevelDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82772513EAF44500C64821 /* NULevelDB.framework */; };
 		4E82774913EAF44500C64821 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4E82774713EAF44500C64821 /* InfoPlist.strings */; };
 		4E82780E13EAF53E00C64821 /* builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4E82777E13EAF49500C64821 /* builder.cc */; };
-		4E82780F13EAF53E00C64821 /* db_bench.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4E82778113EAF49500C64821 /* db_bench.cc */; };
 		4E82781013EAF53E00C64821 /* db_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4E82778213EAF49500C64821 /* db_impl.cc */; };
 		4E82781113EAF53E00C64821 /* dbformat.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4E82778713EAF49500C64821 /* dbformat.cc */; };
 		4E82781213EAF53E00C64821 /* filename.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4E82778A13EAF49500C64821 /* filename.cc */; };
@@ -72,7 +72,6 @@
 		4E82788213EAFE1400C64821 /* NULDBTestPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E82787A13EAFE1400C64821 /* NULDBTestPhone.m */; };
 		4E82788313EAFE1400C64821 /* NULDBTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E82787C13EAFE1400C64821 /* NULDBTestUtilities.m */; };
 		4E82788413EAFE1400C64821 /* NULevelDB_Test.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E82787E13EAFE1400C64821 /* NULevelDB_Test.m */; };
-		4E82788513EAFEE400C64821 /* libleveldb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82780113EAF4A600C64821 /* libleveldb.a */; };
 		4E82788613EAFF8900C64821 /* db_iter.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4E82778413EAF49500C64821 /* db_iter.cc */; };
 /* End PBXBuildFile section */
 
@@ -258,6 +257,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4E82772913EAF44500C64821 /* Foundation.framework in Frameworks */,
+				4E3CDCF213EB020D00366CD8 /* libleveldb.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -265,7 +265,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4E82788513EAFEE400C64821 /* libleveldb.a in Frameworks */,
 				4E82773813EAF44500C64821 /* SenTestingKit.framework in Frameworks */,
 				4E82773A13EAF44500C64821 /* UIKit.framework in Frameworks */,
 				4E82773B13EAF44500C64821 /* Foundation.framework in Frameworks */,
@@ -789,7 +788,6 @@
 				4E82782613EAF58B00C64821 /* status.cc in Sources */,
 				4E82782F13EAF5AB00C64821 /* port_posix.cc in Sources */,
 				4E82780E13EAF53E00C64821 /* builder.cc in Sources */,
-				4E82780F13EAF53E00C64821 /* db_bench.cc in Sources */,
 				4E82788613EAFF8900C64821 /* db_iter.cc in Sources */,
 				4E82781013EAF53E00C64821 /* db_impl.cc in Sources */,
 				4E82781113EAF53E00C64821 /* dbformat.cc in Sources */,
