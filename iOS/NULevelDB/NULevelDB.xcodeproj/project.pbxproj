@@ -670,6 +670,7 @@
 		4E683FE113E2027800D9EBCF /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastUpgradeCheck = 0420;
 				ORGANIZATIONNAME = "Nulayer Inc.";
 			};
 			buildConfigurationList = 4E683FE413E2027800D9EBCF /* Build configuration list for PBXProject "NULevelDB" */;

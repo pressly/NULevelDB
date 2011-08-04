@@ -252,6 +252,9 @@
 /* Begin PBXProject section */
 		4E68414B13E344F800D9EBCF /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
 			buildConfigurationList = 4E68414E13E344F800D9EBCF /* Build configuration list for PBXProject "NULevelDB-TestApp" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
