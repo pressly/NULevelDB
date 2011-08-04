@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		4E3CDCF113EB01D900366CD8 /* NULevelDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E3CDCF013EB01D900366CD8 /* NULevelDB.framework */; };
+		4E3CDD4F13EB42AD00366CD8 /* NULDBTestAddress.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E3CDD4413EB42AD00366CD8 /* NULDBTestAddress.m */; };
+		4E3CDD5013EB42AD00366CD8 /* NULDBTestCompany.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E3CDD4613EB42AD00366CD8 /* NULDBTestCompany.m */; };
+		4E3CDD5113EB42AD00366CD8 /* NULDBTestPerson.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E3CDD4813EB42AD00366CD8 /* NULDBTestPerson.m */; };
+		4E3CDD5213EB42AD00366CD8 /* NULDBTestPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E3CDD4A13EB42AD00366CD8 /* NULDBTestPhone.m */; };
+		4E3CDD5313EB42AD00366CD8 /* NULDBTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E3CDD4C13EB42AD00366CD8 /* NULDBTestUtilities.m */; };
 		4E68415913E344F800D9EBCF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68415813E344F800D9EBCF /* UIKit.framework */; };
 		4E68415B13E344F800D9EBCF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68415A13E344F800D9EBCF /* Foundation.framework */; };
 		4E68415D13E344F800D9EBCF /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68415C13E344F800D9EBCF /* CoreGraphics.framework */; };
@@ -53,6 +58,21 @@
 /* Begin PBXFileReference section */
 		4E3CDCF013EB01D900366CD8 /* NULevelDB.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NULevelDB.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E3CDD1313EB066C00366CD8 /* NULevelDB.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NULevelDB.xcodeproj; path = ../../NULevelDB.xcodeproj; sourceTree = "<group>"; };
+		4E3CDD3813EB428600366CD8 /* NULDBTestAddress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NULDBTestAddress.m; path = ../NULDBTestAddress.m; sourceTree = "<group>"; };
+		4E3CDD3913EB428600366CD8 /* NULDBTestCompany.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NULDBTestCompany.m; path = ../NULDBTestCompany.m; sourceTree = "<group>"; };
+		4E3CDD3A13EB428600366CD8 /* NULDBTestPerson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NULDBTestPerson.m; path = ../NULDBTestPerson.m; sourceTree = "<group>"; };
+		4E3CDD3B13EB428600366CD8 /* NULDBTestPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NULDBTestPhone.m; path = ../NULDBTestPhone.m; sourceTree = "<group>"; };
+		4E3CDD3C13EB428600366CD8 /* NULDBTestUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NULDBTestUtilities.m; path = ../NULDBTestUtilities.m; sourceTree = "<group>"; };
+		4E3CDD4313EB42AD00366CD8 /* NULDBTestAddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBTestAddress.h; sourceTree = "<group>"; };
+		4E3CDD4413EB42AD00366CD8 /* NULDBTestAddress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NULDBTestAddress.m; sourceTree = "<group>"; };
+		4E3CDD4513EB42AD00366CD8 /* NULDBTestCompany.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBTestCompany.h; sourceTree = "<group>"; };
+		4E3CDD4613EB42AD00366CD8 /* NULDBTestCompany.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NULDBTestCompany.m; sourceTree = "<group>"; };
+		4E3CDD4713EB42AD00366CD8 /* NULDBTestPerson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBTestPerson.h; sourceTree = "<group>"; };
+		4E3CDD4813EB42AD00366CD8 /* NULDBTestPerson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NULDBTestPerson.m; sourceTree = "<group>"; };
+		4E3CDD4913EB42AD00366CD8 /* NULDBTestPhone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBTestPhone.h; sourceTree = "<group>"; };
+		4E3CDD4A13EB42AD00366CD8 /* NULDBTestPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NULDBTestPhone.m; sourceTree = "<group>"; };
+		4E3CDD4B13EB42AD00366CD8 /* NULDBTestUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBTestUtilities.h; sourceTree = "<group>"; };
+		4E3CDD4C13EB42AD00366CD8 /* NULDBTestUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NULDBTestUtilities.m; sourceTree = "<group>"; };
 		4E68415413E344F800D9EBCF /* NULevelDB-TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "NULevelDB-TestApp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E68415813E344F800D9EBCF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		4E68415A13E344F800D9EBCF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -94,9 +114,32 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		4E3CDD4213EB42AD00366CD8 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				4E3CDD4313EB42AD00366CD8 /* NULDBTestAddress.h */,
+				4E3CDD4413EB42AD00366CD8 /* NULDBTestAddress.m */,
+				4E3CDD4513EB42AD00366CD8 /* NULDBTestCompany.h */,
+				4E3CDD4613EB42AD00366CD8 /* NULDBTestCompany.m */,
+				4E3CDD4713EB42AD00366CD8 /* NULDBTestPerson.h */,
+				4E3CDD4813EB42AD00366CD8 /* NULDBTestPerson.m */,
+				4E3CDD4913EB42AD00366CD8 /* NULDBTestPhone.h */,
+				4E3CDD4A13EB42AD00366CD8 /* NULDBTestPhone.m */,
+				4E3CDD4B13EB42AD00366CD8 /* NULDBTestUtilities.h */,
+				4E3CDD4C13EB42AD00366CD8 /* NULDBTestUtilities.m */,
+			);
+			name = Tests;
+			path = ../..;
+			sourceTree = "<group>";
+		};
 		4E68414913E344F800D9EBCF = {
 			isa = PBXGroup;
 			children = (
+				4E3CDD3813EB428600366CD8 /* NULDBTestAddress.m */,
+				4E3CDD3913EB428600366CD8 /* NULDBTestCompany.m */,
+				4E3CDD3A13EB428600366CD8 /* NULDBTestPerson.m */,
+				4E3CDD3B13EB428600366CD8 /* NULDBTestPhone.m */,
+				4E3CDD3C13EB428600366CD8 /* NULDBTestUtilities.m */,
 				4E68415E13E344F800D9EBCF /* NULevelDB-TestApp */,
 				4E68415713E344F800D9EBCF /* Frameworks */,
 				4E68415513E344F800D9EBCF /* Products */,
@@ -127,6 +170,7 @@
 		4E68415E13E344F800D9EBCF /* NULevelDB-TestApp */ = {
 			isa = PBXGroup;
 			children = (
+				4E3CDD4213EB42AD00366CD8 /* Tests */,
 				4E68416713E344F800D9EBCF /* NULevelDB_TestAppAppDelegate.h */,
 				4E68416813E344F800D9EBCF /* NULevelDB_TestAppAppDelegate.m */,
 				4E68416A13E344F800D9EBCF /* NULevelDB_TestAppViewController.h */,
@@ -245,6 +289,11 @@
 				4E68416513E344F800D9EBCF /* main.m in Sources */,
 				4E68416913E344F800D9EBCF /* NULevelDB_TestAppAppDelegate.m in Sources */,
 				4E68416D13E344F800D9EBCF /* NULevelDB_TestAppViewController.m in Sources */,
+				4E3CDD4F13EB42AD00366CD8 /* NULDBTestAddress.m in Sources */,
+				4E3CDD5013EB42AD00366CD8 /* NULDBTestCompany.m in Sources */,
+				4E3CDD5113EB42AD00366CD8 /* NULDBTestPerson.m in Sources */,
+				4E3CDD5213EB42AD00366CD8 /* NULDBTestPhone.m in Sources */,
+				4E3CDD5313EB42AD00366CD8 /* NULDBTestUtilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -300,6 +349,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
 		};
@@ -319,6 +369,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = "";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -338,7 +389,7 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../Classes/";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../ $(PROJECT_DIR)/../../Classes/";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -358,7 +409,7 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../Classes/";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../ $(PROJECT_DIR)/../../Classes/";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

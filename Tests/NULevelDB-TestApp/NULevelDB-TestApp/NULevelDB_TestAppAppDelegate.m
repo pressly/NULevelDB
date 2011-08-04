@@ -12,6 +12,8 @@
 #import "NULDBDB.h"
 #import "NULDBDB+Testing.h"
 
+#import "NULDBTestCompany.h"
+
 
 @interface NULDBDB (Tests)
 - (void)runTests;
@@ -145,13 +147,52 @@
     NSLog(@"%@", sample);
 }
 
+- (void)runGraphTests {
+    
+    NSMutableDictionary *companies = [NSMutableDictionary dictionary];
+    
+    for(int i=0; i<5; ++i) {
+        
+        NULDBTestCompany *company = [NULDBTestCompany companyOf100];
+        
+        [companies setObject:company forKey:company.name];
+    }
+    
+    NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
+    
+    NSLog(@"Starting graph serialization test");
+    
+    for(id key in [companies allKeys])
+        [self storeObject:[companies objectForKey:key]];
+
+    NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
+
+    NSLog(@"Finished storing. Took %0.4f seconds. Starting loading.", end - start);
+    
+    start = end;
+    
+    for(id key in [companies allKeys])
+        [self storedObjectForKey:key];
+    
+    end = [NSDate timeIntervalSinceReferenceDate];
+    NSLog(@"Finished loading. Took %0.4f seconds. Starting deleting.", end - start);
+    
+    for(id key in [companies allKeys])
+        [self deleteStoredObjectForKey:key];
+    
+    end = [NSDate timeIntervalSinceReferenceDate];
+    NSLog(@"Finished deleting. Took %0.4f seconds. Done testing", end - start);
+}
+
 - (void)runTests {
     
 //    [self run4By8Tests];
     
 //    [self run4By10Tests];
     
-    [self run4By14Tests];
+//    [self run4By14Tests];
+    
+    [self runGraphTests];
     
     
     NSLog(@"Testing finished");

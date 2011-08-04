@@ -141,7 +141,7 @@
 
 - (void)testGraphSerialization {
     
-    NULDBTestCompany *company = [NULDBTestCompany randomCompany];
+    NULDBTestCompany *company = [NULDBTestCompany randomSizedCompany];
     
     [db storeObject:company];
     
