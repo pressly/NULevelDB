@@ -46,4 +46,18 @@ static NSArray *properties;
     self.uniqueID = storageKey;
 }
 
+
+#pragma mark New
++ (NULDBTestPerson *)randomPerson {
+   
+    NULDBTestPerson *result = [[NULDBTestPerson alloc] init];
+    
+    result.firstName = NULDBRandomName();
+    result.lastName = NULDBRandomName();
+    result.address = [NULDBTestAddress randomAddress];
+    result.phone = [NULDBTestPhone randomPhone];
+    
+    return result;
+}
+
 @end

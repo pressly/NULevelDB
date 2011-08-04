@@ -74,7 +74,7 @@
 
 
 #pragma mark New
-- (NULDBTestPhone *)randomPhone {
++ (NULDBTestPhone *)randomPhone {
     return [[NULDBTestPhone alloc] initWithAreaCode:Random_int_in_range(0, 999) exchange:Random_int_in_range(0, 999) line:Random_int_in_range(0, 9999)];
 }
 

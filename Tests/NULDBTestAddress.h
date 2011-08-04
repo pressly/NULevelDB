@@ -20,4 +20,6 @@
 @property (retain) NSString *state;
 @property (retain) NSString *postalCode;
 
++ (NULDBTestAddress *)randomAddress;
+
 @end

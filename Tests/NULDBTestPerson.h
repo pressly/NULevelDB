@@ -22,4 +22,6 @@
 @property (retain) NULDBTestAddress *address;
 @property (retain) NULDBTestPhone *phone;
 
++ (NULDBTestPerson *)randomPerson;
+
 @end

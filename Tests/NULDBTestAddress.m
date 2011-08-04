@@ -15,7 +15,15 @@
 
 @synthesize uniqueID, street, city, state, postalCode;
 
+static NSArray *roads = nil;
+
 #pragma mark NSObject
++ (void)initialize {
+    if([self class] == [NULDBTestAddress class]) {
+        roads = [[NSArray alloc] initWithObjects:@"St.", @"Rd.", @"Ave", @"Cres.", @"Blvd.", @"Ct.", @"Ln.", nil];
+    }
+}
+
 - (id)init {
     self = [super init];
     if(self)
@@ -63,6 +71,37 @@
     if(postalCode)[dict setObject:postalCode forKey:@"postalCode"];
     
     return dict;
+}
+
+
+#pragma mark New
+static inline NSString *randomPostalCode () {
+
+    char buffer[8];
+    
+    buffer[0] = Random_alpha_char()-0x20;
+    buffer[1] = Random_digit_char();
+    buffer[2] = Random_alpha_char()-0x20;
+    buffer[3] = ' ';
+    buffer[4] = Random_digit_char();
+    buffer[5] = Random_alpha_char()-0x20;
+    buffer[6] = Random_digit_char();
+    buffer[7] = '\0';
+    
+    return [NSString stringWithCString:buffer encoding:NSASCIIStringEncoding];
+}
+
++ (NULDBTestAddress *)randomAddress {
+    
+    NULDBTestAddress *result = [[NULDBTestAddress alloc] init];
+    
+    result.street = [NSString stringWithFormat:@"%d %@ %@",
+                     Random_int_in_range(1, 9999), NULDBRandomName(), [roads objectAtIndex:Random_int_in_range(0, [roads count]-1)]];
+    result.city = NULDBRandomName();
+    result.state = NULDBRandomName();
+    result.postalCode = randomPostalCode();
+    
+    return result;
 }
 
 @end

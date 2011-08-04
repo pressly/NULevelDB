@@ -17,4 +17,6 @@
 @property NSInteger exchange; // must be < 1000
 @property NSInteger line; // must be < 10000
 
++ (NULDBTestPhone *)randomPhone;
+
 @end
