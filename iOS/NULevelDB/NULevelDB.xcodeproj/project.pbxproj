@@ -458,21 +458,11 @@
 		4E68412F13E33FCD00D9EBCF /* NULevelDB-Test */ = {
 			isa = PBXGroup;
 			children = (
-				4E68413513E33FCE00D9EBCF /* NULevelDB_Test.h */,
-				4E68413713E33FCE00D9EBCF /* NULevelDB_Test.m */,
-				4E46AAC613E9F6590099A846 /* NULDBTestCompany.h */,
-				4E46AAC713E9F6590099A846 /* NULDBTestCompany.m */,
-				4E8D489813E89EE9003F5B1A /* NULDBTestPerson.h */,
-				4E8D489913E89EE9003F5B1A /* NULDBTestPerson.m */,
-				4E8D489B13E89F00003F5B1A /* NULDBTestAddress.h */,
-				4E8D489C13E89F00003F5B1A /* NULDBTestAddress.m */,
-				4E8D489E13E89F15003F5B1A /* NULDBTestPhone.h */,
-				4E8D489F13E89F15003F5B1A /* NULDBTestPhone.m */,
+				4E82787113EAFCF300C64821 /* Tests */,
 				4E68413013E33FCE00D9EBCF /* Supporting Files */,
-				4E46AACA13E9F8DB0099A846 /* NULDBTestUtilities.h */,
-				4E46AACB13E9F8DB0099A846 /* NULDBTestUtilities.m */,
 			);
-			path = "NULevelDB-Test";
+			name = "NULevelDB-Test";
+			path = ../../NULevelDBTests;
 			sourceTree = "<group>";
 		};
 		4E68413013E33FCE00D9EBCF /* Supporting Files */ = {
@@ -483,6 +473,7 @@
 				4E68413913E33FCE00D9EBCF /* NULevelDB-Test-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			path = "../iOS/NULevelDB/NULevelDB-Test";
 			sourceTree = "<group>";
 		};
 		4E68419E13E34C7900D9EBCF /* table */ = {
@@ -543,6 +534,26 @@
 			);
 			path = util;
 			sourceTree = "<group>";
+		};
+		4E82787113EAFCF300C64821 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				4E68413513E33FCE00D9EBCF /* NULevelDB_Test.h */,
+				4E68413713E33FCE00D9EBCF /* NULevelDB_Test.m */,
+				4E46AAC613E9F6590099A846 /* NULDBTestCompany.h */,
+				4E46AAC713E9F6590099A846 /* NULDBTestCompany.m */,
+				4E8D489813E89EE9003F5B1A /* NULDBTestPerson.h */,
+				4E8D489913E89EE9003F5B1A /* NULDBTestPerson.m */,
+				4E8D489B13E89F00003F5B1A /* NULDBTestAddress.h */,
+				4E8D489C13E89F00003F5B1A /* NULDBTestAddress.m */,
+				4E8D489E13E89F15003F5B1A /* NULDBTestPhone.h */,
+				4E8D489F13E89F15003F5B1A /* NULDBTestPhone.m */,
+				4E46AACA13E9F8DB0099A846 /* NULDBTestUtilities.h */,
+				4E46AACB13E9F8DB0099A846 /* NULDBTestUtilities.m */,
+			);
+			name = Tests;
+			path = ../../Tests;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
