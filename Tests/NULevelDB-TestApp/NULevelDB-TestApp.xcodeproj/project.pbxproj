@@ -17,13 +17,6 @@
 		4E68416B13E344F800D9EBCF /* NULevelDB_TestAppViewController.h in Resources */ = {isa = PBXBuildFile; fileRef = 4E68416A13E344F800D9EBCF /* NULevelDB_TestAppViewController.h */; };
 		4E68416D13E344F800D9EBCF /* NULevelDB_TestAppViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E68416C13E344F800D9EBCF /* NULevelDB_TestAppViewController.m */; };
 		4E68417013E344F800D9EBCF /* NULevelDB_TestAppViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E68416E13E344F800D9EBCF /* NULevelDB_TestAppViewController.xib */; };
-		4E68417813E344F900D9EBCF /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68417713E344F900D9EBCF /* SenTestingKit.framework */; };
-		4E68417913E344F900D9EBCF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68415813E344F800D9EBCF /* UIKit.framework */; };
-		4E68417A13E344F900D9EBCF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68415A13E344F800D9EBCF /* Foundation.framework */; };
-		4E68417B13E344F900D9EBCF /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E68415C13E344F800D9EBCF /* CoreGraphics.framework */; };
-		4E68418313E344F900D9EBCF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4E68418113E344F900D9EBCF /* InfoPlist.strings */; };
-		4E68418513E344F900D9EBCF /* NULevelDB_TestAppTests.h in Resources */ = {isa = PBXBuildFile; fileRef = 4E68418413E344F900D9EBCF /* NULevelDB_TestAppTests.h */; };
-		4E68418713E344F900D9EBCF /* NULevelDB_TestAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E68418613E344F900D9EBCF /* NULevelDB_TestAppTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,13 +48,6 @@
 			remoteGlobalIDString = 4E82772413EAF44500C64821;
 			remoteInfo = NULevelDB;
 		};
-		4E68417C13E344F900D9EBCF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4E68414B13E344F800D9EBCF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4E68415313E344F800D9EBCF;
-			remoteInfo = "NULevelDB-TestApp";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -80,12 +66,7 @@
 		4E68416A13E344F800D9EBCF /* NULevelDB_TestAppViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NULevelDB_TestAppViewController.h; sourceTree = "<group>"; };
 		4E68416C13E344F800D9EBCF /* NULevelDB_TestAppViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NULevelDB_TestAppViewController.m; sourceTree = "<group>"; };
 		4E68416F13E344F800D9EBCF /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/NULevelDB_TestAppViewController.xib; sourceTree = "<group>"; };
-		4E68417613E344F900D9EBCF /* NULevelDB-TestAppTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "NULevelDB-TestAppTests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E68417713E344F900D9EBCF /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		4E68418013E344F900D9EBCF /* NULevelDB-TestAppTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NULevelDB-TestAppTests-Info.plist"; sourceTree = "<group>"; };
-		4E68418213E344F900D9EBCF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		4E68418413E344F900D9EBCF /* NULevelDB_TestAppTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NULevelDB_TestAppTests.h; sourceTree = "<group>"; };
-		4E68418613E344F900D9EBCF /* NULevelDB_TestAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NULevelDB_TestAppTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,17 +78,6 @@
 				4E68415B13E344F800D9EBCF /* Foundation.framework in Frameworks */,
 				4E68415D13E344F800D9EBCF /* CoreGraphics.framework in Frameworks */,
 				4E3CDCF113EB01D900366CD8 /* NULevelDB.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4E68417213E344F900D9EBCF /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4E68417813E344F900D9EBCF /* SenTestingKit.framework in Frameworks */,
-				4E68417913E344F900D9EBCF /* UIKit.framework in Frameworks */,
-				4E68417A13E344F900D9EBCF /* Foundation.framework in Frameworks */,
-				4E68417B13E344F900D9EBCF /* CoreGraphics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,7 +98,6 @@
 			isa = PBXGroup;
 			children = (
 				4E68415E13E344F800D9EBCF /* NULevelDB-TestApp */,
-				4E68417E13E344F900D9EBCF /* NULevelDB-TestAppTests */,
 				4E68415713E344F800D9EBCF /* Frameworks */,
 				4E68415513E344F800D9EBCF /* Products */,
 				4E3CDD1313EB066C00366CD8 /* NULevelDB.xcodeproj */,
@@ -139,7 +108,6 @@
 			isa = PBXGroup;
 			children = (
 				4E68415413E344F800D9EBCF /* NULevelDB-TestApp.app */,
-				4E68417613E344F900D9EBCF /* NULevelDB-TestAppTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -180,25 +148,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		4E68417E13E344F900D9EBCF /* NULevelDB-TestAppTests */ = {
-			isa = PBXGroup;
-			children = (
-				4E68418413E344F900D9EBCF /* NULevelDB_TestAppTests.h */,
-				4E68418613E344F900D9EBCF /* NULevelDB_TestAppTests.m */,
-				4E68417F13E344F900D9EBCF /* Supporting Files */,
-			);
-			path = "NULevelDB-TestAppTests";
-			sourceTree = "<group>";
-		};
-		4E68417F13E344F900D9EBCF /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				4E68418013E344F900D9EBCF /* NULevelDB-TestAppTests-Info.plist */,
-				4E68418113E344F900D9EBCF /* InfoPlist.strings */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -219,25 +168,6 @@
 			productName = "NULevelDB-TestApp";
 			productReference = 4E68415413E344F800D9EBCF /* NULevelDB-TestApp.app */;
 			productType = "com.apple.product-type.application";
-		};
-		4E68417513E344F900D9EBCF /* NULevelDB-TestAppTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4E68418D13E344F900D9EBCF /* Build configuration list for PBXNativeTarget "NULevelDB-TestAppTests" */;
-			buildPhases = (
-				4E68417113E344F900D9EBCF /* Sources */,
-				4E68417213E344F900D9EBCF /* Frameworks */,
-				4E68417313E344F900D9EBCF /* Resources */,
-				4E68417413E344F900D9EBCF /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				4E68417D13E344F900D9EBCF /* PBXTargetDependency */,
-			);
-			name = "NULevelDB-TestAppTests";
-			productName = "NULevelDB-TestAppTests";
-			productReference = 4E68417613E344F900D9EBCF /* NULevelDB-TestAppTests.octest */;
-			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
 
@@ -266,7 +196,6 @@
 			projectRoot = "";
 			targets = (
 				4E68415313E344F800D9EBCF /* NULevelDB-TestApp */,
-				4E68417513E344F900D9EBCF /* NULevelDB-TestAppTests */,
 			);
 		};
 /* End PBXProject section */
@@ -306,32 +235,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4E68417313E344F900D9EBCF /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4E68418313E344F900D9EBCF /* InfoPlist.strings in Resources */,
-				4E68418513E344F900D9EBCF /* NULevelDB_TestAppTests.h in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		4E68417413E344F900D9EBCF /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4E68415013E344F800D9EBCF /* Sources */ = {
@@ -344,14 +248,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4E68417113E344F900D9EBCF /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4E68418713E344F900D9EBCF /* NULevelDB_TestAppTests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -359,11 +255,6 @@
 			isa = PBXTargetDependency;
 			name = NULevelDB;
 			targetProxy = 4E3CDD2013EB067400366CD8 /* PBXContainerItemProxy */;
-		};
-		4E68417D13E344F900D9EBCF /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4E68415313E344F800D9EBCF /* NULevelDB-TestApp */;
-			targetProxy = 4E68417C13E344F900D9EBCF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -382,14 +273,6 @@
 				4E68416F13E344F800D9EBCF /* en */,
 			);
 			name = NULevelDB_TestAppViewController.xib;
-			sourceTree = "<group>";
-		};
-		4E68418113E344F900D9EBCF /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				4E68418213E344F900D9EBCF /* en */,
-			);
-			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -480,56 +363,6 @@
 			};
 			name = Release;
 		};
-		4E68418E13E344F900D9EBCF /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/NULevelDB-TestApp.app/NULevelDB-TestApp";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "NULevelDB-TestApp/NULevelDB-TestApp-Prefix.pch";
-				INFOPLIST_FILE = "NULevelDB-TestAppTests/NULevelDB-TestAppTests-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../../../../../../bgulanowski/Developer/Products/Debug-iphonesimulator\"",
-				);
-				OTHER_LDFLAGS = (
-					"-all_load",
-					"-lstdc++",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Debug;
-		};
-		4E68418F13E344F900D9EBCF /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/NULevelDB-TestApp.app/NULevelDB-TestApp";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "NULevelDB-TestApp/NULevelDB-TestApp-Prefix.pch";
-				INFOPLIST_FILE = "NULevelDB-TestAppTests/NULevelDB-TestAppTests-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../../../../../../bgulanowski/Developer/Products/Debug-iphonesimulator\"",
-				);
-				OTHER_LDFLAGS = (
-					"-all_load",
-					"-lstdc++",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -547,15 +380,6 @@
 			buildConfigurations = (
 				4E68418B13E344F900D9EBCF /* Debug */,
 				4E68418C13E344F900D9EBCF /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		4E68418D13E344F900D9EBCF /* Build configuration list for PBXNativeTarget "NULevelDB-TestAppTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4E68418E13E344F900D9EBCF /* Debug */,
-				4E68418F13E344F900D9EBCF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
