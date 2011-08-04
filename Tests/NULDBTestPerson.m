@@ -27,7 +27,7 @@ static NSArray *properties;
 - (id)init {
     self = [super init];
     if(self) {
-        self.uniqueID = NSMakeCollectable(CFUUIDCreateString(NULL, CFUUIDCreate(NULL)));
+        self.uniqueID = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, CFUUIDCreate(NULL));
     }
     return self;
 }
