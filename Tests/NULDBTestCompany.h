@@ -22,6 +22,9 @@
 @property (retain) NULDBTestAddress *mainAddress;
 @property (retain) NSDictionary *secondaryAddresses; // addresses keyed by purpose
 
-+ (NULDBTestCompany *)randomCompany;
++ (NULDBTestCompany *)companyWithWorkers:(NSUInteger)wcount managers:(NSUInteger)mcount addresses:(NSUInteger)account;
++ (NULDBTestCompany *)randomSizedCompany;
++ (NULDBTestCompany *)companyOf100;
++ (NULDBTestCompany *)companyOf1000;
 
 @end

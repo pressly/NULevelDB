@@ -49,8 +49,48 @@ static NSArray *titles;
 
 
 #pragma mark New
-+ (NULDBTestCompany *)randomCompany {
++ (NULDBTestCompany *)companyWithWorkers:(NSUInteger)wcount managers:(NSUInteger)mcount addresses:(NSUInteger)account {
     
+    NULDBTestCompany *result = [[NULDBTestCompany alloc] initWithName:NULDBRandomName()];
+    NSMutableArray *array = [NSMutableArray arrayWithCapacity:wcount];
+    
+    for (int i = 0; i < wcount; ++i)
+        [array addObject:[NULDBTestPerson randomPerson]];
+    
+    result.supervisor = [NULDBTestPerson randomPerson];
+    result.workers = array;
+    
+    NSMutableDictionary *management = [NSMutableDictionary dictionaryWithCapacity:mcount];
+    NSMutableSet *selectedTitles = [NSMutableSet setWithCapacity:mcount];
+    
+    if(mcount >= [titles count]) {
+        [selectedTitles addObjectsFromArray:titles];
+        for (int i=[titles count]; i<mcount; ++i)
+            [selectedTitles addObject:[NSString stringWithFormat:@"Boss %d", i]];
+    }
+    else {
+        while([selectedTitles count] < mcount)
+            [selectedTitles addObject:[titles objectAtIndex:Random_int_in_range(0, [titles count])]];
+    }
+    
+    for(NSString *title in selectedTitles)
+        [management setObject:[NULDBTestPerson randomPerson] forKey:title];
+    
+    result.management = management;
+    result.mainAddress = [NULDBTestAddress randomAddress];
+    result.secondaryAddresses = [NSArray arrayWithObjects:[NULDBTestAddress randomAddress],
+                                 random()&1 ? [NULDBTestAddress randomAddress] : nil, nil];
+    
+    return result;
+}
+
++ (NULDBTestCompany *)randomSizedCompany {
+#if 1
+    return [self companyWithWorkers:Random_int_in_range(2, 50)
+                           managers:Random_int_in_range(0, [titles count]/2+1)
+                          addresses:(random()&1 + 1)];
+
+#else
     NULDBTestCompany *result = [[NULDBTestCompany alloc] initWithName:NULDBRandomName()];
     NSMutableArray *array = [NSMutableArray arrayWithCapacity:20];
     int count = Random_int_in_range(2, 20);
@@ -74,6 +114,15 @@ static NSArray *titles;
                                  random()&1 ? [NULDBTestAddress randomAddress] : nil, nil];
     
     return result;
+#endif
+}
+
++ (NULDBTestCompany *)companyOf100 {
+    return [self companyWithWorkers:100 managers:10 addresses:5];
+}
+
++ (NULDBTestCompany *)companyOf1000 {
+    return [self companyWithWorkers:1000 managers:25 addresses:10];
 }
 
 @end
