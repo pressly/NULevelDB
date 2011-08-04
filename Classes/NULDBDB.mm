@@ -190,8 +190,15 @@ static inline NSString *NULDBClassFromPropertyKey(NSString *key) {
     return [classFragment substringToIndex:[key rangeOfString:@":"].location];
 }
 
-#define NULDBArrayToken(_key_, _count_) ([NSString stringWithFormat:@"%u:NUArray", _count_, _key_])
+#define NULDBArrayToken(_class_name_, _count_) ([NSString stringWithFormat:@"%u:%@|NUArray", _count_, _class_name_])
 #define NULDBIsArrayToken(_key_) ([_key_ hasSuffix:@"NUArray"])
+
+static inline NSString *NULDBClassFromArrayToken(NSString *token) {
+
+    NSString *fragment = [token substringToIndex:[token rangeOfString:@"|"].location];
+    
+    return [fragment substringFromIndex:[fragment rangeOfString:@":"].location+1];
+}
 
 #define NULDBArrayIndexKey(_key_, _index_) ([NSString stringWithFormat:@"%u:%@:NUIndex", _index_, _key_])
 #define NULDBIsArrayIndexKey(_key_) ([_key_ hasSuffix:@"NUIndex"])
@@ -203,7 +210,7 @@ static inline NSString *NULDBClassFromPropertyKey(NSString *key) {
 - (void)storeObject:(id)obj forKey:(NSString *)key {
     
     if([obj conformsToProtocol:@protocol(NULDBSerializable)]) {
-        [self _storeObject:obj];
+        [self storeValue:[self _storeObject:obj] forKey:key];
     }
     else if([obj conformsToProtocol:@protocol(NULDBPlistTransformable)]) {
         [self storeValue:[NSDictionary dictionaryWithObjectsAndKeys:NSStringFromClass([obj class]), @"class",
@@ -314,18 +321,31 @@ static inline NSString *NULDBClassFromPropertyKey(NSString *key) {
     
     for(id object in array)
         [self storeObject:object forKey:NULDBArrayIndexKey(propertyFragment, i)], i++;
-
-    [self storeValue:[NSString stringWithFormat:@"%u:NUArray", [array count]] forKey:key];
+        
+    [self storeValue:NULDBArrayToken(NSStringFromClass([[array lastObject] class]), [array count]) forKey:key];
 }
 
 - (NSArray *)unserializeArrayForKey:(NSString *)key {
     
-    NSString *propertyFragment = NULDBPropertyIdentifierFromKey(key);
-    NSUInteger count = NULDBArrayCountFromKey([self storedObjectForKey:key]);
+    NSString *arrayToken = [self storedValueForKey:key];
+
+    NSUInteger count = NULDBArrayCountFromKey(arrayToken);
     NSMutableArray *array = [NSMutableArray arrayWithCapacity:count];
+
+    NSString *objcClass = NSClassFromString(NULDBClassFromArrayToken(arrayToken));
+    BOOL serialized = [objcClass conformsToProtocol:@protocol(NULDBSerializable)];
+
+    NSString *propertyFragment = NULDBPropertyIdentifierFromKey(key);
+
+    for(NSUInteger i=0; i<count; i++) {
+        
+        id storedObj = [self storedObjectForKey:NULDBArrayIndexKey(propertyFragment, i)];
+        
+        if(serialized)
+            storedObj = [self storedObjectForKey:storedObj];
     
-    for(NSUInteger i=0; i<count; i++)
-        [array addObject:[self storedObjectForKey:NULDBArrayIndexKey(propertyFragment, i)]];
+        [array addObject:storedObj];
+    }
     
     return array;
 }
@@ -350,7 +370,7 @@ static inline NSString *NULDBClassFromPropertyKey(NSString *key) {
     id storedObj = [self storedValueForKey:key];
         
     // the key is a property key but we don't really care about that; we just need to reconstruct the dictionary
-    if([storedObj isKindOfClass:[NSDictionary class]] && NULDBIsPropertyKey(key)) {
+    if([storedObj isKindOfClass:[NSDictionary class]] && (NULDBIsPropertyKey(key) || NULDBIsArrayIndexKey(key))) {
         
         Class propClass = NSClassFromString([storedObj objectForKey:@"class"]);
         
