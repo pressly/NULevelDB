@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="851" systemVersion="10K549" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Address" representedClassName="NULDBTestAddress">
+        <attribute name="city" optional="YES" attributeType="String"/>
+        <attribute name="postalCode" optional="YES" attributeType="String"/>
+        <attribute name="state" optional="YES" attributeType="String"/>
+        <attribute name="street" optional="YES" attributeType="String"/>
+        <relationship name="company" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Company" inverseName="addresses" inverseEntity="Company"/>
+        <relationship name="person" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Person" inverseName="address" inverseEntity="Person"/>
+    </entity>
+    <entity name="Company" representedClassName="NULDBTestCompany">
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="primaryAddressID" optional="YES" attributeType="String"/>
+        <relationship name="addresses" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Address" inverseName="company" inverseEntity="Address"/>
+        <relationship name="workers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Person" inverseName="company" inverseEntity="Person"/>
+        <fetchedProperty name="mainAddress" optional="YES">
+            <fetchRequest name="fetchedPropertyFetchRequest" entity="Address" predicateString="objectID == $FETCH_SOURCE.primaryAddressID"/>
+        </fetchedProperty>
+        <fetchedProperty name="secondaryAddresses" optional="YES">
+            <fetchRequest name="fetchedPropertyFetchRequest" entity="Address" predicateString="$FETCH_SOURCE == company &amp;&amp; objectID != $FETCH_SOURCE.primaryAddressID"/>
+        </fetchedProperty>
+    </entity>
+    <entity name="Event">
+        <attribute name="timeStamp" optional="YES" attributeType="Date"/>
+    </entity>
+    <entity name="Person" representedClassName="NULDBTestPerson">
+        <attribute name="firstName" optional="YES" attributeType="String"/>
+        <attribute name="lastName" optional="YES" attributeType="String"/>
+        <relationship name="address" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Address" inverseName="person" inverseEntity="Address"/>
+        <relationship name="company" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Company" inverseName="workers" inverseEntity="Company"/>
+        <relationship name="phone" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Phone" inverseName="person" inverseEntity="Phone"/>
+    </entity>
+    <entity name="Phone" representedClassName="NULDBTestPhone">
+        <attribute name="areaCode" optional="YES" attributeType="Integer 16" defaultValueString="0"/>
+        <attribute name="exchange" optional="YES" attributeType="Integer 16" defaultValueString="0"/>
+        <attribute name="line" optional="YES" attributeType="Integer 16" defaultValueString="0"/>
+        <relationship name="person" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Person" inverseName="phone" inverseEntity="Person"/>
+    </entity>
+    <elements>
+        <element name="Event" positionX="261" positionY="189" width="128" height="60"/>
+        <element name="Phone" positionX="169" positionY="549" width="128" height="105"/>
+        <element name="Address" positionX="169" positionY="378" width="128" height="135"/>
+        <element name="Person" positionX="-47" positionY="477" width="128" height="120"/>
+        <element name="Company" positionX="-45" positionY="208" width="128" height="149"/>
+    </elements>
+</model>
