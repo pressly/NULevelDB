@@ -37,6 +37,11 @@
 // Erases the database files (files are created automatically)
 - (void)destroy;
 
+// works like a stack (counter); feel free to use indiscriminately
++ (void)enableLogging;
++ (void)disableLogging;
+
+// User Library folder "Store.db"
 + (NSString *)defaultLocation;
 
 // Basic key-value support

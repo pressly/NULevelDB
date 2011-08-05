@@ -54,6 +54,10 @@
 
 @synthesize db;
 
++ (void)initialize {
+    [NULDBDB enableLogging];
+}
+
 - (void)setUp
 {
     [super setUp];

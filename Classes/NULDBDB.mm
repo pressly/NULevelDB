@@ -11,6 +11,12 @@
 #include <leveldb/db.h>
 #include <leveldb/options.h>
 
+
+static int logging = 0;
+
+#define NULDBLog(frmt, ...) do{ if(logging) NSLog((frmt), ##__VA_ARGS__); } while(0)
+
+
 using namespace leveldb;
 
 
@@ -53,6 +59,15 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 //    [super dealloc];
 //}
 
++ (void)enableLogging {
+    if(logging)
+        --logging;
+}
+
++ (void)disableLogging {
+    ++logging;
+}
+
 + (NSString *)defaultLocation {
     
     NSString *dbFile = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject];
@@ -79,6 +94,10 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
         if(!status.ok()) {
             NSLog(@"Problem creating LevelDB database: %s", status.ToString().c_str());
         }
+        
+#ifdef DEBUG
+        logging = YES;
+#endif
     }
     
     return self;
@@ -91,12 +110,15 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 
 
 #pragma mark Basic Key-Value Storage support
+
+#define DYNAMIC_SLICES true
+
 - (void)storeValue:(id<NSCoding>)value forKey:(id<NSCoding>)key {
     
     WriteOptions write_options;
     write_options.sync = true;
     
-#if 1
+#if DYNAMIC_SLICES
     Slice *k = NULDBSliceFromObject(key);
     Slice *v = NULDBSliceFromObject(value);
     Status status = db->Put(write_options, *k, *v);
@@ -115,6 +137,12 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
     if(!status.ok()) {
         NSLog(@"Problem storing key/value pair in database: %s", status.ToString().c_str());
     }
+    else
+#if DYNAMIC_SLICES
+        NULDBLog(@"   PUT->  %@ (%lu bytes)", key, v->size());
+#else
+    	NULDBLog(@"   PUT->  %@ (%lu bytes)", key, v.size());
+#endif
 }
 
 - (id)storedValueForKey:(id<NSCoding>)key {
@@ -123,7 +151,7 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
     options.fill_cache = true;
     
     std::string v_string;
-#if 1
+#if DYNAMIC_SLICES
     Slice *k = NULDBSliceFromObject(key);
     Status status = db->Get(options, *k, &v_string);
     
@@ -141,6 +169,8 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
             NSLog(@"Problem retrieving value for key '%@' from database: %s", key, status.ToString().c_str());
         return nil;
     }
+    else
+        NULDBLog(@" <-GET    %@ (%lu bytes)", key, v_string.length());
 
     Slice v = v_string;
 
@@ -152,7 +182,7 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
     WriteOptions write_options;
     write_options.sync = true;
 
-#if 1
+#if DYNAMIC_SLICES
     Slice *k = NULDBSliceFromObject(key);
     Status status = db->Delete(write_options, *k);
     
@@ -167,6 +197,8 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
     
     if(!status.ok())
         NSLog(@"Problem deleting key/value pair in database: %s", status.ToString().c_str());
+    else
+        NULDBLog(@" X-DEL-X   %@", key);
 }
 
 
@@ -245,6 +277,8 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     NSAssert1(nil != classKey, @"No key for class %@", className);
     NSAssert1(nil != key, @"No storage key for object %@", obj);
     
+    NULDBLog(@" ARCHIVE %@", className);
+    
     if(nil == properties) {
         properties = [obj propertyNames];
         [self storeValue:properties forKey:classKey];
@@ -264,8 +298,12 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     if([properties count] < 1)
         return nil;
+
     
     id obj = [[NSClassFromString(className) alloc] init];
+    
+    
+    NULDBLog(@" RESTORE %@", className);
     
     for(NSString *property in properties)
         [obj setValue:[self storedObjectForKey:NULDBPropertyKey(className, property, key)] forKey:property];
@@ -277,7 +315,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 - (void)storeDictionary:(NSDictionary *)plist forKey:(NSString *)key {
     
     NSMutableDictionary *lookup = [NSMutableDictionary dictionaryWithCapacity:[plist count]];
-    
+        
     for(id dictKey in [plist allKeys]) {
         
         id value = [plist objectForKey:dictKey];
@@ -414,6 +452,8 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     else if([storedObj isKindOfClass:[NSString class]]) {
         
         if(NULDBIsClassToken(storedObj)) {
+            
+            NULDBLog(@" DELETE %@", NULDBClassFromToken(storedObj));
             
             for(NSString *property in [self storedValueForKey:storedObj]) {
                 
