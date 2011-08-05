@@ -11,12 +11,13 @@
 @interface NULDBTestPhone : NSObject<NSCoding>
 
 - (id)initWithAreaCode:(NSUInteger)a exchange:(NSUInteger)e line:(NSUInteger)l;
-- (id)initWithNumber:(NSString *)number;
+- (id)initWithString:(NSString *)string;
 
 @property NSInteger areaCode; // must be < 1000
 @property NSInteger exchange; // must be < 1000
 @property NSInteger line; // must be < 10000
 
 + (NULDBTestPhone *)randomPhone;
+- (NSString *)string;
 
 @end

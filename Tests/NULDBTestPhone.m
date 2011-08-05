@@ -41,9 +41,9 @@
     return self;
 }
 
-- (id)initWithNumber:(NSString *)number {
+- (id)initWithString:(NSString *)string {
 
-    NSScanner *scanner = [NSScanner scannerWithString:number];
+    NSScanner *scanner = [NSScanner scannerWithString:string];
     NSInteger a, e, l;
     
     [scanner scanString:@"(" intoString:NULL];
@@ -76,6 +76,10 @@
 #pragma mark New
 + (NULDBTestPhone *)randomPhone {
     return [[NULDBTestPhone alloc] initWithAreaCode:Random_int_in_range(0, 999) exchange:Random_int_in_range(0, 999) line:Random_int_in_range(0, 9999)];
+}
+
+- (NSString *)string {
+    return [NSString stringWithFormat:@"(%d) %d-%d", areaCode, exchange, line];
 }
 
 @end
