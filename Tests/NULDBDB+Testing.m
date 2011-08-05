@@ -9,8 +9,6 @@
 #import "NULDBDB+Testing.h"
 
 
-#ifdef DEBUG
-
 #define Random_ASCII() (((float)random()/(float)INT_MAX) * ('~' - ' ') + ' ')
 
 static inline NSString *randomString(NSUInteger length) {
@@ -94,4 +92,3 @@ static inline NSString *randomString(NSUInteger length) {
 }
 
 @end
-#endif

@@ -11,7 +11,6 @@
 #import "NULDBDB.h"
 
 
-#ifdef DEBUG
 @interface NULDBDB (NULDBDB_Testing)
 
 - (NSTimeInterval)put:(NSUInteger)count valuesOfSize:(NSUInteger)size data:(NSDictionary **)data;
@@ -19,4 +18,3 @@
 - (NSTimeInterval)deleteValuesForTestKeys:(NSArray *)keys;
 
 @end
-#endif
