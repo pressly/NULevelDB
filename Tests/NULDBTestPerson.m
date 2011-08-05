@@ -47,6 +47,31 @@ static NSArray *properties;
 }
 
 
+#pragma mark NULDBPlistTransformable
+- (id)initWithPropertyList:(NSDictionary *)values {
+    self = [super init];
+    if(self) {
+        self.firstName = [values objectForKey:@"f"];
+        self.lastName = [values objectForKey:@"l"];
+        self.address = [[NULDBTestAddress alloc] initWithPropertyList:[values objectForKey:@"a"]];
+        self.phone = [[NULDBTestPhone alloc] initWithString:[values objectForKey:@"p"]];
+    }
+    return self;
+}
+
+- (NSDictionary *)plistRepresentation {
+
+    NSMutableDictionary *plist = [NSMutableDictionary dictionary];
+    
+    if([firstName length]) [plist setObject:firstName forKey:@"f"];
+    if([lastName length]) [plist setObject:lastName forKey:@"l"];
+    if(address) [plist setObject:[address plistRepresentation] forKey:@"a"];
+    if(phone) [plist setObject:[phone description] forKey:@"p"];
+    
+    return plist;
+}
+
+
 #pragma mark New
 + (NULDBTestPerson *)randomPerson {
    

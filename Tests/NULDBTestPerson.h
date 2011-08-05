@@ -14,7 +14,7 @@
 @class NULDBTestAddress;
 @class NULDBTestPhone;
 
-@interface NULDBTestPerson : NSObject<NULDBSerializable>
+@interface NULDBTestPerson : NSObject<NULDBSerializable, NULDBPlistTransformable>
 
 @property (retain) NSString *uniqueID;
 @property (retain) NSString *firstName;
