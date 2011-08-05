@@ -226,8 +226,8 @@
 		4E82784B13EAF85500C64821 /* NULDBCache.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NULDBCache.mm; sourceTree = "<group>"; };
 		4E82784C13EAF85500C64821 /* NULDBComparator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBComparator.h; sourceTree = "<group>"; };
 		4E82784D13EAF85500C64821 /* NULDBComparator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NULDBComparator.mm; sourceTree = "<group>"; };
-		4E82784E13EAF85500C64821 /* NULDBDB+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NULDBDB+Testing.h"; path = "../Classes/NULDBDB+Testing.h"; sourceTree = "<group>"; };
-		4E82784F13EAF85500C64821 /* NULDBDB+Testing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NULDBDB+Testing.m"; path = "../Classes/NULDBDB+Testing.m"; sourceTree = "<group>"; };
+		4E82784E13EAF85500C64821 /* NULDBDB+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NULDBDB+Testing.h"; sourceTree = "<group>"; };
+		4E82784F13EAF85500C64821 /* NULDBDB+Testing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NULDBDB+Testing.m"; sourceTree = "<group>"; };
 		4E82785013EAF85500C64821 /* NULDBDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBDB.h; sourceTree = "<group>"; };
 		4E82785113EAF85500C64821 /* NULDBDB.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NULDBDB.mm; sourceTree = "<group>"; };
 		4E82785213EAF85500C64821 /* NULDBSlice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBSlice.h; sourceTree = "<group>"; };
