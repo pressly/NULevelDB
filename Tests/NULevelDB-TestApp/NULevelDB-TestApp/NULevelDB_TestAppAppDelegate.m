@@ -10,9 +10,7 @@
 
 #import "NULevelDB_TestAppViewController.h"
 #import "NULDBDB.h"
-//#if DEBUG
 #import "NULDBDB+Testing.h"
-//#endif
 
 #import "NULDBTestCompany.h"
 
