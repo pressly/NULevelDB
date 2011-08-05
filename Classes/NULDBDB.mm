@@ -154,10 +154,6 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
         if(!status.ok()) {
             NSLog(@"Problem creating LevelDB database: %s", status.ToString().c_str());
         }
-        
-#ifdef DEBUG
-        logging = YES;
-#endif
     }
     
     return self;
@@ -301,14 +297,14 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
  */
 - (void)storeObject:(id)obj forKey:(NSString *)key {
     
-    if([obj conformsToProtocol:@protocol(NULDBSerializable)]) {
-        [self storeValue:[self _storeObject:obj] forKey:key];
-    }
-    else if([obj conformsToProtocol:@protocol(NULDBPlistTransformable)]) {
+    if([obj conformsToProtocol:@protocol(NULDBPlistTransformable)]) {
         [self storeValue:[NSDictionary dictionaryWithObjectsAndKeys:NSStringFromClass([obj class]), @"class",
                           [obj plistRepresentation], @"object",
                           nil]
                   forKey:key];
+    }
+    else if([obj conformsToProtocol:@protocol(NULDBSerializable)]) {
+        [self storeValue:[self _storeObject:obj] forKey:key];
     }
     else if([obj isKindOfClass:[NSArray class]]) {
         if([obj count])
@@ -380,7 +376,10 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
         
         id value = [plist objectForKey:dictKey];
         
-        if([value conformsToProtocol:@protocol(NULDBSerializable)])
+        // FIXME: this is lame, should always call the same wrapper
+        if([value conformsToProtocol:@protocol(NULDBPlistTransformable)])
+            value = [value plistRepresentation];
+        else if([value conformsToProtocol:@protocol(NULDBSerializable)])
             value = [self _storeObject:value]; // store the object and replace it with it's lookup key
         
         [lookup setObject:value forKey:dictKey];
@@ -431,7 +430,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     NSMutableArray *array = [NSMutableArray arrayWithCapacity:count];
 
     NSString *objcClass = NSClassFromString(NULDBClassFromArrayToken(arrayToken));
-    BOOL serialized = [objcClass conformsToProtocol:@protocol(NULDBSerializable)];
+    BOOL serialized = ![objcClass conformsToProtocol:@protocol(NULDBPlistTransformable)] && [objcClass conformsToProtocol:@protocol(NULDBSerializable)];
 
     NSString *propertyFragment = NULDBPropertyIdentifierFromKey(key);
 
