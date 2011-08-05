@@ -3,14 +3,16 @@
 //  NULevelDB-TestApp
 //
 //  Created by Brent Gulanowski on 11-07-29.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Nulayer Inc. All rights reserved.
 //
 
 #import "NULevelDB_TestAppAppDelegate.h"
 
 #import "NULevelDB_TestAppViewController.h"
 #import "NULDBDB.h"
+//#if DEBUG
 #import "NULDBDB+Testing.h"
+//#endif
 
 #import "NULDBTestCompany.h"
 
