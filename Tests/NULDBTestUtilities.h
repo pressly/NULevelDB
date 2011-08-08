@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 
 
+#define TEST_RANDOM_SEED 884432668
+
 #define Random_int_in_range(_first_, _last_) ((int)(((float)random()/(float)INT_MAX) * (_last_ - _first_) + _first_))
 
 #define Random_printable_char() (Random_int_in_range(' ', '~'))
