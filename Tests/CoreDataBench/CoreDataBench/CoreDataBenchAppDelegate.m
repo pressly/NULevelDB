@@ -45,8 +45,17 @@
     [self.window makeKeyAndVisible];
     
     [self performSelector:@selector(runTests) withObject:nil afterDelay:0];
+    // This is a quick test to make sure we generate identical data regardless of which class hierarchy we're using
+//    [self performSelector:@selector(runDataGenerationTest) withObject:nil afterDelay:0];
 
     return YES;
+}
+
+- (void)runDataGenerationTest {
+    
+    NULDBTestCompany *company = [NULDBTestCompany randomCompanyWithWorkers:1 managers:1 addresses:1];
+    
+    NSLog(@"Company: %@", [company plistRepresentation]);
 }
 
 - (void)runTests {
