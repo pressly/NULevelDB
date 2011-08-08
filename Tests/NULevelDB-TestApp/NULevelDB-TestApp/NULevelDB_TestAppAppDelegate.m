@@ -11,6 +11,7 @@
 #import "NULevelDB_TestAppViewController.h"
 #import "NULDBDB.h"
 #import "NULDBDB+Testing.h"
+#import "NULDBTestUtilities.h"
 
 #import "NULDBTestCompany.h"
 
@@ -29,6 +30,12 @@
 
 @synthesize window = _window;
 @synthesize viewController = _viewController;
+
++ (void)initialize {
+    if([self class] == [NULevelDB_TestAppAppDelegate class]) {
+        srandom(TEST_RANDOM_SEED);
+    }
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -85,6 +92,10 @@
 - (void)runTests {
     
     NSString *testPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"test.storage"];
+    
+    if([[NSFileManager defaultManager] removeItemAtPath:testPath error:NULL])
+        NSLog(@"Deleted test db");
+    
     NULDBDB *db = [[NULDBDB alloc] initWithLocation:testPath];
     
     [db runTests];
@@ -171,8 +182,16 @@
     
     start = end;
     
+    NSMutableArray *companiesArray = [NSMutableArray array];
+    
     for(id key in [companies allKeys])
-        [self storedObjectForKey:key];
+        [companiesArray addObject:[self storedObjectForKey:key]];
+    
+    for(NULDBTestCompany *company in companiesArray) {
+        NSLog(@"Workers for company %@: %@", company.name, [[[company.workers valueForKey:@"fullName"] allObjects] componentsJoinedByString:@", "]);
+        NSLog(@"Addresses for company %@: %@", company.name, [[[company.addresses valueForKey:@"description"] allObjects] componentsJoinedByString:@" "]);
+    }
+
     
     end = [NSDate timeIntervalSinceReferenceDate];
     NSLog(@"Finished loading. Took %0.4f seconds. Starting deleting.", end - start);
