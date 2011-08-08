@@ -92,6 +92,7 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 
 - (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj;
 
+- (void)storeDictionary:(NSDictionary *)plist forKey:(NSString *)key;
 - (NSDictionary *)unserializeDictionary:(NSDictionary *)storedDict;
 - (void)deleteStoredDictionary:(NSDictionary *)key;
 
