@@ -15,11 +15,12 @@
 
 @interface NULDBTestCompany : _NULDBTestCompany<NULDBSerializable>
 
-@property (retain) NULDBTestPerson *supervisor;
+//@property (retain) NULDBTestPerson *supervisor;
 @property (retain) NSDictionary *management; // persons keyed by title
 
 + (NULDBTestCompany *)randomCompanyWithWorkers:(NSUInteger)wcount managers:(NSUInteger)mcount addresses:(NSUInteger)account;
 + (NULDBTestCompany *)randomSizedCompany;
++ (NULDBTestCompany *)companyOf10;
 + (NULDBTestCompany *)companyOf100;
 + (NULDBTestCompany *)companyOf1000;
 
