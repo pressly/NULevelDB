@@ -19,7 +19,16 @@
 		4E221E2C13EC6C4F00203E8D /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E2B13EC6C4F00203E8D /* DetailViewController.m */; };
 		4E221E2F13EC6C4F00203E8D /* MasterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E221E2D13EC6C4F00203E8D /* MasterViewController.xib */; };
 		4E221E3213EC6C4F00203E8D /* DetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E221E3013EC6C4F00203E8D /* DetailViewController.xib */; };
-		4E221E4513EC768900203E8D /* NULDBModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E4413EC768900203E8D /* NULDBModel.m */; };
+		4E221E4513EC768900203E8D /* NULDBTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E4413EC768900203E8D /* NULDBTestModel.m */; };
+		4E221E5513EC77E100203E8D /* NULDBTestAddress.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E4B13EC77E000203E8D /* NULDBTestAddress.m */; };
+		4E221E5613EC77E100203E8D /* NULDBTestCompany.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E4D13EC77E000203E8D /* NULDBTestCompany.m */; };
+		4E221E5713EC77E100203E8D /* NULDBTestPerson.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E4F13EC77E000203E8D /* NULDBTestPerson.m */; };
+		4E221E5813EC77E100203E8D /* NULDBTestPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E5113EC77E000203E8D /* NULDBTestPhone.m */; };
+		4E221E5913EC77E100203E8D /* NULDBTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E5313EC77E000203E8D /* NULDBTestUtilities.m */; };
+		4E221EAA13EC908700203E8D /* _NULDBTestAddress.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221EA313EC908600203E8D /* _NULDBTestAddress.m */; };
+		4E221EAB13EC908700203E8D /* _NULDBTestCompany.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221EA513EC908700203E8D /* _NULDBTestCompany.m */; };
+		4E221EAC13EC908700203E8D /* _NULDBTestPerson.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221EA713EC908700203E8D /* _NULDBTestPerson.m */; };
+		4E221EAD13EC908700203E8D /* _NULDBTestPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221EA913EC908700203E8D /* _NULDBTestPhone.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,8 +50,26 @@
 		4E221E2B13EC6C4F00203E8D /* DetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
 		4E221E2E13EC6C4F00203E8D /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MasterViewController.xib; sourceTree = "<group>"; };
 		4E221E3113EC6C4F00203E8D /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/DetailViewController.xib; sourceTree = "<group>"; };
-		4E221E4313EC768900203E8D /* NULDBModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBModel.h; sourceTree = "<group>"; };
-		4E221E4413EC768900203E8D /* NULDBModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NULDBModel.m; sourceTree = "<group>"; };
+		4E221E4313EC768900203E8D /* NULDBTestModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NULDBTestModel.h; path = ../TestModel/NULDBTestModel.h; sourceTree = "<group>"; };
+		4E221E4413EC768900203E8D /* NULDBTestModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NULDBTestModel.m; path = ../TestModel/NULDBTestModel.m; sourceTree = "<group>"; };
+		4E221E4A13EC77E000203E8D /* NULDBTestAddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NULDBTestAddress.h; path = ../TestModel/NULDBTestAddress.h; sourceTree = "<group>"; };
+		4E221E4B13EC77E000203E8D /* NULDBTestAddress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NULDBTestAddress.m; path = ../TestModel/NULDBTestAddress.m; sourceTree = "<group>"; };
+		4E221E4C13EC77E000203E8D /* NULDBTestCompany.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NULDBTestCompany.h; path = ../TestModel/NULDBTestCompany.h; sourceTree = "<group>"; };
+		4E221E4D13EC77E000203E8D /* NULDBTestCompany.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NULDBTestCompany.m; path = ../TestModel/NULDBTestCompany.m; sourceTree = "<group>"; };
+		4E221E4E13EC77E000203E8D /* NULDBTestPerson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NULDBTestPerson.h; path = ../TestModel/NULDBTestPerson.h; sourceTree = "<group>"; };
+		4E221E4F13EC77E000203E8D /* NULDBTestPerson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NULDBTestPerson.m; path = ../TestModel/NULDBTestPerson.m; sourceTree = "<group>"; };
+		4E221E5013EC77E000203E8D /* NULDBTestPhone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NULDBTestPhone.h; path = ../TestModel/NULDBTestPhone.h; sourceTree = "<group>"; };
+		4E221E5113EC77E000203E8D /* NULDBTestPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NULDBTestPhone.m; path = ../TestModel/NULDBTestPhone.m; sourceTree = "<group>"; };
+		4E221E5213EC77E000203E8D /* NULDBTestUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NULDBTestUtilities.h; path = ../NULDBTestUtilities.h; sourceTree = "<group>"; };
+		4E221E5313EC77E000203E8D /* NULDBTestUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NULDBTestUtilities.m; path = ../NULDBTestUtilities.m; sourceTree = "<group>"; };
+		4E221EA213EC908600203E8D /* _NULDBTestAddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _NULDBTestAddress.h; path = ../TestModel/_NULDBTestAddress.h; sourceTree = "<group>"; };
+		4E221EA313EC908600203E8D /* _NULDBTestAddress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _NULDBTestAddress.m; path = ../TestModel/_NULDBTestAddress.m; sourceTree = "<group>"; };
+		4E221EA413EC908700203E8D /* _NULDBTestCompany.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _NULDBTestCompany.h; path = ../TestModel/_NULDBTestCompany.h; sourceTree = "<group>"; };
+		4E221EA513EC908700203E8D /* _NULDBTestCompany.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _NULDBTestCompany.m; path = ../TestModel/_NULDBTestCompany.m; sourceTree = "<group>"; };
+		4E221EA613EC908700203E8D /* _NULDBTestPerson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _NULDBTestPerson.h; path = ../TestModel/_NULDBTestPerson.h; sourceTree = "<group>"; };
+		4E221EA713EC908700203E8D /* _NULDBTestPerson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _NULDBTestPerson.m; path = ../TestModel/_NULDBTestPerson.m; sourceTree = "<group>"; };
+		4E221EA813EC908700203E8D /* _NULDBTestPhone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _NULDBTestPhone.h; path = ../TestModel/_NULDBTestPhone.h; sourceTree = "<group>"; };
+		4E221EA913EC908700203E8D /* _NULDBTestPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _NULDBTestPhone.m; path = ../TestModel/_NULDBTestPhone.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +90,7 @@
 		4E221E0113EC6C4E00203E8D = {
 			isa = PBXGroup;
 			children = (
+				4E221E4713EC77CE00203E8D /* TestModel */,
 				4E221E1813EC6C4F00203E8D /* CoreDataBench */,
 				4E221E0F13EC6C4F00203E8D /* Frameworks */,
 				4E221E0D13EC6C4F00203E8D /* Products */,
@@ -101,8 +129,6 @@
 				4E221E3013EC6C4F00203E8D /* DetailViewController.xib */,
 				4E221E2413EC6C4F00203E8D /* CoreDataBench.xcdatamodeld */,
 				4E221E1913EC6C4F00203E8D /* Supporting Files */,
-				4E221E4313EC768900203E8D /* NULDBModel.h */,
-				4E221E4413EC768900203E8D /* NULDBModel.m */,
 			);
 			path = CoreDataBench;
 			sourceTree = "<group>";
@@ -116,6 +142,33 @@
 				4E221E2013EC6C4F00203E8D /* CoreDataBench-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		4E221E4713EC77CE00203E8D /* TestModel */ = {
+			isa = PBXGroup;
+			children = (
+				4E221EA213EC908600203E8D /* _NULDBTestAddress.h */,
+				4E221EA313EC908600203E8D /* _NULDBTestAddress.m */,
+				4E221EA413EC908700203E8D /* _NULDBTestCompany.h */,
+				4E221EA513EC908700203E8D /* _NULDBTestCompany.m */,
+				4E221EA613EC908700203E8D /* _NULDBTestPerson.h */,
+				4E221EA713EC908700203E8D /* _NULDBTestPerson.m */,
+				4E221EA813EC908700203E8D /* _NULDBTestPhone.h */,
+				4E221EA913EC908700203E8D /* _NULDBTestPhone.m */,
+				4E221E4313EC768900203E8D /* NULDBTestModel.h */,
+				4E221E4413EC768900203E8D /* NULDBTestModel.m */,
+				4E221E4A13EC77E000203E8D /* NULDBTestAddress.h */,
+				4E221E4B13EC77E000203E8D /* NULDBTestAddress.m */,
+				4E221E4C13EC77E000203E8D /* NULDBTestCompany.h */,
+				4E221E4D13EC77E000203E8D /* NULDBTestCompany.m */,
+				4E221E4E13EC77E000203E8D /* NULDBTestPerson.h */,
+				4E221E4F13EC77E000203E8D /* NULDBTestPerson.m */,
+				4E221E5013EC77E000203E8D /* NULDBTestPhone.h */,
+				4E221E5113EC77E000203E8D /* NULDBTestPhone.m */,
+				4E221E5213EC77E000203E8D /* NULDBTestUtilities.h */,
+				4E221E5313EC77E000203E8D /* NULDBTestUtilities.m */,
+			);
+			name = TestModel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -186,7 +239,16 @@
 				4E221E2613EC6C4F00203E8D /* CoreDataBench.xcdatamodeld in Sources */,
 				4E221E2913EC6C4F00203E8D /* MasterViewController.m in Sources */,
 				4E221E2C13EC6C4F00203E8D /* DetailViewController.m in Sources */,
-				4E221E4513EC768900203E8D /* NULDBModel.m in Sources */,
+				4E221E4513EC768900203E8D /* NULDBTestModel.m in Sources */,
+				4E221E5513EC77E100203E8D /* NULDBTestAddress.m in Sources */,
+				4E221E5613EC77E100203E8D /* NULDBTestCompany.m in Sources */,
+				4E221E5713EC77E100203E8D /* NULDBTestPerson.m in Sources */,
+				4E221E5813EC77E100203E8D /* NULDBTestPhone.m in Sources */,
+				4E221E5913EC77E100203E8D /* NULDBTestUtilities.m in Sources */,
+				4E221EAA13EC908700203E8D /* _NULDBTestAddress.m in Sources */,
+				4E221EAB13EC908700203E8D /* _NULDBTestCompany.m in Sources */,
+				4E221EAC13EC908700203E8D /* _NULDBTestPerson.m in Sources */,
+				4E221EAD13EC908700203E8D /* _NULDBTestPhone.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,6 +332,7 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "CoreDataBench/CoreDataBench-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = NULDBTEST_CORE_DATA;
 				INFOPLIST_FILE = "CoreDataBench/CoreDataBench-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -281,6 +344,7 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "CoreDataBench/CoreDataBench-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = NULDBTEST_CORE_DATA;
 				INFOPLIST_FILE = "CoreDataBench/CoreDataBench-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;

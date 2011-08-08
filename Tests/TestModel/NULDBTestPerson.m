@@ -12,9 +12,10 @@
 #import "NULDBTestAddress.h"
 #import "NULDBTestUtilities.h"
 
+
 @implementation NULDBTestPerson
 
-@synthesize uniqueID, firstName, lastName, address, phone;
+@synthesize uniqueID, firstName, lastName, address, company, phone;
 
 static NSArray *properties;
 
@@ -63,10 +64,10 @@ static NSArray *properties;
 
     NSMutableDictionary *plist = [NSMutableDictionary dictionary];
     
-    if([firstName length]) [plist setObject:firstName forKey:@"f"];
-    if([lastName length]) [plist setObject:lastName forKey:@"l"];
-    if(address) [plist setObject:[address plistRepresentation] forKey:@"a"];
-    if(phone) [plist setObject:[phone description] forKey:@"p"];
+    if([self.firstName length]) [plist setObject:self.firstName forKey:@"f"];
+    if([self.lastName length]) [plist setObject:self.lastName forKey:@"l"];
+    if(self.address) [plist setObject:[self.address plistRepresentation] forKey:@"a"];
+    if(self.phone) [plist setObject:[self.phone description] forKey:@"p"];
     
     return plist;
 }
@@ -75,12 +76,20 @@ static NSArray *properties;
 #pragma mark New
 + (NULDBTestPerson *)randomPerson {
    
+#ifdef NULDBTEST_CORE_DATA
+    NULDBTestPerson *result = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:CDBSharedContext()];
+#else
     NULDBTestPerson *result = [[NULDBTestPerson alloc] init];
+#endif
     
     result.firstName = NULDBRandomName();
     result.lastName = NULDBRandomName();
     result.address = [NULDBTestAddress randomAddress];
     result.phone = [NULDBTestPhone randomPhone];
+    
+#ifdef NULDBTEST_CORE_DATA
+    [CDBSharedContext() save:NULL];
+#endif
     
     return result;
 }

@@ -8,17 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "NULDBDB.h"
+#import "_NULDBTestAddress.h"
 
 
-@interface NULDBTestAddress : NSObject<NULDBPlistTransformable>
+@interface NULDBTestAddress : _NULDBTestAddress<NULDBPlistTransformable>
 
 @property (retain) NSString *uniqueID;
-
-@property (retain) NSString *street;
-@property (retain) NSString *city;
-@property (retain) NSString *state;
-@property (retain) NSString *postalCode;
 
 + (NULDBTestAddress *)randomAddress;
 

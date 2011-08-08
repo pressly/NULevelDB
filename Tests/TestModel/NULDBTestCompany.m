@@ -16,7 +16,7 @@
 
 @implementation NULDBTestCompany
 
-@synthesize name, supervisor, workers, management, mainAddress, secondaryAddresses;
+@synthesize name, supervisor, workers, management, addresses, mainAddress, secondaryAddresses;
 
 static NSArray *propertyNames;
 static NSArray *titles;
@@ -49,16 +49,20 @@ static NSArray *titles;
 
 
 #pragma mark New
-+ (NULDBTestCompany *)companyWithWorkers:(NSUInteger)wcount managers:(NSUInteger)mcount addresses:(NSUInteger)account {
++ (NULDBTestCompany *)randomCompanyWithWorkers:(NSUInteger)wcount managers:(NSUInteger)mcount addresses:(NSUInteger)acount {
     
+#if NULDBTEST_CORE_DATA
+    NULDBTestCompany *result = [NSEntityDescription insertNewObjectForEntityForName:@"Company" inManagedObjectContext:CDBSharedContext()];
+#else
     NULDBTestCompany *result = [[NULDBTestCompany alloc] initWithName:NULDBRandomName()];
-    NSMutableArray *array = [NSMutableArray arrayWithCapacity:wcount];
+#endif
+    NSMutableSet *set = [NSMutableArray arrayWithCapacity:wcount];
     
     for (int i = 0; i < wcount; ++i)
-        [array addObject:[NULDBTestPerson randomPerson]];
+        [set addObject:[NULDBTestPerson randomPerson]];
     
     result.supervisor = [NULDBTestPerson randomPerson];
-    result.workers = array;
+    result.workers = set;
     
     NSMutableDictionary *management = [NSMutableDictionary dictionaryWithCapacity:mcount];
     NSMutableSet *selectedTitles = [NSMutableSet setWithCapacity:mcount];
@@ -77,52 +81,41 @@ static NSArray *titles;
         [management setObject:[NULDBTestPerson randomPerson] forKey:title];
     
     result.management = management;
-    result.mainAddress = [NULDBTestAddress randomAddress];
-    result.secondaryAddresses = [NSArray arrayWithObjects:[NULDBTestAddress randomAddress],
-                                 random()&1 ? [NULDBTestAddress randomAddress] : nil, nil];
+//#ifdef NULDBTEST_CORE_DATA
+//    NULDBTestAddress *main = [NULDBTestAddress randomAddress];
+//    
+//    result.primaryAddressID = [[[main objectID] URIRepresentation] absoluteString];
+//#else
+//    result.mainAddress = [NULDBTestAddress randomAddress];
+//    result.secondaryAddresses = [NSArray arrayWithObjects:[NULDBTestAddress randomAddress],
+//                                 random()&1 ? [NULDBTestAddress randomAddress] : nil, nil];
+//#endif
+    NSMutableSet *adds = [NSMutableSet set];
+    
+    for (int i=0; i<acount; ++i)
+        [adds addObject:[NULDBTestAddress randomAddress]];
+    
+    result.addresses = adds;
+    
+#if NULDBTEST_CORE_DATA
+    [CDBSharedContext() save:NULL];
+#endif
     
     return result;
 }
 
 + (NULDBTestCompany *)randomSizedCompany {
-#if 1
-    return [self companyWithWorkers:Random_int_in_range(2, 50)
-                           managers:Random_int_in_range(0, [titles count]/2+1)
-                          addresses:(random()&1 + 1)];
-
-#else
-    NULDBTestCompany *result = [[NULDBTestCompany alloc] initWithName:NULDBRandomName()];
-    NSMutableArray *array = [NSMutableArray arrayWithCapacity:20];
-    int count = Random_int_in_range(2, 20);
-    
-    for (int i = 0; i < count; ++i)
-        [array addObject:[NULDBTestPerson randomPerson]];
-    
-    result.supervisor = [NULDBTestPerson randomPerson];
-    result.workers = array;
-    
-    count = Random_int_in_range(0, [titles count]/2+1);
-    
-    NSMutableDictionary *management = [NSMutableDictionary dictionaryWithCapacity:count];
-    
-    for(int i=0; i<count; ++i)
-        [management setObject:[NULDBTestPerson randomPerson] forKey:[titles objectAtIndex:Random_int_in_range(0, [titles count])]];
-    
-    result.management = management;
-    result.mainAddress = [NULDBTestAddress randomAddress];
-    result.secondaryAddresses = [NSArray arrayWithObjects:[NULDBTestAddress randomAddress],
-                                 random()&1 ? [NULDBTestAddress randomAddress] : nil, nil];
-    
-    return result;
-#endif
+    return [self randomCompanyWithWorkers:Random_int_in_range(2, 50)
+                                 managers:Random_int_in_range(0, [titles count]/2+1)
+                                addresses:(random()&1 + 1)];
 }
 
 + (NULDBTestCompany *)companyOf100 {
-    return [self companyWithWorkers:100 managers:10 addresses:5];
+    return [self randomCompanyWithWorkers:100 managers:10 addresses:5];
 }
 
 + (NULDBTestCompany *)companyOf1000 {
-    return [self companyWithWorkers:1000 managers:25 addresses:10];
+    return [self randomCompanyWithWorkers:1000 managers:25 addresses:10];
 }
 
 @end

@@ -8,19 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
-#import "NULDBDB.h"
+#import "_NULDBTestPerson.h"
 
 
 @class NULDBTestAddress;
 @class NULDBTestPhone;
 
-@interface NULDBTestPerson : NSObject<NULDBSerializable, NULDBPlistTransformable>
+@interface NULDBTestPerson : _NULDBTestPerson<NULDBSerializable, NULDBPlistTransformable>
 
 @property (retain) NSString *uniqueID;
-@property (retain) NSString *firstName;
-@property (retain) NSString *lastName;
-@property (retain) NULDBTestAddress *address;
-@property (retain) NULDBTestPhone *phone;
 
 + (NULDBTestPerson *)randomPerson;
 

@@ -12,6 +12,7 @@
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="primaryAddressID" optional="YES" attributeType="String"/>
         <relationship name="addresses" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Address" inverseName="company" inverseEntity="Address"/>
+        <relationship name="role" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Role" inverseName="company" inverseEntity="Role"/>
         <relationship name="workers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Person" inverseName="company" inverseEntity="Person"/>
         <fetchedProperty name="mainAddress" optional="YES">
             <fetchRequest name="fetchedPropertyFetchRequest" entity="Address" predicateString="objectID == $FETCH_SOURCE.primaryAddressID"/>
@@ -29,6 +30,7 @@
         <relationship name="address" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Address" inverseName="person" inverseEntity="Address"/>
         <relationship name="company" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Company" inverseName="workers" inverseEntity="Company"/>
         <relationship name="phone" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Phone" inverseName="person" inverseEntity="Phone"/>
+        <relationship name="role" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Role" inverseName="manager" inverseEntity="Role"/>
     </entity>
     <entity name="Phone" representedClassName="NULDBTestPhone">
         <attribute name="areaCode" optional="YES" attributeType="Integer 16" defaultValueString="0"/>
@@ -36,11 +38,17 @@
         <attribute name="line" optional="YES" attributeType="Integer 16" defaultValueString="0"/>
         <relationship name="person" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Person" inverseName="phone" inverseEntity="Person"/>
     </entity>
+    <entity name="Role" representedClassName="NULDBTestRole">
+        <attribute name="name" optional="YES"/>
+        <relationship name="company" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Company" inverseName="role" inverseEntity="Company"/>
+        <relationship name="manager" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Person" inverseName="role" inverseEntity="Person"/>
+    </entity>
     <elements>
         <element name="Event" positionX="261" positionY="189" width="128" height="60"/>
         <element name="Phone" positionX="169" positionY="549" width="128" height="105"/>
         <element name="Address" positionX="169" positionY="378" width="128" height="135"/>
-        <element name="Person" positionX="-47" positionY="477" width="128" height="120"/>
-        <element name="Company" positionX="-45" positionY="208" width="128" height="149"/>
+        <element name="Person" positionX="-47" positionY="477" width="128" height="135"/>
+        <element name="Company" positionX="-45" positionY="208" width="128" height="164"/>
+        <element name="Role" positionX="160" positionY="192" width="128" height="90"/>
     </elements>
 </model>

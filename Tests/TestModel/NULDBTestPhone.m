@@ -22,7 +22,7 @@
 }
 
 - (NSUInteger)hash {
-    return line + exchange * 10000 + areaCode * 10000000;
+    return self.lineValue + self.exchangeValue * 10000 + self.areaCodeValue * 10000000;
 }
 
 - (NSString *)description {
@@ -34,9 +34,9 @@
 - (id)initWithAreaCode:(NSUInteger)a exchange:(NSUInteger)e line:(NSUInteger)l {
     self = [super init];
     if(self) {
-        self.areaCode = a;
-        self.exchange = e;
-        self.line = l;
+        self.areaCodeValue = a;
+        self.exchangeValue = e;
+        self.lineValue = l;
     }
     return self;
 }
@@ -59,23 +59,32 @@
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super init];
     if(self) {
-        self.areaCode = [aDecoder decodeIntegerForKey:@"a"];
-        self.exchange = [aDecoder decodeIntegerForKey:@"e"];
-        self.line = [aDecoder decodeIntegerForKey:@"l"];
+        self.areaCode = [aDecoder decodeObjectForKey:@"a"];
+        self.exchange = [aDecoder decodeObjectForKey:@"e"];
+        self.line = [aDecoder decodeObjectForKey:@"l"];
     }
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-    [aCoder encodeInteger:areaCode forKey:@"a"];
-    [aCoder encodeInteger:exchange forKey:@"e"];
-    [aCoder encodeInteger:line forKey:@"l"];
+    [aCoder encodeObject:areaCode forKey:@"a"];
+    [aCoder encodeObject:exchange forKey:@"e"];
+    [aCoder encodeObject:line forKey:@"l"];
 }
 
 
 #pragma mark New
 + (NULDBTestPhone *)randomPhone {
+#if NULDBTEST_CORE_DATA
+    NULDBTestPhone *phone = [NSEntityDescription insertNewObjectForEntityForName:@"Phone" inManagedObjectContext:CDBSharedContext()];
+    phone.areaCodeValue = Random_int_in_range(0, 999);
+    phone.exchangeValue = Random_int_in_range(0, 999);
+    phone.lineValue = Random_int_in_range(0, 9999);
+    [CDBSharedContext() save:NULL];
+    return phone;
+#else
     return [[NULDBTestPhone alloc] initWithAreaCode:Random_int_in_range(0, 999) exchange:Random_int_in_range(0, 999) line:Random_int_in_range(0, 9999)];
+#endif
 }
 
 - (NSString *)string {

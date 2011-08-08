@@ -93,13 +93,21 @@ static inline NSString *randomPostalCode () {
 
 + (NULDBTestAddress *)randomAddress {
     
+#if NULDBTEST_CORE_DATA
+    NULDBTestAddress *result = [NSEntityDescription insertNewObjectForEntityForName:@"Address" inManagedObjectContext:CDBSharedContext()];
+#else
     NULDBTestAddress *result = [[NULDBTestAddress alloc] init];
+#endif
     
     result.street = [NSString stringWithFormat:@"%d %@ %@",
                      Random_int_in_range(1, 9999), NULDBRandomName(), [roads objectAtIndex:Random_int_in_range(0, [roads count]-1)]];
     result.city = NULDBRandomName();
     result.state = NULDBRandomName();
     result.postalCode = randomPostalCode();
+    
+#if NULDBTEST_CORE_DATA
+    [CDBSharedContext() save:NULL];
+#endif
     
     return result;
 }

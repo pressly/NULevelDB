@@ -8,14 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NULDBTestPhone : NSObject<NSCoding>
+#import "_NULDBTestPhone.h"
+
+
+@interface NULDBTestPhone : _NULDBTestPhone<NSCoding>
 
 - (id)initWithAreaCode:(NSUInteger)a exchange:(NSUInteger)e line:(NSUInteger)l;
 - (id)initWithString:(NSString *)string;
-
-@property NSInteger areaCode; // must be < 1000
-@property NSInteger exchange; // must be < 1000
-@property NSInteger line; // must be < 10000
 
 + (NULDBTestPhone *)randomPhone;
 - (NSString *)string;
