@@ -9,7 +9,13 @@
 #endif
 
 #ifdef __OBJC__
+
     #import <UIKit/UIKit.h>
     #import <Foundation/Foundation.h>
     #import <CoreData/CoreData.h>
+
+    #import "CoreDataBenchAppDelegate.h"
+
+    #define CDBSharedContext() ([(CoreDataBenchAppDelegate *)[[UIApplication sharedApplication] delegate] managedObjectContext])
+
 #endif
