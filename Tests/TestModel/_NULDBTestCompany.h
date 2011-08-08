@@ -2,7 +2,7 @@
 // Make changes to NULDBTestCompany.h instead.
 
 #import <CoreData/CoreData.h>
-
+#import "NULDBTestModel.h"
 
 @class NULDBTestAddress;
 @class NULDBTestRole;
@@ -14,7 +14,7 @@
 @interface NULDBTestCompanyID : NSManagedObjectID {}
 @end
 
-@interface _NULDBTestCompany : NSManagedObject {}
+@interface _NULDBTestCompany : NULDBTestModel {}
 + (id)insertInManagedObjectContext:(NSManagedObjectContext*)moc_;
 + (NSString*)entityName;
 + (NSEntityDescription*)entityInManagedObjectContext:(NSManagedObjectContext*)moc_;
@@ -47,9 +47,9 @@
 
 
 
-@property (nonatomic, retain) NULDBTestRole* role;
+@property (nonatomic, retain) NSSet* roles;
 
-//- (BOOL)validateRole:(id*)value_ error:(NSError**)error_;
+- (NSMutableSet*)rolesSet;
 
 
 
@@ -73,6 +73,11 @@
 - (void)removeAddresses:(NSSet*)value_;
 - (void)addAddressesObject:(NULDBTestAddress*)value_;
 - (void)removeAddressesObject:(NULDBTestAddress*)value_;
+
+- (void)addRoles:(NSSet*)value_;
+- (void)removeRoles:(NSSet*)value_;
+- (void)addRolesObject:(NULDBTestRole*)value_;
+- (void)removeRolesObject:(NULDBTestRole*)value_;
 
 - (void)addWorkers:(NSSet*)value_;
 - (void)removeWorkers:(NSSet*)value_;
@@ -102,8 +107,8 @@
 
 
 
-- (NULDBTestRole*)primitiveRole;
-- (void)setPrimitiveRole:(NULDBTestRole*)value;
+- (NSMutableSet*)primitiveRoles;
+- (void)setPrimitiveRoles:(NSMutableSet*)value;
 
 
 

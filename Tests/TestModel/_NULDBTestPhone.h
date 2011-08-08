@@ -2,7 +2,7 @@
 // Make changes to NULDBTestPhone.h instead.
 
 #import <CoreData/CoreData.h>
-
+#import "NULDBTestModel.h"
 
 @class NULDBTestPerson;
 
@@ -13,7 +13,7 @@
 @interface NULDBTestPhoneID : NSManagedObjectID {}
 @end
 
-@interface _NULDBTestPhone : NSManagedObject {}
+@interface _NULDBTestPhone : NULDBTestModel {}
 + (id)insertInManagedObjectContext:(NSManagedObjectContext*)moc_;
 + (NSString*)entityName;
 + (NSEntityDescription*)entityInManagedObjectContext:(NSManagedObjectContext*)moc_;

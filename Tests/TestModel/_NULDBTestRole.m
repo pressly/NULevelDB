@@ -36,6 +36,11 @@
 
 
 
+@dynamic name;
+
+
+
+
 
 
 @dynamic company;

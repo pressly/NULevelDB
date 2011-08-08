@@ -2,7 +2,7 @@
 // Make changes to NULDBTestRole.h instead.
 
 #import <CoreData/CoreData.h>
-
+#import "NULDBTestModel.h"
 
 @class NULDBTestCompany;
 @class NULDBTestPerson;
@@ -12,13 +12,19 @@
 @interface NULDBTestRoleID : NSManagedObjectID {}
 @end
 
-@interface _NULDBTestRole : NSManagedObject {}
+@interface _NULDBTestRole : NULDBTestModel {}
 + (id)insertInManagedObjectContext:(NSManagedObjectContext*)moc_;
 + (NSString*)entityName;
 + (NSEntityDescription*)entityInManagedObjectContext:(NSManagedObjectContext*)moc_;
 - (NULDBTestRoleID*)objectID;
 
 
+
+
+@property (nonatomic, retain) NSString *name;
+
+
+//- (BOOL)validateName:(id*)value_ error:(NSError**)error_;
 
 
 
@@ -45,6 +51,10 @@
 @end
 
 @interface _NULDBTestRole (CoreDataGeneratedPrimitiveAccessors)
+
+
+- (NSString*)primitiveName;
+- (void)setPrimitiveName:(NSString*)value;
 
 
 
