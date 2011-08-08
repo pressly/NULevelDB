@@ -166,39 +166,22 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
 
 
 #pragma mark Basic Key-Value Storage support
-
-#define DYNAMIC_SLICES true
-
 - (void)storeValue:(id<NSCoding>)value forKey:(id<NSCoding>)key {
     
     WriteOptions write_options;
     write_options.sync = true;
     
-#if DYNAMIC_SLICES
     Slice *k = NULDBSliceFromObject(key);
     Slice *v = NULDBSliceFromObject(value);
     Status status = db->Put(write_options, *k, *v);
     
     delete k; delete v;
     
-#else
-    NSData *dk = [NSKeyedArchiver archivedDataWithRootObject:key], *dv = [NSKeyedArchiver archivedDataWithRootObject:value];
-    
-    Slice k = Slice((const char *)[dk bytes], (size_t)[dk length]);
-    Slice v = Slice((const char *)[dv bytes], (size_t)[dv length]);
-    
-    Status status = db->Put(write_options, k, v);
-#endif
-    
     if(!status.ok()) {
         NSLog(@"Problem storing key/value pair in database: %s", status.ToString().c_str());
     }
     else
-#if DYNAMIC_SLICES
         NULDBLog(@"   PUT->  %@ (%lu bytes)", key, v->size());
-#else
-    	NULDBLog(@"   PUT->  %@ (%lu bytes)", key, v.size());
-#endif
 }
 
 - (id)storedValueForKey:(id<NSCoding>)key {
@@ -207,18 +190,11 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
     options.fill_cache = true;
     
     std::string v_string;
-#if DYNAMIC_SLICES
+
     Slice *k = NULDBSliceFromObject(key);
     Status status = db->Get(options, *k, &v_string);
     
     delete k;
-    
-#else
-    NSData *dk = [NSKeyedArchiver archivedDataWithRootObject:key];
-    Slice k = Slice((const char *)[dk bytes], (size_t)[dk length]);
-    
-    Status status = db->Get(options, k, &v_string);
-#endif
     
     if(!status.ok()) {
         if(!status.IsNotFound())
@@ -238,18 +214,10 @@ static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
     WriteOptions write_options;
     write_options.sync = true;
 
-#if DYNAMIC_SLICES
     Slice *k = NULDBSliceFromObject(key);
     Status status = db->Delete(write_options, *k);
     
     delete k;
-    
-#else
-    NSData *dk = [NSKeyedArchiver archivedDataWithRootObject:key];
-    Slice k = Slice((const char *)[dk bytes], (size_t)[dk length]);
-    
-    Status status = db->Delete(write_options, k);
-#endif
     
     if(!status.ok())
         NSLog(@"Problem deleting key/value pair in database: %s", status.ToString().c_str());
