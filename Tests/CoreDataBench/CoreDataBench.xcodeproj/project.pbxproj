@@ -29,6 +29,8 @@
 		4E221EAB13EC908700203E8D /* _NULDBTestCompany.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221EA513EC908700203E8D /* _NULDBTestCompany.m */; };
 		4E221EAC13EC908700203E8D /* _NULDBTestPerson.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221EA713EC908700203E8D /* _NULDBTestPerson.m */; };
 		4E221EAD13EC908700203E8D /* _NULDBTestPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221EA913EC908700203E8D /* _NULDBTestPhone.m */; };
+		4E221ECA13F0261400203E8D /* _NULDBTestRole.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221EC713F0261400203E8D /* _NULDBTestRole.m */; };
+		4E221ECB13F0261400203E8D /* NULDBTestRole.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221EC913F0261400203E8D /* NULDBTestRole.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,6 +72,10 @@
 		4E221EA713EC908700203E8D /* _NULDBTestPerson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _NULDBTestPerson.m; path = ../TestModel/_NULDBTestPerson.m; sourceTree = "<group>"; };
 		4E221EA813EC908700203E8D /* _NULDBTestPhone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _NULDBTestPhone.h; path = ../TestModel/_NULDBTestPhone.h; sourceTree = "<group>"; };
 		4E221EA913EC908700203E8D /* _NULDBTestPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _NULDBTestPhone.m; path = ../TestModel/_NULDBTestPhone.m; sourceTree = "<group>"; };
+		4E221EC613F0261400203E8D /* _NULDBTestRole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _NULDBTestRole.h; path = ../TestModel/_NULDBTestRole.h; sourceTree = "<group>"; };
+		4E221EC713F0261400203E8D /* _NULDBTestRole.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _NULDBTestRole.m; path = ../TestModel/_NULDBTestRole.m; sourceTree = "<group>"; };
+		4E221EC813F0261400203E8D /* NULDBTestRole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NULDBTestRole.h; path = ../TestModel/NULDBTestRole.h; sourceTree = "<group>"; };
+		4E221EC913F0261400203E8D /* NULDBTestRole.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NULDBTestRole.m; path = ../TestModel/NULDBTestRole.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,6 +161,8 @@
 				4E221EA713EC908700203E8D /* _NULDBTestPerson.m */,
 				4E221EA813EC908700203E8D /* _NULDBTestPhone.h */,
 				4E221EA913EC908700203E8D /* _NULDBTestPhone.m */,
+				4E221EC613F0261400203E8D /* _NULDBTestRole.h */,
+				4E221EC713F0261400203E8D /* _NULDBTestRole.m */,
 				4E221E4313EC768900203E8D /* NULDBTestModel.h */,
 				4E221E4413EC768900203E8D /* NULDBTestModel.m */,
 				4E221E4A13EC77E000203E8D /* NULDBTestAddress.h */,
@@ -165,6 +173,8 @@
 				4E221E4F13EC77E000203E8D /* NULDBTestPerson.m */,
 				4E221E5013EC77E000203E8D /* NULDBTestPhone.h */,
 				4E221E5113EC77E000203E8D /* NULDBTestPhone.m */,
+				4E221EC813F0261400203E8D /* NULDBTestRole.h */,
+				4E221EC913F0261400203E8D /* NULDBTestRole.m */,
 				4E221E5213EC77E000203E8D /* NULDBTestUtilities.h */,
 				4E221E5313EC77E000203E8D /* NULDBTestUtilities.m */,
 			);
@@ -249,6 +259,8 @@
 				4E221EAB13EC908700203E8D /* _NULDBTestCompany.m in Sources */,
 				4E221EAC13EC908700203E8D /* _NULDBTestPerson.m in Sources */,
 				4E221EAD13EC908700203E8D /* _NULDBTestPhone.m in Sources */,
+				4E221ECA13F0261400203E8D /* _NULDBTestRole.m in Sources */,
+				4E221ECB13F0261400203E8D /* NULDBTestRole.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -302,7 +314,7 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -320,7 +332,7 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
