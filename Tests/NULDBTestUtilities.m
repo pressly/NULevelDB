@@ -32,7 +32,10 @@ NSString *NULDBRandomName( void ) {
             buffer[l++] = vows[Random_int_in_range(0,5)];
         
         for(int j=0; j<c; ++j)
-            buffer[l++] = cons[Random_int_in_range(0,19)];            
+            buffer[l++] = cons[Random_int_in_range(0,19)];
+        
+        if(0 == Random_int_in_range(0,3))
+            buffer[l++] = cons[Random_int_in_range(0,19)];
     }
     
     buffer[0] -= 0x20;
