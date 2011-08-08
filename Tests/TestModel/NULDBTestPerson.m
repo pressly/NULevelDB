@@ -15,7 +15,11 @@
 
 @implementation NULDBTestPerson
 
-@synthesize uniqueID, firstName, lastName, address, company, phone;
+#ifndef NULDBTEST_CORE_DATA
+@synthesize firstName, lastName, address, company, phone;
+#endif
+@synthesize uniqueID;
+@dynamic fullName;
 
 static NSArray *properties;
 
@@ -34,13 +38,19 @@ static NSArray *properties;
 }
 
 
+- (NSString *)fullName {
+    return [NSString stringWithFormat:@"%@ %@", self.firstName, self.lastName];
+}
+
+
+#if STRICT_RELATIONAL
 #pragma mark NULDBSerializable
 - (NSArray *)propertyNames {
     return properties;
 }
 
 - (NSString *)storageKey {
-    return uniqueID;
+    return self.uniqueID;
 }
 
 - (void)awakeFromStorage:(NSString *)storageKey {
@@ -48,6 +58,7 @@ static NSArray *properties;
 }
 
 
+#else
 #pragma mark NULDBPlistTransformable
 - (id)initWithPropertyList:(NSDictionary *)values {
     self = [super init];
@@ -71,6 +82,7 @@ static NSArray *properties;
     
     return plist;
 }
+#endif
 
 
 #pragma mark New

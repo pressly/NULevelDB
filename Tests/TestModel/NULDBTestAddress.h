@@ -11,7 +11,13 @@
 #import "_NULDBTestAddress.h"
 
 
-@interface NULDBTestAddress : _NULDBTestAddress<NULDBPlistTransformable>
+@interface NULDBTestAddress : _NULDBTestAddress<
+#if STRICT_RELATIONAL
+NULDBSerializable
+#else
+NULDBPlistTransformable
+#endif
+>
 
 @property (retain) NSString *uniqueID;
 

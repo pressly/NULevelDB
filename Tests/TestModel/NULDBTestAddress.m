@@ -13,13 +13,22 @@
 
 @implementation NULDBTestAddress
 
-@synthesize uniqueID, street, city, state, postalCode;
+#ifndef NULDBTEST_CORE_DATA
+@synthesize street, city, state, postalCode;
+#endif
+@synthesize uniqueID;
 
-static NSArray *roads = nil;
+#if STRICT_RELATIONAL
+static NSArray *propertyNames;
+#endif
+static NSArray *roads;
 
 #pragma mark NSObject
 + (void)initialize {
     if([self class] == [NULDBTestAddress class]) {
+#if STRICT_RELATIONAL
+        propertyNames = [[NSArray alloc] initWithObjects:@"street", @"city", @"state", @"postalCode", nil];
+#endif
         roads = [[NSArray alloc] initWithObjects:@"St.", @"Rd.", @"Ave", @"Cres.", @"Blvd.", @"Ct.", @"Ln.", nil];
     }
 }
@@ -32,23 +41,45 @@ static NSArray *roads = nil;
     return self;
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"%@, %@, %@, %@.", self.street, self.city, self.state, self.postalCode];
+}
+
+#ifndef NULDBTEST_CORE_DATA
 - (BOOL)isEqual:(id)object {
     if(![object isKindOfClass:[NULDBTestAddress class]])
         return NO;
     
     NULDBTestAddress *address = (NULDBTestAddress *)object;
     
-    return ([street isEqualToString:address.street]
-            && [city isEqualToString:address.city]
-            && [state isEqualToString:address.state]
-            && [postalCode isEqualToString:address.postalCode]);
+    return ([self.street isEqualToString:address.street]
+            && [self.city isEqualToString:address.city]
+            && [self.state isEqualToString:address.state]
+            && [self.postalCode isEqualToString:address.postalCode]);
 }
 
 - (NSUInteger)hash {
-    return [[NSString stringWithFormat:@"%@%@%@%@", street, city, state, postalCode] hash];
+    return [[NSString stringWithFormat:@"%@%@%@%@", self.street, self.city, self.state, self.postalCode] hash];
+}
+#endif
+
+
+#if STRICT_RELATIONAL
+#pragma mark NULDBSerializable
+- (NSString *)storageKey {
+    return self.uniqueID;
+}
+
+- (NSArray *)propertyNames {
+    return propertyNames;
+}
+
+- (void)awakeFromStorage:(NSString *)storageKey {
+    self.uniqueID = storageKey;
 }
 
 
+#else
 #pragma mark NULDBPlistTransformable
 - (id)initWithPropertyList:(NSDictionary *)values {
     self = [self init];
@@ -65,13 +96,14 @@ static NSArray *roads = nil;
 
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
     
-    if(street)[dict setObject:street forKey:@"street"];
-    if(city)[dict setObject:city forKey:@"city"];
-    if(state)[dict setObject:state forKey:@"state"];
-    if(postalCode)[dict setObject:postalCode forKey:@"postalCode"];
+    if(self.street)[dict setObject:self.street forKey:@"street"];
+    if(self.city)[dict setObject:self.city forKey:@"city"];
+    if(self.state)[dict setObject:self.state forKey:@"state"];
+    if(self.postalCode)[dict setObject:self.postalCode forKey:@"postalCode"];
     
     return dict;
 }
+#endif
 
 
 #pragma mark New
@@ -94,7 +126,8 @@ static inline NSString *randomPostalCode () {
 + (NULDBTestAddress *)randomAddress {
     
 #if NULDBTEST_CORE_DATA
-    NULDBTestAddress *result = [NSEntityDescription insertNewObjectForEntityForName:@"Address" inManagedObjectContext:CDBSharedContext()];
+    NSManagedObjectContext *moc = CDBSharedContext();
+    NULDBTestAddress *result =  [NSEntityDescription insertNewObjectForEntityForName:@"Address" inManagedObjectContext:moc];
 #else
     NULDBTestAddress *result = [[NULDBTestAddress alloc] init];
 #endif

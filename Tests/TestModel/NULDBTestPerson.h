@@ -14,9 +14,17 @@
 @class NULDBTestAddress;
 @class NULDBTestPhone;
 
-@interface NULDBTestPerson : _NULDBTestPerson<NULDBSerializable, NULDBPlistTransformable>
+@interface NULDBTestPerson : _NULDBTestPerson<
+#if STRICT_RELATIONAL
+NULDBSerializable
+#else
+NULDBPlistTransformable
+#endif
+>
 
 @property (retain) NSString *uniqueID;
+
+@property (readonly) NSString *fullName;
 
 + (NULDBTestPerson *)randomPerson;
 

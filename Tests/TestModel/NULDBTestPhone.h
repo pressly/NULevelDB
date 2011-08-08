@@ -11,7 +11,11 @@
 #import "_NULDBTestPhone.h"
 
 
-@interface NULDBTestPhone : _NULDBTestPhone<NSCoding>
+@interface NULDBTestPhone : _NULDBTestPhone<NSCoding
+#if STRICT_RELATIONAL
+, NULDBSerializable
+#endif
+>
 
 - (id)initWithAreaCode:(NSUInteger)a exchange:(NSUInteger)e line:(NSUInteger)l;
 - (id)initWithString:(NSString *)string;

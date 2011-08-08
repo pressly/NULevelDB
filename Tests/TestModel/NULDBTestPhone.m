@@ -12,9 +12,12 @@
 
 @implementation NULDBTestPhone
 
+#ifndef NULDBTEST_CORE_DATA
 @synthesize areaCode, exchange, line;
+#endif
 
 #pragma mark NSObject
+#ifndef NULDBTEST_CORE_DATA
 - (BOOL)isEqual:(id)other {
     if(![super isEqual:other])
         return [self hash] == [other hash];
@@ -24,19 +27,29 @@
 - (NSUInteger)hash {
     return self.lineValue + self.exchangeValue * 10000 + self.areaCodeValue * 10000000;
 }
+#endif
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"%@ (%d) %d-%d", [super description], areaCode, exchange, line];
+    return [NSString stringWithFormat:@"%@ (%@) %@-%@", [super description], self.areaCode, self.exchange, self.line];
 }
 
 #pragma mark Initializers
 
+#if STRICT_RELATIONAL
+static NSArray *propertyNames;
++ (void)initialize {
+    if([self class] == [NULDBTestPhone class]) {
+        propertyNames = [[NSArray alloc] initWithObjects:@"areaCode", @"exchange", @"line", nil];
+    }
+}
+#endif
+
 - (id)initWithAreaCode:(NSUInteger)a exchange:(NSUInteger)e line:(NSUInteger)l {
     self = [super init];
     if(self) {
-        self.areaCodeValue = a;
-        self.exchangeValue = e;
-        self.lineValue = l;
+        self.areaCode = [NSNumber numberWithUnsignedInteger:a];
+        self.exchange = [NSNumber numberWithUnsignedInteger:e];
+        self.line = [NSNumber numberWithUnsignedInteger:l];
     }
     return self;
 }
@@ -56,6 +69,8 @@
     return [self initWithAreaCode:a exchange:e line:l];
 }
 
+
+#pragma mark NSCoding
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super init];
     if(self) {
@@ -67,10 +82,22 @@
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-    [aCoder encodeObject:areaCode forKey:@"a"];
-    [aCoder encodeObject:exchange forKey:@"e"];
-    [aCoder encodeObject:line forKey:@"l"];
+    [aCoder encodeObject:self.areaCode forKey:@"a"];
+    [aCoder encodeObject:self.exchange forKey:@"e"];
+    [aCoder encodeObject:self.line forKey:@"l"];
 }
+
+
+#pragma mark NULDBSerializable
+#if STRICT_RELATIONAL
+- (NSString *)storageKey {
+    return [self string];
+}
+
+- (NSArray *)propertyNames {
+    return propertyNames;
+}
+#endif
 
 
 #pragma mark New
@@ -88,7 +115,7 @@
 }
 
 - (NSString *)string {
-    return [NSString stringWithFormat:@"(%d) %d-%d", areaCode, exchange, line];
+    return [NSString stringWithFormat:@"(%@) %@-%@", self.areaCode, self.exchange, self.line];
 }
 
 @end
