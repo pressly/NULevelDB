@@ -9,6 +9,12 @@
 #import "CoreDataBenchAppDelegate.h"
 
 #import "MasterViewController.h"
+#import "NULDBTestCompany.h"
+#import "NSManagedObjectContext+BAAdditions.h"
+
+
+NSManagedObjectContext *CDBSharedContext;
+
 
 @implementation CoreDataBenchAppDelegate
 
@@ -27,7 +33,58 @@
     self.navigationController = [[UINavigationController alloc] initWithRootViewController:controller];
     self.window.rootViewController = self.navigationController;
     [self.window makeKeyAndVisible];
+    
+    [self performSelector:@selector(runTests) withObject:nil afterDelay:0];
+
     return YES;
+}
+
+- (void)runTests {
+    
+    NSMutableArray *names = [NSMutableArray array];
+    NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
+    
+    NSLog(@"Starting Core Data tests");
+    
+    for(int i; i<5; ++i) {
+        
+        NULDBTestCompany *company = [NULDBTestCompany companyOf100];
+        
+        [names addObject:[company name]];
+    }
+    
+    NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
+
+    NSLog(@"Finished storing. Took %0.4f seconds. Starting loading.", end - start);
+    
+    NSMutableArray *companies = [NSMutableArray array];
+    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"Company"];
+
+    fetch.relationshipKeyPathsForPrefetching = [NSArray arrayWithObjects:@"addresses",
+                                                @"workers.address",
+                                                @"workers.phone",
+                                                nil
+
+    [self.managedObjectContext reset];
+    
+    start = end;
+    
+    for(NSString *name in names) {
+        
+        fetch.predicate = [NSPredicate predicateWithFormat:@"name = %@", name];
+        [companies addObject:];
+    }
+    
+    end = [NSDate timeIntervalSinceReferenceDate];
+    NSLog(@"Finished loading. Took %0.4f seconds. Starting deleting.", end - start);
+    
+    for(NULDBTestCompany *company in companies) {
+        [self.managedObjectContext deleteObject:company];
+        [self.managedObjectContext save:NULL];
+    }
+    
+    end = [NSDate timeIntervalSinceReferenceDate];
+    NSLog(@"Finished deleting. Took %0.4f seconds. Done testing", end - start);
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
