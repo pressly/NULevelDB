@@ -18,6 +18,8 @@
 //@property (retain) NULDBTestPerson *supervisor;
 @property (retain) NSDictionary *management; // persons keyed by title
 
+- (NSDictionary *)plistRepresentation;
+
 + (NULDBTestCompany *)randomCompanyWithWorkers:(NSUInteger)wcount managers:(NSUInteger)mcount addresses:(NSUInteger)account;
 + (NULDBTestCompany *)randomSizedCompany;
 + (NULDBTestCompany *)companyOf10;

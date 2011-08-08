@@ -102,20 +102,25 @@ static NSArray *propertyNames;
 
 #pragma mark New
 + (NULDBTestPhone *)randomPhone {
+    
+    int a = Random_int_in_range(100, 999);
+    int x = Random_int_in_range(0, 999);
+    int l = Random_int_in_range(0, 9999);
+    
 #if NULDBTEST_CORE_DATA
     NULDBTestPhone *phone = [NSEntityDescription insertNewObjectForEntityForName:@"Phone" inManagedObjectContext:CDBSharedContext()];
-    phone.areaCodeValue = Random_int_in_range(0, 999);
-    phone.exchangeValue = Random_int_in_range(0, 999);
-    phone.lineValue = Random_int_in_range(0, 9999);
+    phone.areaCodeValue = a;
+    phone.exchangeValue = x;
+    phone.lineValue = l;
     [CDBSharedContext() save:NULL];
     return phone;
 #else
-    return [[NULDBTestPhone alloc] initWithAreaCode:Random_int_in_range(0, 999) exchange:Random_int_in_range(0, 999) line:Random_int_in_range(0, 9999)];
+    return [[NULDBTestPhone alloc] initWithAreaCode:a exchange:x line:l];
 #endif
 }
 
 - (NSString *)string {
-    return [NSString stringWithFormat:@"(%@) %@-%@", self.areaCode, self.exchange, self.line];
+    return [NSString stringWithFormat:@"(%d) %03d-%04d", [self.areaCode intValue], [self.exchange intValue], [self.line intValue]];
 }
 
 @end

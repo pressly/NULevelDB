@@ -21,6 +21,9 @@ NULDBPlistTransformable
 
 @property (retain) NSString *uniqueID;
 
+- (id)initWithPropertyList:(NSDictionary *)values;
+- (NSDictionary *)plistRepresentation;
+
 + (NULDBTestAddress *)randomAddress;
 
 @end

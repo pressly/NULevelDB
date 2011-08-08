@@ -26,6 +26,7 @@ NULDBPlistTransformable
 
 @property (readonly) NSString *fullName;
 
+- (NSDictionary *)plistRepresentation;
 + (NULDBTestPerson *)randomPerson;
 
 @end

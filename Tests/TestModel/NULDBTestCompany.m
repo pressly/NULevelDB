@@ -14,11 +14,15 @@
 #import "NULDBTestRole.h"
 #import "NULDBTestUtilities.h"
 
+@interface NULDBTestCompany ()
+- (void)populateManagement;
+@end
+
 
 @implementation NULDBTestCompany
 
 #ifndef NULDBTEST_CORE_DATA
-@synthesize name, /*supervisor,*/ workers, addresses, mainAddress, secondaryAddresses;
+@synthesize name, /*supervisor,*/ workers, addresses, primaryAddressID, mainAddress, secondaryAddresses;
 #endif
 
 @synthesize management;
@@ -44,6 +48,25 @@ static NSArray *titles;
     return self;
 }
 
+
+#ifndef NULDBTEST_CORE_DATA
+- (NSArray *)mainAddress {
+    return [[self.addresses filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"uniqueID = %@", self.primaryAddressID]] allObjects];
+}
+
+- (NSArray *)secondaryAddresses {
+    
+    NSMutableSet *set = [self.addresses mutableCopy];
+    NULDBTestAddress *main = [self.mainAddress lastObject];
+    
+    if(main)
+        [set removeObject:main];
+    
+    return [set allObjects];
+}
+
+#endif
+
 #pragma mark NULDBSerializable
 - (NSString *)storageKey {
     return self.name;
@@ -54,14 +77,63 @@ static NSArray *titles;
 }
 
 
+#pragma mark NULDBPlistTransformable
+- (id)initWithPropertyList:(NSDictionary *)values {
+    self = [self init];
+    if(self) {
+        
+    }
+    return self;
+}
+
+- (NSDictionary *)plistRepresentation {
+    
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    
+    [dict setObject:self.name forKey:@"name"];
+    [dict setObject:self.primaryAddressID forKey:@"primaryAddressID"];
+    [dict setObject:[self.addresses valueForKey:@"plistRepresentation"] forKey:@"addresses"];
+    
+    if(!self.management)
+        [self populateManagement];
+    if([self.management count]) {
+        
+        NSMutableDictionary *mgmtPlist = [NSMutableDictionary dictionary];
+        
+        for(id key in [self.management allKeys])
+            [mgmtPlist setObject:[[self.management objectForKey:key] plistRepresentation] forKey:key];
+        
+        [dict setObject:mgmtPlist forKey:@"management"];
+    }
+    
+    if([self.workers count])
+        [dict setObject:[self.workers valueForKey:@"plistRepresentation"] forKey:@"workers"];
+    
+    return dict;
+}
+
+
 #pragma mark New
+- (void)populateManagement {
+    
+    NSUInteger count = [self.roles count];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:count];
+    
+    for(NULDBTestRole *role in self.roles)
+        [dict setObject:role.manager forKey:role.name];
+    
+    self.management = [dict copy];
+}
+
 + (NULDBTestCompany *)randomCompanyWithWorkers:(NSUInteger)wcount managers:(NSUInteger)mcount addresses:(NSUInteger)acount {
+    
+    NSString *name = NULDBRandomName();
     
 #if NULDBTEST_CORE_DATA
     NULDBTestCompany *result = [NSEntityDescription insertNewObjectForEntityForName:@"Company" inManagedObjectContext:CDBSharedContext()];
-    result.name = NULDBRandomName();
+    result.name = name;
 #else
-    NULDBTestCompany *result = [[NULDBTestCompany alloc] initWithName:NULDBRandomName()];
+    NULDBTestCompany *result = [[NULDBTestCompany alloc] initWithName:name];
 #endif
     NSMutableSet *set = [NSMutableSet setWithCapacity:wcount];
     
@@ -84,19 +156,23 @@ static NSArray *titles;
             [selectedTitles addObject:[titles objectAtIndex:Random_int_in_range(0, [titles count])]];
     }
     
-#if NULDBTEST_CORE_DATA
-    for(NSString *title in selectedTitles)
-        [NULDBTestRole roleWithName:title company:result manager:[NULDBTestPerson randomPerson]];
 
-#else
     NSMutableDictionary *management = [NSMutableDictionary dictionaryWithCapacity:mcount];
-
+    
     for(NSString *title in selectedTitles)
         [management setObject:[NULDBTestPerson randomPerson] forKey:title];
+    
+#if NULDBTEST_CORE_DATA
+    for(NSString *title in [management allKeys])
+        [NULDBTestRole roleWithName:title company:result manager:[management objectForKey:title]];
+#else
     result.management = management;
 #endif
 
     NSMutableSet *adds = [NSMutableSet set];
+    NULDBTestAddress *address = [NULDBTestAddress randomAddress];
+    
+    [adds addObject:address];
     
     for (int i=0; i<acount; ++i)
         [adds addObject:[NULDBTestAddress randomAddress]];
@@ -105,10 +181,9 @@ static NSArray *titles;
 
 #ifdef NULDBTEST_CORE_DATA
     [CDBSharedContext() save:NULL];
-
-    NULDBTestAddress *main = [result.addresses anyObject];
-    
-    result.primaryAddressID = [[[main objectID] URIRepresentation] absoluteString];
+    result.primaryAddressID = [[[address objectID] URIRepresentation] absoluteString];
+#else
+    result.primaryAddressID = [address uniqueID];
 #endif
 
 #if NULDBTEST_CORE_DATA

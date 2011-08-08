@@ -77,9 +77,9 @@ static NSArray *roads;
 - (void)awakeFromStorage:(NSString *)storageKey {
     self.uniqueID = storageKey;
 }
+#endif
 
 
-#else
 #pragma mark NULDBPlistTransformable
 - (id)initWithPropertyList:(NSDictionary *)values {
     self = [self init];
@@ -103,7 +103,6 @@ static NSArray *roads;
     
     return dict;
 }
-#endif
 
 
 #pragma mark New

@@ -56,9 +56,9 @@ static NSArray *properties;
 - (void)awakeFromStorage:(NSString *)storageKey {
     self.uniqueID = storageKey;
 }
+#endif
 
 
-#else
 #pragma mark NULDBPlistTransformable
 - (id)initWithPropertyList:(NSDictionary *)values {
     self = [super init];
@@ -78,11 +78,10 @@ static NSArray *properties;
     if([self.firstName length]) [plist setObject:self.firstName forKey:@"f"];
     if([self.lastName length]) [plist setObject:self.lastName forKey:@"l"];
     if(self.address) [plist setObject:[self.address plistRepresentation] forKey:@"a"];
-    if(self.phone) [plist setObject:[self.phone description] forKey:@"p"];
+    if(self.phone) [plist setObject:[self.phone string] forKey:@"p"];
     
     return plist;
 }
-#endif
 
 
 #pragma mark New
