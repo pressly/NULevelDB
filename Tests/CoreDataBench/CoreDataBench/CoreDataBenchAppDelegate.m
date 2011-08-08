@@ -103,12 +103,12 @@
     start = end;
     
 
-    NSArray *companies = [self.managedObjectContext executeFetchRequest:fetch error:&error];
+    NSArray *sort = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
+    NSArray *companies = [[self.managedObjectContext executeFetchRequest:fetch error:&error] sortedArrayUsingDescriptors:sort];
 
-    
     for(NULDBTestCompany *company in companies) {
-        NSLog(@"Workers for company %@: %@", company.name, [[[company.workers valueForKey:@"fullName"] allObjects] componentsJoinedByString:@", "]);
-        NSLog(@"Addresses for company %@: %@", company.name, [[[company.addresses valueForKey:@"description"] allObjects] componentsJoinedByString:@" "]);
+        NSLog(@"Workers for company %@:\n%@", company.name, [[[[company.workers valueForKey:@"fullName"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
+        NSLog(@"Addresses for company %@:\n%@", company.name, [[[[company.addresses valueForKey:@"description"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@"\n"]);
     }
     
     end = [NSDate timeIntervalSinceReferenceDate];

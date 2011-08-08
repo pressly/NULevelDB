@@ -196,9 +196,11 @@
     for(id key in [companies allKeys])
         [companiesArray addObject:[self storedObjectForKey:key]];
     
-    for(NULDBTestCompany *company in companiesArray) {
-        NSLog(@"Workers for company %@: %@", company.name, [[[company.workers valueForKey:@"fullName"] allObjects] componentsJoinedByString:@", "]);
-        NSLog(@"Addresses for company %@: %@", company.name, [[[company.addresses valueForKey:@"description"] allObjects] componentsJoinedByString:@" "]);
+    NSArray *sort = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
+
+    for(NULDBTestCompany *company in [companiesArray sortedArrayUsingDescriptors:sort]) {
+        NSLog(@"Workers for company %@:\n%@", company.name, [[[[company.workers valueForKey:@"fullName"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
+        NSLog(@"Addresses for company %@:\n%@", company.name, [[[[company.addresses valueForKey:@"description"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@"\n"]);
     }
 
     
