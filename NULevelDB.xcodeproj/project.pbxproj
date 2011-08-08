@@ -124,6 +124,7 @@
 		4E221E9013EC907200203E8D /* _NULDBTestPhone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _NULDBTestPhone.h; sourceTree = "<group>"; };
 		4E221E9113EC907200203E8D /* _NULDBTestPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = _NULDBTestPhone.m; sourceTree = "<group>"; };
 		4E221EAE13EC94E100203E8D /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		4E221ED513F07B2700203E8D /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		4E82772513EAF44500C64821 /* NULevelDB.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = NULevelDB.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E82772813EAF44500C64821 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		4E82772C13EAF44500C64821 /* NULevelDB-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NULevelDB-Info.plist"; sourceTree = "<group>"; };
@@ -328,6 +329,7 @@
 		4E82771713EAF44500C64821 = {
 			isa = PBXGroup;
 			children = (
+				4E221ED513F07B2700203E8D /* README */,
 				4E82775513EAF49500C64821 /* leveldb */,
 				4E82772A13EAF44500C64821 /* NULevelDB */,
 				4E82774413EAF44500C64821 /* NULevelDBTests */,
