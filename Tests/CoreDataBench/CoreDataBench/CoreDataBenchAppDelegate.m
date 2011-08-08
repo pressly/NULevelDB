@@ -10,10 +10,14 @@
 
 #import "MasterViewController.h"
 #import "NULDBTestCompany.h"
-#import "NSManagedObjectContext+BAAdditions.h"
+#import "NULDBTestUtilities.h"
 
 
-NSManagedObjectContext *CDBSharedContext;
+@interface CoreDataBenchAppDelegate ()
+
+- (NSURL *)storeURL;
+
+@end
 
 
 @implementation CoreDataBenchAppDelegate
@@ -23,6 +27,12 @@ NSManagedObjectContext *CDBSharedContext;
 @synthesize managedObjectModel = __managedObjectModel;
 @synthesize persistentStoreCoordinator = __persistentStoreCoordinator;
 @synthesize navigationController = _navigationController;
+
++ (void)initialize {
+    if([self class] == [CoreDataBenchAppDelegate class]) {
+        srandom(TEST_RANDOM_SEED);
+    }
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -41,38 +51,55 @@ NSManagedObjectContext *CDBSharedContext;
 
 - (void)runTests {
     
+    NSError *error = nil;
+    
+    if(![[NSFileManager defaultManager] removeItemAtURL:[self storeURL] error:&error])
+        NSLog(@"Couldn't delete core data store: %@", error);
+    else {
+        __managedObjectContext = nil;
+        __persistentStoreCoordinator = nil;
+    }
+    
     NSMutableArray *names = [NSMutableArray array];
     NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
     
     NSLog(@"Starting Core Data tests");
     
-    for(int i; i<5; ++i) {
+    for(int i=0; i<5; ++i) {
         
         NULDBTestCompany *company = [NULDBTestCompany companyOf100];
         
         [names addObject:[company name]];
     }
     
+    
     NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
 
     NSLog(@"Finished storing. Took %0.4f seconds. Starting loading.", end - start);
     
-    NSMutableArray *companies = [NSMutableArray array];
+    
+    [self.managedObjectContext reset];
+
+    
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"Company"];
 
     fetch.relationshipKeyPathsForPrefetching = [NSArray arrayWithObjects:@"addresses",
                                                 @"workers.address",
                                                 @"workers.phone",
-                                                nil
-
-    [self.managedObjectContext reset];
+                                                @"roles.manager.address",
+                                                @"roles.manager.phone",
+                                                nil];
+    fetch.predicate = [NSPredicate predicateWithFormat:@"name in %@", names];
     
     start = end;
     
-    for(NSString *name in names) {
-        
-        fetch.predicate = [NSPredicate predicateWithFormat:@"name = %@", name];
-        [companies addObject:];
+
+    NSArray *companies = [self.managedObjectContext executeFetchRequest:fetch error:&error];
+
+    
+    for(NULDBTestCompany *company in companies) {
+        NSLog(@"Workers for company %@: %@", company.name, [[[company.workers valueForKey:@"fullName"] allObjects] componentsJoinedByString:@", "]);
+        NSLog(@"Addresses for company %@: %@", company.name, [[[company.addresses valueForKey:@"description"] allObjects] componentsJoinedByString:@" "]);
     }
     
     end = [NSDate timeIntervalSinceReferenceDate];
@@ -190,7 +217,7 @@ NSManagedObjectContext *CDBSharedContext;
         return __persistentStoreCoordinator;
     }
     
-    NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"CoreDataBench.sqlite"];
+    NSURL *storeURL = [self storeURL];
     
     NSError *error = nil;
     __persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[self managedObjectModel]];
@@ -234,6 +261,10 @@ NSManagedObjectContext *CDBSharedContext;
 - (NSURL *)applicationDocumentsDirectory
 {
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+}
+
+- (NSURL *)storeURL {
+    return [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"CoreDataBench.sqlite"];
 }
 
 @end
