@@ -35,11 +35,13 @@ using namespace leveldb;
 - (ObjectKey)serializeObject:(id<NULDBSerializable>)object;
 - (id)unserializeObjectForKey:(ObjectKey)key;
 
-- (NSDictionary *)storeDictionary:(NSDictionary *)plist forKey:(PropertyKey)key;
+- (NSDictionary *)storeContentsOfDictionary:(NSDictionary *)dictionary name:(NSString *)name;
+- (void)storeDictionary:(NSDictionary *)plist forKey:(PropertyKey)key;
 - (NSDictionary *)unserializeDictionary:(NSDictionary *)storedDict;
 - (void)deleteStoredDictionary:(NSDictionary *)storedDict;
 
-- (ArrayKey)storeArray:(NSArray *)array forKey:(PropertyKey)key;
+- (ArrayKey)storeElementsInArray:(NSArray *)array objectCode:(NSUInteger)objectCode propertyIndex:(NSUInteger)propertyIndex;
+- (void)storeArray:(NSArray *)array forKey:(PropertyKey)key;
 - (NSArray *)unserializeArrayForKey:(ArrayKey)key;
 - (void)deleteStoredArrayContentsForKey:(PropertyKey)key;
 
@@ -240,11 +242,11 @@ using namespace leveldb;
         // increment the class counter
         classKey = new ClassKey(counters->addClass());
         
-        [self saveCounters];
-        
         // save the class token under the classname key
         status = db->Put(writeOptions, className.slice(), classKey->slice());
         assert(status.ok());
+        
+        [self saveCounters];
         
         // Since we didn't have a token, we also need to save the class description
         ClassDescription description(object);
@@ -265,27 +267,26 @@ using namespace leveldb;
     return result;
 }
 
-- (NSUInteger)objectCodeForObject:(id<NULDBSerializable>)object {
+- (NSUInteger)objectCodeForObject:(id)object storageKey:(NSString *)storageKey {
     
     NSUInteger result = 0;
-    
     std::string value;
-
-    StringKey key = StringKey([object storageKey]);
+    
+    StringKey key = StringKey(storageKey);
     Status status = db->Get(readOptions, key.slice(), &value);
     ObjectKey *objectKey;
     
     if(status.IsNotFound()) {
         
         // add a token for the object - don't store the object key until we store the object itself
-                
+        
         // update the counters
         objectKey = new ObjectKey(counters->addObject(), [self classCodeForObject:object]);
         
-        [self saveCounters];
-        
         status = db->Put(writeOptions, key.slice(), objectKey->slice());
         assert(status.ok());
+        
+        [self saveCounters];
         
         result = objectKey->getName();
     }
@@ -297,11 +298,45 @@ using namespace leveldb;
     
     result = objectKey->getName();
     
+    delete objectKey;
+    
     return result;
 }
 
-- (NSUInteger)arrayCodeForArray:(NSArray *)array {
-    return 0;
+- (NSUInteger)objectCodeForSerializableObject:(id<NULDBSerializable>)object {
+    return [self objectCodeForObject:object storageKey:[object storageKey]];
+}
+
+- (NSUInteger)objectCodeForDictionary:(NSDictionary *)dict name:(NSString *)name {
+    return [self objectCodeForObject:dict storageKey:name];
+}
+
+- (NSUInteger)arrayCodeForArrayKey:(ArrayKey)arrayKey {
+    
+    NSUInteger result;
+    std::string tempValue;
+    Status status = db->Get(readOptions, arrayKey.slice(), &tempValue);
+    ArrayToken *token;
+    
+    if(status.IsNotFound()) {
+        
+        token = new ArrayToken(counters->addArray());
+        
+        status = db->Put(writeOptions, arrayKey.slice(), token->slice());
+        
+        [self saveCounters];
+    }
+    else {
+        assert(status.ok());
+        Slice slice = tempValue;
+        token = new ArrayToken(slice);
+    }
+
+    result = token->getName();
+    
+    delete token;
+    
+    return result;
 }
 
 
@@ -376,14 +411,6 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     assert(status.ok());
 }
 
-- (id)decodeObject:(id)object {
-    
-    if([object isKindOfClass:[NSDictionary class]])
-        return [self unserializeDictionary:object];
-    
-    return nil;
-}
-
 - (id)propertyForKey:(PropertyKey)key {
     
     std::string tempValue;
@@ -404,13 +431,12 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
             break;
 
         case '\0':
-            return [self decodeObject:NULDBObjectFromSlice(slice)];
+            return NULDBDecodedObject(NULDBObjectFromSlice(slice));
             break;
 
         default:
             break;
     }
-    
     
     return nil;
 }
@@ -495,15 +521,16 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
         [object setValue:[self propertyForKey:propertyKey] forKey:property];
     }
 
-    return nil;
+    return object;
 }
 
-- (NSDictionary *)storeDictionary:(NSDictionary *)dictionary forKey:(PropertyKey)propertyKey {
+- (NSDictionary *)storeContentsOfDictionary:(NSDictionary *)dictionary name:(NSString *)name {
     
     // TODO: Implement
     // replace serializable or plist transformable objects in dictionary with stored representations
-    // for each serializable object, serialize it
+    // for each serializable object, serialize it; store the property key in the new dictionary
     NSMutableDictionary *newDict = [NSMutableDictionary dictionaryWithCapacity:[dictionary count]];
+    NSUInteger objectCode = [self objectCodeForDictionary:dictionary name:name];
     
     int i = 0;
     for (id key in [dictionary allKeys]) {
@@ -517,22 +544,81 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
             obj = [self serializeObject:obj].to_data();
         }
         else if([obj isKindOfClass:[NSArray class]]) {
-            if([obj count])
-                obj = [self storeArray:obj forKey:propertyKey].to_data();
+            if([obj count]) {
+                obj = [self storeElementsInArray:obj objectCode:objectCode propertyIndex:i].to_data();
+            }
         }
         else if([obj isKindOfClass:[NSSet class]]) {
-            if([obj count])
-                obj = [self storeArray:[obj allObjects] forKey:propertyKey].to_data();
+            if([obj count]) {
+                obj = [self storeElementsInArray:[obj allObjects] objectCode:objectCode propertyIndex:i].to_data();
+            }
         }
         else if([obj isKindOfClass:[NSDictionary class]]) {
-            if([obj count])
-                obj = [self storeDictionary:obj forKey:propertyKey];
+            if([obj count]) {
+                // FIXME!!! TODO !!!
+#pragma warning set the name
+                obj = [self storeContentsOfDictionary:obj name:nil];
+            }
         }
+                
+        [newDict setObject:NULDBEncodedObject(obj) forKey:key];
         
-        [newDict setObject:obj forKey:key];
+        ++i;
     }
     
     return newDict;
+}
+
+- (void)storeDictionary:(NSDictionary *)plist forKey:(PropertyKey)key {
+    
+    // Here's an unfortunate slowdown, but I need it to unique this dictionary
+    // If there was a way to calculate a hash on the dict before storing it, we could at least prevent redundant writing
+    NSString *name = nil;
+    std::string tempValue;
+    Status status = db->Get(readOptions, key.slice(), &tempValue);
+    
+    if(!status.IsNotFound()) {
+        
+        Slice slice = tempValue;
+        
+        name = [NULDBObjectFromSlice(slice) objectForKey:@"name"];
+    }
+    
+    if(nil == name)
+        name = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, CFUUIDCreate(NULL));
+    
+    
+    NSDictionary *namedDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                               [self storeContentsOfDictionary:plist name:name], @"content",
+                               name, @"name",
+                               nil];
+    
+    status = db->Put(writeOptions, key.slice(), NULDBSliceFromObject(namedDict));
+    assert(status.ok());
+}
+
+- (id)decodeDictionaryObject:(id)object {
+    
+    if([object isKindOfClass:[NSDictionary class]])
+        return [self unserializeDictionary:object];
+    
+    if([object isKindOfClass:[NSData class]]) {
+        
+        id obj = nil;
+        
+        // TODO: FINISH
+        if(0){
+            
+            PropertyKey *propertyKey;
+            
+            obj = [self propertyForKey:*propertyKey];
+        }
+        
+        return NULDBDecodedObject(object);
+        
+    }
+    
+    return nil;
 }
 
 - (id)unserializeDictionary:(NSDictionary *)storedDict {
@@ -545,9 +631,8 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:[storedDict count]];
     
-    for(NSString *key in [storedDict allKeys]) {
-        // TODO: FINISH
-    }
+    for(NSString *key in [storedDict allKeys])
+        [dictionary setObject:[self decodeDictionaryObject:[storedDict objectForKey:key]] forKey:key];
     
     return dictionary;
 }
@@ -557,16 +642,27 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     // TODO: Implement
 }
 
-- (ArrayKey)storeArray:(NSArray *)array forKey:(PropertyKey)key {
+- (ArrayKey)storeElementsInArray:(NSArray *)array objectCode:(NSUInteger)objectCode propertyIndex:(NSUInteger)propertyIndex {
+    
+    ArrayKey arrayKey(' ', objectCode, propertyIndex); // Fix this - we don't have a vType anymore
+    NSUInteger arrayCode = [self arrayCodeForArrayKey:arrayKey];
     
     // TODO: Implement
-    
-    
-    ArrayKey arrayKey(' ', [self arrayCodeForArray:array], [array count]);
-    
-    
-    return arrayKey;
+    int i=0;
+    for(id item in array) {
+        
+        ArrayIndexKey indexKey(i++, arrayCode);
+    }
 
+    return arrayKey;
+}
+
+- (void)storeArray:(NSArray *)array forKey:(PropertyKey)key {
+    
+    ArrayKey arrayKey = [self storeElementsInArray:array objectCode:key.getObjectName() propertyIndex:key.getPropertyIndex()];
+    Status status = db->Put(writeOptions, key.slice(), arrayKey.slice());
+
+    assert(status.ok());
 }
 
 - (NSArray *)unserializeArrayForKey:(ArrayKey)key {
