@@ -22,7 +22,7 @@ extern Class dataClass;
 extern Class dictClass;
 
 
-static inline Slice *NULDBSliceFromObject(id<NSCoding> object) {
+static inline Slice NULDBSliceFromObject(id<NSCoding> object) {
     
     char type = 'o';
     
@@ -50,12 +50,12 @@ static inline Slice *NULDBSliceFromObject(id<NSCoding> object) {
             break;
     }
     
-    return new Slice((const char *)[d bytes], (size_t)[d length]);
+    return Slice((const char *)[d bytes], (size_t)[d length]);
 }
 
-static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
+static inline id<NSCoding> NULDBObjectFromSlice(Slice &slice) {
     
-    NSData *d = [NSData dataWithBytes:slice->data() length:slice->size()];
+    NSData *d = [NSData dataWithBytes:slice.data() length:slice.size()];
     NSData *value = [d subdataWithRange:NSMakeRange(1, [d length] - 1)];
     
     char type;

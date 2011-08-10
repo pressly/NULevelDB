@@ -146,28 +146,24 @@ using namespace leveldb;
 #pragma mark Basic Key-Value Storage support
 - (void)storeValue:(id<NSCoding>)value forKey:(id<NSCoding>)key {
 
-    Slice *k = NULDBSliceFromObject(key);
-    Slice *v = NULDBSliceFromObject(value);
-    Status status = db->Put(writeOptions, *k, *v);
-    
-    delete k; delete v;
-    
+    Slice k = NULDBSliceFromObject(key);
+    Slice v = NULDBSliceFromObject(value);
+    Status status = db->Put(writeOptions, k, v);
+        
     if(!status.ok())
     {
         NSLog(@"Problem storing key/value pair in database: %s", status.ToString().c_str());
     }
     else
-        NULDBLog(@"   PUT->  %@ (%lu bytes)", key, v->size());
+        NULDBLog(@"   PUT->  %@ (%lu bytes)", key, v.size());
 }
 
 - (id)storedValueForKey:(id<NSCoding>)key {
         
     std::string v_string;
 
-    Slice *k = NULDBSliceFromObject(key);
-    Status status = db->Get(readOptions, *k, &v_string);
-    
-    delete k;
+    Slice k = NULDBSliceFromObject(key);
+    Status status = db->Get(readOptions, k, &v_string);
     
     if(!status.ok()) {
         if(!status.IsNotFound())
@@ -179,7 +175,7 @@ using namespace leveldb;
 
     Slice v = v_string;
 
-    return NULDBObjectFromSlice(&v);
+    return NULDBObjectFromSlice(v);
 }
 
 - (void)deleteStoredValueForKey:(id<NSCoding>)key {
