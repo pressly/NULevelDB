@@ -694,14 +694,14 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     readopts.fill_cache = false;
     
     Iterator*iter = db->NewIterator(readopts);
-    Slice *startSlice = NULDBSliceFromObject(start);
-    Slice *limitSlice = NULDBSliceFromObject(limit);
+    Slice startSlice = NULDBSliceFromObject(start);
+    Slice limitSlice = NULDBSliceFromObject(limit);
 
-    for(iter->Seek(*startSlice); iter->Valid() && iter->key().ToString() < limitSlice->ToString(); iter->Next()) {
+    for(iter->Seek(startSlice); iter->Valid() && iter->key().ToString() < limitSlice.ToString(); iter->Next()) {
 
         Slice key = iter->key(), value = iter->value();
         
-        if(!block((NSString *)NULDBObjectFromSlice(&key), NULDBObjectFromSlice(&value)))
+        if(!block((NSString *)NULDBObjectFromSlice(key), NULDBObjectFromSlice(value)))
            return;
     }
     
