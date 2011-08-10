@@ -14,6 +14,66 @@ Class dataClass;
 Class dictClass;
 
 
+NSData *NULDBEncodedObject(id<NSCoding>object) {
+    
+    char type = 'o';
+    
+    if([(id)object isKindOfClass:stringClass])    type = 's';
+    else if([(id)object isKindOfClass:dataClass]) type = 'd';
+    else if([(id)object isKindOfClass:dictClass]) type = 'h';
+    
+    NSMutableData *d = [NSMutableData dataWithBytes:&type length:1];
+    
+    switch (type) {
+        case 's':
+            [d appendData:[(NSString *)object dataUsingEncoding:NSUTF8StringEncoding]];
+            break;
+            
+        case 'd':
+            [d appendData:(NSData *)object];
+            break;
+            
+        case 'h':
+            [d appendData:[NSPropertyListSerialization dataWithPropertyList:(id)object format:NSPropertyListBinaryFormat_v1_0 options:0 error:NULL]];
+            break;
+            
+        default:
+            [d appendData:[NSKeyedArchiver archivedDataWithRootObject:object]];
+            break;
+    }
+    
+    return d;
+}
+
+extern id NULDBDecodedObject(NSData *data) {
+    
+    NSData *value = [data subdataWithRange:NSMakeRange(1, [data length] - 1)];
+    
+    char type;
+    
+    [d getBytes:&type length:1];
+    
+    switch (type) {
+        case 's':
+            return [[NSString alloc] initWithData:value encoding:NSUTF8StringEncoding];
+            break;
+            
+        case 'd':
+            return value;
+            break;
+            
+        case 'h':
+            return [NSPropertyListSerialization propertyListWithData:value options:NSPropertyListImmutable format:NULL error:NULL];
+            break;
+            
+        default:
+            break;
+    }
+    
+    return [NSKeyedUnarchiver unarchiveObjectWithData:value];
+}
+
+
 @implementation NULDBUtilities
 
 @end
