@@ -192,9 +192,6 @@ using namespace leveldb;
 
 
 #pragma mark Private Relationship Support
-/*
- * TODO: Use a more compact, binary key format with keys of identical lengths
- */
 
 #if USE_BINARY_KEYS
 - (BOOL)checkCounters {
@@ -431,37 +428,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     return objectKey;
 }
-#else
 
-- (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj {
-    
-    NSString *key = [obj storageKey];
-    
-    NSString *className = NSStringFromClass([obj class]);
-    NSString *classKey = NULDBClassToken(className);
-    NSArray *properties = [self storedValueForKey:classKey];
-    
-    NSAssert1(nil != classKey, @"No key for class %@", className);
-    NSAssert1(nil != key, @"No storage key for object %@", obj);
-    
-    NULDBLog(@" ARCHIVE %@", className);
-    
-    if(nil == properties) {
-        properties = [obj propertyNames];
-        [self storeValue:properties forKey:classKey];
-    }
-    
-    [self storeValue:classKey forKey:key];
-    
-    for(NSString *property in properties)
-        [self storeObject:[obj valueForKey:property] forKey:NULDBPropertyKey(className, property, key)];
-
-    return key;
-}
-#endif
-
-
-#if USE_BINARY_KEYS
 - (id)unserializeObjectForKey:(PropertyKey)key {
     
     // TODO: Implement
@@ -501,6 +468,32 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 }
 
 #else
+- (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj {
+    
+    NSString *key = [obj storageKey];
+    
+    NSString *className = NSStringFromClass([obj class]);
+    NSString *classKey = NULDBClassToken(className);
+    NSArray *properties = [self storedValueForKey:classKey];
+    
+    NSAssert1(nil != classKey, @"No key for class %@", className);
+    NSAssert1(nil != key, @"No storage key for object %@", obj);
+    
+    NULDBLog(@" ARCHIVE %@", className);
+    
+    if(nil == properties) {
+        properties = [obj propertyNames];
+        [self storeValue:properties forKey:classKey];
+    }
+    
+    [self storeValue:classKey forKey:key];
+    
+    for(NSString *property in properties)
+        [self storeObject:[obj valueForKey:property] forKey:NULDBPropertyKey(className, property, key)];
+    
+    return key;
+}
+
 - (id)unserializeObjectForClass:(NSString *)className key:(NSString *)key {
 
     NSArray *properties = [self storedValueForKey:NULDBClassToken(className)];
