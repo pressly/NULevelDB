@@ -7,7 +7,17 @@
 //
 
 #include <iostream>
+
 #include "NULDBStorageKey.h"
+#import "NULDBDB.h"
+
+
+@interface NULDBDB ()
+// These are maybe stupid and a waste of time
+- (NSUInteger)classCodeForObject:(id)object;
+- (NSUInteger)objectCodeForObject:(id)object;
+- (char)valueCodeForObject:(id)object;
+@end
 
 
 namespace NULDB {
@@ -52,6 +62,17 @@ namespace NULDB {
         valType = temp.c[3];
         a = temp.u[0];
         b = temp.u[1];
+    }
+    
+    
+    ObjectKey::ObjectKey(NULDBDB *db, id object) : StorageKey('O', ' ') {
+        a = [db classCodeForObject:object];
+        b = [db objectCodeForObject:object];
+    }
+
+
+    ClassKey::ClassKey(NULDBDB *db, id object) : StorageKey('C', ' ') {
+        a = [db classCodeForObject:object];
     }
 
 

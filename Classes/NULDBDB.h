@@ -8,25 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-// Object graph serialization support
-// Protocol suitable for serializing root objects or internal/leaf nodes
-@protocol NULDBSerializable <NSObject>
+#import <NULevelDB/NULDBSerializable.h>
 
-- (NSString *)storageKey;
-- (NSArray *)propertyNames;
-
-@optional
-- (void)awakeFromStorage:(NSString *)storageKey;
-
-@end
-
-// Protocol suitable for serializing internal/leaf nodes
-@protocol NULDBPlistTransformable <NSObject>
-
-- (id)initWithPropertyList:(NSDictionary *)values;
-- (NSDictionary *)plistRepresentation;
-
-@end
 
 @interface NULDBDB : NSObject
 

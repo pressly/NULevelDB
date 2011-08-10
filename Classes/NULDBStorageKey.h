@@ -9,18 +9,14 @@
 #ifndef NULevelDB_NULDBStorageKey_h
 #define NULevelDB_NULDBStorageKey_h
 
-#import "NULDBDB.h"
 
 #include <leveldb/db.h>
 #include <leveldb/slice.h>
 
+#import "NULDBSerializable.h"
 
-@interface NULDBDB ()
-// These are maybe stupid and a waste of time
-- (NSUInteger)classCodeForObject:(id)object;
-- (NSUInteger)objectCodeForObject:(id)object;
-- (char)valueCodeForObject:(id)object;
-@end
+
+@class NULDBDB;
 
 
 using namespace leveldb;
@@ -120,10 +116,7 @@ namespace NULDB {
             b = index;
         }
         
-        ObjectKey(NULDBDB *db, id object) : StorageKey('O', ' ') {
-            a = [db classCodeForObject:object];
-            b = [db objectCodeForObject:object];
-        }
+        ObjectKey(NULDBDB *db, id object);
         
         NSUInteger getClassName() { return a; }
         NSUInteger getName() { return b; }
@@ -189,9 +182,7 @@ namespace NULDB {
             a = classCode;
         }
         
-        ClassKey(NULDBDB *db, id object) : StorageKey('C', ' ') {
-            a = [db classCodeForObject:object];
-        }
+        ClassKey(NULDBDB *db, id object);
         
         NSUInteger getName() { return a; }
     };

@@ -19,6 +19,9 @@
 		4E221EB013EC966400203E8D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E221EAE13EC94E100203E8D /* CoreData.framework */; };
 		4E221EDC13F2C5CD00203E8D /* NULDBStorageKey.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E221ED613F2BE6700203E8D /* NULDBStorageKey.mm */; };
 		4E221EDD13F2C5D100203E8D /* NULDBUtilities.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E221EDA13F2C40A00203E8D /* NULDBUtilities.mm */; };
+		4E221EDF13F2D0C200203E8D /* NULDBSerializable.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E221EDE13F2D07D00203E8D /* NULDBSerializable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4E221EE013F2D0CD00203E8D /* NULDBStorageKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E221ED813F2BE7700203E8D /* NULDBStorageKey.h */; };
+		4E221EE113F2D0D500203E8D /* NULDBUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E221ED913F2C40900203E8D /* NULDBUtilities.h */; };
 		4E3CDCF213EB020D00366CD8 /* libleveldb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82780113EAF4A600C64821 /* libleveldb.a */; };
 		4E3CDD5613EC319F00366CD8 /* NULDBDB+Testing.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E82784F13EAF85500C64821 /* NULDBDB+Testing.m */; };
 		4E82772913EAF44500C64821 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82772813EAF44500C64821 /* Foundation.framework */; };
@@ -131,6 +134,7 @@
 		4E221ED813F2BE7700203E8D /* NULDBStorageKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBStorageKey.h; sourceTree = "<group>"; };
 		4E221ED913F2C40900203E8D /* NULDBUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBUtilities.h; sourceTree = "<group>"; };
 		4E221EDA13F2C40A00203E8D /* NULDBUtilities.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NULDBUtilities.mm; sourceTree = "<group>"; };
+		4E221EDE13F2D07D00203E8D /* NULDBSerializable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBSerializable.h; sourceTree = "<group>"; };
 		4E82772513EAF44500C64821 /* NULevelDB.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = NULevelDB.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E82772813EAF44500C64821 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		4E82772C13EAF44500C64821 /* NULevelDB-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NULevelDB-Info.plist"; sourceTree = "<group>"; };
@@ -578,6 +582,7 @@
 		4E82784713EAF85500C64821 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				4E221EDE13F2D07D00203E8D /* NULDBSerializable.h */,
 				4E82784813EAF85500C64821 /* NSLDBIterator.h */,
 				4E82784913EAF85500C64821 /* NSLDBIterator.mm */,
 				4E82784A13EAF85500C64821 /* NULDBCache.h */,
@@ -629,6 +634,9 @@
 				4E82786213EAF85500C64821 /* NULDBSlice.h in Headers */,
 				4E82786413EAF85500C64821 /* NULDBStatus.h in Headers */,
 				4E82786613EAF85500C64821 /* NULDBTable.h in Headers */,
+				4E221EDF13F2D0C200203E8D /* NULDBSerializable.h in Headers */,
+				4E221EE013F2D0CD00203E8D /* NULDBStorageKey.h in Headers */,
+				4E221EE113F2D0D500203E8D /* NULDBUtilities.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -646,10 +654,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4E82774F13EAF44500C64821 /* Build configuration list for PBXNativeTarget "NULevelDB" */;
 			buildPhases = (
+				4E82772113EAF44500C64821 /* Headers */,
 				4E82771E13EAF44500C64821 /* ShellScript */,
 				4E82771F13EAF44500C64821 /* Sources */,
 				4E82772013EAF44500C64821 /* Frameworks */,
-				4E82772113EAF44500C64821 /* Headers */,
 				4E82772213EAF44500C64821 /* Resources */,
 				4E82772313EAF44500C64821 /* ShellScript */,
 			);
