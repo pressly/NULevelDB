@@ -32,6 +32,7 @@ using namespace leveldb;
 #if USE_BINARY_KEYS
 - (void)storeProperty:(id)property forKey:(PropertyKey)key;
 
+- (ObjectKey)serializeObject:(id<NULDBSerializable>)object;
 - (id)unserializeObjectForKey:(PropertyKey)key;
 
 - (void)storeDictionary:(NSDictionary *)plist forKey:(PropertyKey)key;
@@ -336,43 +337,49 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 #endif
 
 
+#define NULDBWrappedObject(_object_) ([NSDictionary dictionaryWithObjectsAndKeys:NSStringFromClass([_object_ class]), @"class", [_object_ plistRepresentation], @"object", nil])
+
+
 #if USE_BINARY_KEYS
 - (void)storeProperty:(id)obj forKey:(PropertyKey)key {
     
+    Slice valueSlice;
+    
     if([obj conformsToProtocol:@protocol(NULDBPlistTransformable)]) {
-
+        valueSlice = NULDBSliceFromObject(NULDBWrappedObject(obj));
     }
     else if([obj conformsToProtocol:@protocol(NULDBSerializable)]) {
-
+        valueSlice = [self serializeObject:obj].slice();
     }
     else if([obj isKindOfClass:[NSArray class]]) {
-        if([obj count]) {
-            
-        }
+        if([obj count])
+            [self storeArray:obj forKey:key];
+        return;
     }
     else if([obj isKindOfClass:[NSSet class]]) {
-        if([obj count]) {
-            
-        }
+        if([obj count])
+            [self storeArray:[obj allObjects] forKey:key];
+        return;
     }
     else if([obj isKindOfClass:[NSDictionary class]]) {
-        if([obj count]) {
-            
-        }
+        if([obj count])
+            [self storeDictionary:obj forKey:key];
+        return;
     }
     else if([obj conformsToProtocol:@protocol(NSCoding)]) {
-        
+        valueSlice = NULDBSliceFromObject(obj);
     }
+    
+   
+    Status status = db->Put(writeOptions, key.slice(), valueSlice);
+    assert(status.ok());
 }
 
 #else
 - (void)storeObject:(id)obj forKey:(NSString *)key {
     
     if([obj conformsToProtocol:@protocol(NULDBPlistTransformable)]) {
-        [self storeValue:[NSDictionary dictionaryWithObjectsAndKeys:NSStringFromClass([obj class]), @"class",
-                          [obj plistRepresentation], @"object",
-                          nil]
-                  forKey:key];
+        [self storeValue:NULDBWrappedObject(obj) forKey:key];
     }
     else if([obj conformsToProtocol:@protocol(NULDBSerializable)]) {
         [self storeValue:[self _storeObject:obj] forKey:key];
@@ -396,13 +403,12 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 
 
 // Returns the unique object storage key
-- (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj {
+#if USE_BINARY_KEYS
+- (ObjectKey)serializeObject:(NSObject<NULDBSerializable> *)obj {
     
     NSString *key = [obj storageKey];
-    
-#if USE_BINARY_KEYS
     NSArray *properties = [obj propertyNames];
-
+    
     StringKey objectName(key);
     ObjectKey objectKey(self, obj);
     
@@ -415,7 +421,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     // TODO: make sure pre-existing class definitions match the provided? OR is that too much work to do now?
     
     int i=0;
-
+    
     for(NSString *property in properties) {
         
         PropertyKey propertyKey(i++, objectKey.getName());
@@ -423,7 +429,14 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
         [self storeProperty:[obj valueForKey:property] forKey:propertyKey];
     }
     
+    return objectKey;
+}
 #else
+
+- (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj {
+    
+    NSString *key = [obj storageKey];
+    
     NSString *className = NSStringFromClass([obj class]);
     NSString *classKey = NULDBClassToken(className);
     NSArray *properties = [self storedValueForKey:classKey];
@@ -442,10 +455,11 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     for(NSString *property in properties)
         [self storeObject:[obj valueForKey:property] forKey:NULDBPropertyKey(className, property, key)];
-#endif
 
     return key;
 }
+#endif
+
 
 #if USE_BINARY_KEYS
 - (id)unserializeObjectForKey:(PropertyKey)key {
@@ -599,7 +613,11 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 
 #pragma mark Public Relational Serialization support
 - (void)storeObject:(NSObject<NULDBSerializable> *)obj {
+#if USE_BINARY_KEYS
+    [self serializeObject:obj];
+#else
     [self _storeObject:obj];
+#endif
 }
 
 - (id)storedObjectForKey:(NSString *)key {
