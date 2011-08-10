@@ -25,54 +25,41 @@ namespace NULDB {
     
     /*
      
-     objectKey => objectToken
-     propertyKey => propertyValue
+     Here is a BNF-style notation which describes the Storage Key object types:
+    
+     objectName:    stringKey => objectKey
+         string is the storageKey provided by objects that conform to NULDBSerializable
      
-     ?? objectToken => objectKey ?? (would let us find objects after searching on property values)
-     
-     objectKey:     ("NULDB:"+string)
-     string is the storageKey provided by objects that conform to NULDBSerializable
-     
-     propertyValue: string | number | archive | plist | objectKey | arrayToken
-     
-     objectToken:   (c#, o#)
-     c# is from the classToken
-     o# is the unique integer assigned to the object
+     objectKey:     ('N', 'U', 'O', ' ', c#, o#) => objectName
      
      arrayToken:    (vc, a#, count)
-     vc is the type code of the property value ('s'-string, 'd'-data, 'h'-hash aka dictionary, or 'o'-object)
-     a# is the unique integer assigned to the array
-     count is the number of objects in the array
+         vc is the type code of the property value ('s'-string, 'd'-data, 'h'-hash aka dictionary, or 'o'-object)
+         a# is the unique integer assigned to the array
+         count is the number of objects in the array
      
      arrayIndexKey: ('N', 'U', 'I', ' ', a#, i#) => propertyValue
-     a# is the unique integer assigned to the array
-     i# in the non-unique index of the value in the array
+         a# is the unique integer assigned to the array
+         i# in the non-unique index of the value in the array
      
      propertyKey:   ('N', 'U', 'P', ' ', p#, o#) => propertyValue
-     p# is the index to the property in the property names list
-     o# is the unique integer assigned to the owning object
+         p# is the index to the property in the property names list
+         o# is the unique integer assigned to the owning object
+
+     propertyValue: string | number | archive | plist | objectKey | arrayToken
      
-     classKey:      ('N', 'U', 'C', ' ', c#, 0) => classDescription
-     c# is from the classToken
-     
-     className:     ("NULDB:"+string) => classToken
-     
-     classToken:    (c#)
-     c# is the unique integer assigned to the class
+     className:     stringKey => classKey
+
+     classKey:      ('N', 'U', 'C', ' ', c#, v#) => classDescription
+         c# is from the classToken
+         v# is reserved
+          
+     stringKey:     ("NULDB:"+string)
      
      classDescription: ("className", propertyNamesList)
      propertyNamesList: ("property1", '|', "property2", '|' ..., '|', "propertyN")
      
      */
-    
-    class StorageKey;
-    
-    class ClassKey;
-    class ObjectKey;
-    class ArrayToken;
-    class ArrayIndexKey;
-    class PropertyKey;
-    
+        
     class StorageKey {
         
     public:
@@ -111,10 +98,12 @@ namespace NULDB {
         
     public:
         
-        ObjectKey(NSUInteger cIndex, NSUInteger index) : StorageKey('O', ' ') {
-            a = cIndex;
-            b = index;
+        ObjectKey(NSUInteger classCode, NSUInteger objectCode) : StorageKey('O', ' ') {
+            a = classCode;
+            b = objectCode;
         }
+        
+        ObjectKey(Slice &slice) : StorageKey(slice) {};
         
         ObjectKey(NULDBDB *db, id object);
         
@@ -167,6 +156,8 @@ namespace NULDB {
             b = objectCode;
         }
         
+        PropertyKey(Slice &slice) : StorageKey(slice) {}
+
         NSUInteger getPropertyIndex() { return a; }
         NSUInteger getObjectName() { return  b; }
     };
@@ -182,32 +173,11 @@ namespace NULDB {
             a = classCode;
         }
         
+        ClassKey(Slice &slice) : StorageKey(slice) {}
+        
         ClassKey(NULDBDB *db, id object);
         
         NSUInteger getName() { return a; }
-    };
-    
-    
-    class ClassToken {
-        
-    public:
-        
-        ClassToken(NSUInteger index) {
-            name = index;
-        }
-        
-        ClassToken(Slice &slice) {
-            memcpy(this, slice.data(), sizeof(*this));
-        }
-        
-        Slice slice(void) {
-            return Slice((const char*)this, sizeof(*this));
-        }
-        
-        NSUInteger getName() { return name; }
-        
-    private:
-        NSUInteger name;
     };
     
     

@@ -12,7 +12,7 @@
 #include <leveldb/options.h>
 
 
-#define USE_BINARY_KEYS 0
+#define USE_BINARY_KEYS 1
 
 
 #include "NULDBUtilities.h"
@@ -43,7 +43,7 @@ using namespace leveldb;
 - (void)deleteStoredArrayContentsForKey:(PropertyKey)key;
 
 - (BOOL)checkCounters;
-- (void)prepareCounters;
+- (void)saveCounters;
 
 #else
 - (void)storeObject:(id)obj forKey:(NSString *)key;
@@ -63,6 +63,7 @@ using namespace leveldb;
 
 
 @implementation NULDBDB {
+    Counters *counters;
     DB *db;
     ReadOptions readOptions;
     WriteOptions writeOptions;
@@ -72,6 +73,7 @@ using namespace leveldb;
 @synthesize location;
 
 - (void)finalize {
+    delete counters;
     delete db;
     delete classIndexKey;
     [super finalize];
@@ -113,10 +115,7 @@ using namespace leveldb;
         
         self.location = path;
         
-#if USE_BINARY_KEYS
-        BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
-#endif
-        
+
         Status status = DB::Open(options, [path UTF8String], &db);
         
         readOptions.fill_cache = true;
@@ -127,8 +126,8 @@ using namespace leveldb;
         }
 #if USE_BINARY_KEYS
         else {
-            if(!exists || ![self checkCounters])
-                [self prepareCounters];
+            if(![self checkCounters])
+                [self saveCounters];
         }
 #endif
         
@@ -208,14 +207,24 @@ using namespace leveldb;
     std::string value;
     Status status = db->Get(readOptions, CountersKey, &value);
     
+    if(!status.IsNotFound()) {
+        assert(status.ok());
+        
+        Slice slice = value;
+        
+        counters = new Counters(slice);
+    }
+    else {
+        counters = new Counters();
+    }
+    
     return !status.IsNotFound();
 }
 
 // This will reset the counters!
-- (void)prepareCounters {
+- (void)saveCounters {
     
-    Counters counters; 
-    Status status = db->Put(writeOptions, CountersKey, counters.slice());
+    Status status = db->Put(writeOptions, CountersKey, counters->slice());
     
     assert(status.ok());
     
@@ -229,61 +238,76 @@ using namespace leveldb;
     
     std::string value;
 
-    Slice slice; // slice is a temp var used repeatedly
-    ClassToken *classToken;
     StringKey className(NSStringFromClass([object class]));
-
     Status status = db->Get(readOptions, className.slice(), &value);
+    ClassKey *classKey;
     
     if(status.IsNotFound()) {
 
         // class is not registered; register it
-        // load the counters
-        status = db->Get(readOptions, CountersKey, &value);
-        assert(status.ok());
-        slice = value;
-        
-        Counters counters(slice);
         // increment the class counter
-        classToken = new ClassToken(counters.addClass());
+        classKey = new ClassKey(counters->addClass());
         
-        // write the counters back
-        status = db->Put(writeOptions, CountersKey, counters.slice());
-        assert(status.ok());
+        [self saveCounters];
         
         // save the class token under the classname key
-        status = db->Put(writeOptions, className.slice(), classToken->slice());
+        status = db->Put(writeOptions, className.slice(), classKey->slice());
         assert(status.ok());
         
         // Since we didn't have a token, we also need to save the class description
         ClassDescription description(object);
-        ClassKey classKey(classToken->getName());
         
-        status = db->Put(writeOptions, classKey.slice(), description.slice());
+        status = db->Put(writeOptions, classKey->slice(), description.slice());
         assert(status.ok());
     }
     else {
         assert(status.ok());
-        slice = value;
-        classToken = new ClassToken(slice);
+        Slice slice = value;
+        classKey = new ClassKey(slice);
     }
 
-    result = classToken->getName();
+    result = classKey->getName();
 
-    delete classToken;
+    delete classKey;
     
     return result;
 }
 
 - (NSUInteger)objectCodeForObject:(id<NULDBSerializable>)object {
-    // TODO: implement
-    return 0;
+    
+    NSUInteger result = 0;
+    
+    std::string value;
+
+    StringKey key = StringKey([object storageKey]);
+    Status status = db->Get(readOptions, key.slice(), &value);
+    ObjectKey *objectKey;
+    
+    if(status.IsNotFound()) {
+        
+        // add a token for the object - don't store the object key until we store the object itself
+                
+        // update the counters
+        objectKey = new ObjectKey(counters->addObject(), [self classCodeForObject:object]);
+        
+        [self saveCounters];
+        
+        status = db->Put(writeOptions, key.slice(), objectKey->slice());
+        assert(status.ok());
+        
+        result = objectKey->getName();
+    }
+    else {
+        assert(status.ok());
+        Slice slice = value;
+        objectKey = new ObjectKey(slice);
+    }
+    
+    result = objectKey->getName();
+    
+    return result;
 }
 
-- (char)valueCodeForObject:(id<NULDBSerializable>)object {
-    // TODO: Implement
-    return 0;
-}
 
 
 #else

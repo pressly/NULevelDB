@@ -13,10 +13,8 @@
 
 
 @interface NULDBDB ()
-// These are maybe stupid and a waste of time
 - (NSUInteger)classCodeForObject:(id)object;
 - (NSUInteger)objectCodeForObject:(id)object;
-- (char)valueCodeForObject:(id)object;
 @end
 
 
