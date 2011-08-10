@@ -33,14 +33,14 @@ using namespace leveldb;
 - (void)storeProperty:(id)property forKey:(PropertyKey)key;
 
 - (ObjectKey)serializeObject:(id<NULDBSerializable>)object;
-- (id)unserializeObjectForKey:(PropertyKey)key;
+- (id)unserializeObjectForKey:(ObjectKey)key;
 
-- (void)storeDictionary:(NSDictionary *)plist forKey:(PropertyKey)key;
+- (NSDictionary *)storeDictionary:(NSDictionary *)plist forKey:(PropertyKey)key;
 - (NSDictionary *)unserializeDictionary:(NSDictionary *)storedDict;
 - (void)deleteStoredDictionary:(NSDictionary *)storedDict;
 
-- (void)storeArray:(NSArray *)array forKey:(PropertyKey)key;
-- (NSArray *)unserializeArrayForKey:(PropertyKey)key;
+- (ArrayKey)storeArray:(NSArray *)array forKey:(PropertyKey)key;
+- (NSArray *)unserializeArrayForKey:(ArrayKey)key;
 - (void)deleteStoredArrayContentsForKey:(PropertyKey)key;
 
 - (BOOL)checkCounters;
@@ -300,6 +300,9 @@ using namespace leveldb;
     return result;
 }
 
+- (NSUInteger)arrayCodeForArray:(NSArray *)array {
+    return 0;
+}
 
 
 #else
@@ -335,6 +338,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 
 
 #define NULDBWrappedObject(_object_) ([NSDictionary dictionaryWithObjectsAndKeys:NSStringFromClass([_object_ class]), @"class", [_object_ plistRepresentation], @"object", nil])
+#define NULDBUnwrappedObject(_dict_, _class_) ([[_class_ alloc] initWithPropertyList:[(NSDictionary *)_dict_ objectForKey:@"object"]])
 
 
 #if USE_BINARY_KEYS
@@ -370,6 +374,45 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
    
     Status status = db->Put(writeOptions, key.slice(), valueSlice);
     assert(status.ok());
+}
+
+- (id)decodeObject:(id)object {
+    
+    if([object isKindOfClass:[NSDictionary class]])
+        return [self unserializeDictionary:object];
+    
+    return nil;
+}
+
+- (id)propertyForKey:(PropertyKey)key {
+    
+    std::string tempValue;
+    Status status = db->Get(readOptions, key.slice(), &tempValue);
+    
+    assert(status.ok());
+    
+    // value can be any of string | number | archive | plist | objectKey | arrayKey
+    Slice slice = tempValue;
+    
+    switch (getKeyType(slice)) {
+        case 'O':
+            return [self unserializeObjectForKey:ObjectKey(slice)];
+            break;
+            
+        case 'A':
+            return [self unserializeArrayForKey:ArrayKey(slice)];
+            break;
+
+        case '\0':
+            return [self decodeObject:NULDBObjectFromSlice(slice)];
+            break;
+
+        default:
+            break;
+    }
+    
+    
+    return nil;
 }
 
 #else
@@ -429,21 +472,84 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     return objectKey;
 }
 
-- (id)unserializeObjectForKey:(PropertyKey)key {
+- (id)unserializeObjectForKey:(ObjectKey)objectKey {
     
-    // TODO: Implement
+    std::string tempValue;
+    ClassKey classKey(objectKey.getClassName());
+    
+    Status status = db->Get(readOptions, classKey.slice(), &tempValue);
+    assert(status.ok());
+    Slice slice = tempValue;
+    
+    ClassDescription classDesc(slice);
+    Class objcClass = NSClassFromString(classDesc.getClassName());
+    NSArray *properties = classDesc.getProperties();
+    id object = [[objcClass alloc] init];
+    
+    int i=0;
+    
+    for(NSString *property in properties) {
+        
+        PropertyKey propertyKey(i++, objectKey.getName());
+        
+        [object setValue:[self propertyForKey:propertyKey] forKey:property];
+    }
+
     return nil;
 }
 
-- (void)storeDictionary:(NSDictionary *)plist forKey:(PropertyKey)key {
+- (NSDictionary *)storeDictionary:(NSDictionary *)dictionary forKey:(PropertyKey)propertyKey {
     
     // TODO: Implement
+    // replace serializable or plist transformable objects in dictionary with stored representations
+    // for each serializable object, serialize it
+    NSMutableDictionary *newDict = [NSMutableDictionary dictionaryWithCapacity:[dictionary count]];
+    
+    int i = 0;
+    for (id key in [dictionary allKeys]) {
+        
+        id obj = [dictionary objectForKey:key];
+        
+        if([obj conformsToProtocol:@protocol(NULDBPlistTransformable)]) {
+            obj = NULDBWrappedObject(obj);
+        }
+        else if([obj conformsToProtocol:@protocol(NULDBSerializable)]) {
+            obj = [self serializeObject:obj].to_data();
+        }
+        else if([obj isKindOfClass:[NSArray class]]) {
+            if([obj count])
+                obj = [self storeArray:obj forKey:propertyKey].to_data();
+        }
+        else if([obj isKindOfClass:[NSSet class]]) {
+            if([obj count])
+                obj = [self storeArray:[obj allObjects] forKey:propertyKey].to_data();
+        }
+        else if([obj isKindOfClass:[NSDictionary class]]) {
+            if([obj count])
+                obj = [self storeDictionary:obj forKey:propertyKey];
+        }
+        
+        [newDict setObject:obj forKey:key];
+    }
+    
+    return newDict;
 }
 
-- (NSDictionary *)unserializeDictionary:(NSDictionary *)storedDict {
+- (id)unserializeDictionary:(NSDictionary *)storedDict {
+        
+    Class objcClass = NSClassFromString([storedDict objectForKey:@"class"]);
     
-    // TODO: Implement
-    return nil;
+    if([objcClass conformsToProtocol:@protocol(NULDBPlistTransformable)])
+        return NULDBUnwrappedObject(storedDict, objcClass);
+    
+    
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:[storedDict count]];
+    
+    for(NSString *key in [storedDict allKeys]) {
+        // TODO: FINISH
+    }
+    
+    return dictionary;
 }
 
 - (void)deleteStoredDictionary:(NSDictionary *)storedDict {
@@ -451,12 +557,19 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     // TODO: Implement
 }
 
-- (void)storeArray:(NSArray *)array forKey:(PropertyKey)key {
+- (ArrayKey)storeArray:(NSArray *)array forKey:(PropertyKey)key {
     
     // TODO: Implement
+    
+    
+    ArrayKey arrayKey(' ', [self arrayCodeForArray:array], [array count]);
+    
+    
+    return arrayKey;
+
 }
 
-- (NSArray *)unserializeArrayForKey:(PropertyKey)key {
+- (NSArray *)unserializeArrayForKey:(ArrayKey)key {
     
     // TODO: Implement
     return nil;
@@ -616,8 +729,20 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 - (id)storedObjectForKey:(NSString *)key {
         
 #if USE_BINARY_KEYS
-    // TODO: Implement
-    return nil;
+    StringKey stringKey(key);
+    std::string tempValue;
+    
+    Status status = db->Get(readOptions, StringKey(key).slice(), &tempValue);
+    
+    if(status.IsNotFound())
+        return nil;
+    
+    assert(status.ok());
+    
+    Slice slice = tempValue;
+    ObjectKey objectKey(slice);
+
+    return [self unserializeObjectForKey:objectKey];
     
 #else
     id storedObj = [self storedValueForKey:key];
