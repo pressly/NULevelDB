@@ -32,7 +32,7 @@ namespace NULDB {
      
      objectKey:     ('N', 'U', 'O', ' ', c#, o#) => objectName
      
-     arrayToken:    (vc, a#, count)
+     arrayKey:      ('N', 'U', 'A', vc, a#, count)
          vc is the type code of the property value ('s'-string, 'd'-data, 'h'-hash aka dictionary, or 'o'-object)
          a# is the unique integer assigned to the array
          count is the number of objects in the array
@@ -45,7 +45,7 @@ namespace NULDB {
          p# is the index to the property in the property names list
          o# is the unique integer assigned to the owning object
 
-     propertyValue: string | number | archive | plist | objectKey | arrayToken
+     propertyValue: string | number | archive | plist | objectKey | arrayKey
      
      className:     stringKey => classKey
 
@@ -81,6 +81,11 @@ namespace NULDB {
             return Slice((const char*)this, sizeof(*this));
         }
         
+        NSData *to_data() {
+            return [NSData dataWithBytes:this length:sizeof(*this)];
+        }
+        
+        char getKeyType() { return keyType; }
         NSUInteger getName1() { return a; }
         NSUInteger getName2() { return b; }
         
@@ -112,25 +117,20 @@ namespace NULDB {
     };
     
     
-    class ArrayToken {
+    class ArrayKey : public StorageKey {
         
     public:
         
-        ArrayToken(char pType, NSUInteger index, NSUInteger arrayCount) {
-            type = pType;
-            name = index;
-            count = arrayCount;
+        ArrayKey(char pType, NSUInteger arrayCode, NSUInteger count) : StorageKey('A', pType) {
+            a = arrayCode;
+            b = count;
         }
         
-        char getType() { return type; }
-        NSUInteger getName() { return  name; }
-        NSUInteger getCount() { return count; }
-        
-    private:
-        
-        char type;
-        NSUInteger name;
-        NSUInteger count;
+        ArrayKey(Slice &slice) : StorageKey(slice) {}
+
+        char getType() { return valType; }
+        NSUInteger getName() { return  a; }
+        NSUInteger getCount() { return b; }
     };
     
     
@@ -143,6 +143,8 @@ namespace NULDB {
             b = index;
         }
         
+        ArrayIndexKey(Slice &slice) : StorageKey(slice) {}
+
         NSUInteger getArrayName() { return a; }
         NSUInteger getIndex() { return b; }
     };
@@ -193,6 +195,9 @@ namespace NULDB {
         ClassDescription(Slice &slice);
         
         Slice slice();
+        
+        NSString *getClassName() { return className; }
+        NSArray *getProperties() { return properties; }
         
     private:
         NSString *className;
@@ -263,6 +268,8 @@ namespace NULDB {
         NSUInteger arrays;
         
     };
+    
+    const char getKeyType(Slice &slice);
 }
 
 #endif

@@ -92,5 +92,13 @@ namespace NULDB {
     
     
     const char StringKey::PREFIX[6] = { 'N', 'U', 'L', 'D', 'B', ':' };
+    
+    const char getKeyType(Slice &slice) {
+        
+        if(!StorageKey::valid(slice))
+            return '\0';
+        
+        return slice.data()[3];
+    }
 
 }
