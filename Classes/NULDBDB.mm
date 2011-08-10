@@ -180,10 +180,8 @@ using namespace leveldb;
 
 - (void)deleteStoredValueForKey:(id<NSCoding>)key {
     
-    Slice *k = NULDBSliceFromObject(key);
-    Status status = db->Delete(writeOptions, *k);
-    
-    delete k;
+    Slice k = NULDBSliceFromObject(key);
+    Status status = db->Delete(writeOptions, k);
     
     if(!status.ok())
         NSLog(@"Problem deleting key/value pair in database: %s", status.ToString().c_str());
