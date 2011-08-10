@@ -32,25 +32,28 @@ namespace NULDB {
      
      objectKey:     ('N', 'U', 'O', ' ', c#, o#) => objectName
      
-     arrayKey:      ('N', 'U', 'A', vc, a#, count)
-         vc is the type code of the property value ('s'-string, 'd'-data, 'h'-hash aka dictionary, or 'o'-object)
+     arrayKey:      ('N', 'U', 'A', isSet, o#, p#) => arrayToken
+         isSet is true if the array represents a set
+         o# is the unique integer assigned to the owning object
+         p# is the property index of the array
+     
+     arrayToken:    (a#)
          a# is the unique integer assigned to the array
-         count is the number of objects in the array
      
      arrayIndexKey: ('N', 'U', 'I', ' ', a#, i#) => propertyValue
          a# is the unique integer assigned to the array
          i# in the non-unique index of the value in the array
      
-     propertyKey:   ('N', 'U', 'P', ' ', p#, o#) => propertyValue
-         p# is the index to the property in the property names list
+     propertyKey:   ('N', 'U', 'P', ' ', o#, p#) => propertyValue
          o# is the unique integer assigned to the owning object
+         p# is the index to the property in the property names list
 
      propertyValue: string | number | archive | plist | objectKey | arrayKey
      
      className:     stringKey => classKey
 
      classKey:      ('N', 'U', 'C', ' ', c#, v#) => classDescription
-         c# is from the classToken
+         c# is the unique integer assigned to the class
          v# is reserved
           
      stringKey:     ("NULDB:"+string)
@@ -68,9 +71,9 @@ namespace NULDB {
                 
         StorageKey() : prefix1('N'), prefix2('U') {}
         
-        StorageKey(char kType, char vType) : prefix1('N'), prefix2('U') {
+        StorageKey(char kType, char sType) : prefix1('N'), prefix2('U') {
             keyType = kType;
-            valType = vType;
+            subType = sType;
         }
         
         StorageKey(Slice &slice);
@@ -93,7 +96,7 @@ namespace NULDB {
         const char prefix1;
         const char prefix2;
         char keyType;
-        char valType;
+        char subType;
         NSUInteger a;
         NSUInteger b;
     };
@@ -121,16 +124,39 @@ namespace NULDB {
         
     public:
         
-        ArrayKey(char pType, NSUInteger arrayCode, NSUInteger count) : StorageKey('A', pType) {
-            a = arrayCode;
-            b = count;
+        ArrayKey(bool isSet, NSUInteger objectCode, NSUInteger propertyIndex) : StorageKey('A', (char)isSet) {
+            a = objectCode;
+            b = propertyIndex;
         }
         
         ArrayKey(Slice &slice) : StorageKey(slice) {}
+        
+        bool getIsSet() { return (bool)subType; }
 
-        char getType() { return valType; }
+        char getType() { return subType; }
         NSUInteger getName() { return  a; }
         NSUInteger getCount() { return b; }
+    };
+    
+    
+    class ArrayToken {
+      
+    public:
+        
+        ArrayToken(NSUInteger arrayCode) {
+            
+        }
+        
+        ArrayToken(Slice &slice);
+        
+        Slice slice( void ) {
+            return Slice((const char*)&name, sizeof(NSUInteger));
+        }
+        
+        NSUInteger getName() { return name; }
+        
+    private:
+        NSUInteger name;
     };
     
     

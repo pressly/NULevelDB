@@ -83,6 +83,12 @@ namespace NULDB {
         properties = [[temp substringFromIndex:sepLoc+1] componentsSeparatedByString:@","];
     }
     
+    ArrayToken::ArrayToken(Slice &slice) {
+        NSUInteger temp;
+        memcpy(&temp, slice.data(), sizeof(temp));
+        name = temp;
+    }
+    
     Slice ClassDescription::slice(void) {
         
         NSString *temp = [NSString stringWithFormat:@"%@|%@", className, [properties componentsJoinedByString:@","]];
