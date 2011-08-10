@@ -12,378 +12,52 @@
 #include <leveldb/options.h>
 
 
-static int logging = 0;
+#define USE_BINARY_KEYS 0
 
-#define NULDBLog(frmt, ...) do{ if(logging) NSLog((frmt), ##__VA_ARGS__); } while(0)
+
+#include "NULDBUtilities.h"
+#if USE_BINARY_KEYS
+#include "NULDBStorageKey.h"
+using namespace NULDB;
+#endif
+
+static int logging = 0;
 
 
 using namespace leveldb;
 
 
-static Class stringClass;
-static Class dataClass;
-static Class dictClass;
-
-
-static inline Slice *NULDBSliceFromObject(id<NSCoding> object) {
-    
-    char type = 'o';
-    
-    if([(id)object isKindOfClass:stringClass])    type = 's';
-    else if([(id)object isKindOfClass:dataClass]) type = 'd';
-    else if([(id)object isKindOfClass:dictClass]) type = 'h';
-
-    NSMutableData *d = [NSMutableData dataWithBytes:&type length:1];
-
-    switch (type) {
-        case 's':
-            [d appendData:[(NSString *)object dataUsingEncoding:NSUTF8StringEncoding]];
-            break;
-            
-        case 'd':
-            [d appendData:(NSData *)object];
-            break;
-            
-        case 'h':
-            [d appendData:[NSPropertyListSerialization dataWithPropertyList:(id)object format:NSPropertyListBinaryFormat_v1_0 options:0 error:NULL]];
-            break;
-            
-        default:
-            [d appendData:[NSKeyedArchiver archivedDataWithRootObject:object]];
-            break;
-    }
-    
-    return new Slice((const char *)[d bytes], (size_t)[d length]);
-}
-
-static inline id<NSCoding> NULDBObjectFromSlice(Slice *slice) {
-    
-    NSData *d = [NSData dataWithBytes:slice->data() length:slice->size()];
-    NSData *value = [d subdataWithRange:NSMakeRange(1, [d length] - 1)];
-    
-    char type;
-    
-    [d getBytes:&type length:1];
-    
-    switch (type) {
-        case 's':
-            return [[NSString alloc] initWithData:value encoding:NSUTF8StringEncoding];
-            break;
-            
-        case 'd':
-            return value;
-            break;
-            
-        case 'h':
-            return [NSPropertyListSerialization propertyListWithData:value options:NSPropertyListImmutable format:NULL error:NULL];
-            break;
-            
-        default:
-            break;
-    }
-    
-    return [NSKeyedUnarchiver unarchiveObjectWithData:value];
-}
-
-
-
-@interface NULDBDB ()
-// These are maybe stupid and a waste of time
-- (NSUInteger)classCodeForObject:(id)object;
-- (NSUInteger)objectCodeForObject:(id)object;
-- (char)valueCodeForObject:(id)object;
-@end
-
-
-namespace NULDB {
-    
-    /*
-     
-     objectKey => objectToken
-        propertyKey => propertyValue
-     
-     ?? objectToken => objectKey ?? (would let us find objects after searching on property values)
-     
-     objectKey:     ("NULDB:"+string)
-     	string is the storageKey provided by objects that conform to NULDBSerializable
-     
-     propertyValue: string | number | archive | plist | objectKey | arrayToken
-     
-     objectToken:   ('N', 'U', 'O', ' ', c#, o#)
-     	c# is the same class number in the classKey
-    	o# is the unique integer assigned to the object
-     
-     arrayToken:    ('N', 'U', 'A', ' ', a#, count)
-     	a# is the unique integer assigned to the array
-     	count is the number of objects in the array
-     
-     arrayIndexKey: ('N', 'U', 'I', vc, a#, i#) => propertyValue
-     	vc is the type code of the property value ('s'-string, 'd'-data, 'h'-hash aka dictionary, or 'o'-object)
-     	a# is the unique integer assigned to the array
-     	i# in the non-unique index of the value in the array
-     
-     propertyKey:   ('N', 'U', 'P', vc, p#, o#)
-		vc is the type code of the property value ('a'-array, 's'-string, 'd'-data, 'h'-hash aka dictionary, or 'o'-object)
-     	p# is the index to the property in the property names list
-     	o# is the unique integer assigned to the owning object
-     
-     classKey:      ('N', 'U', 'C', ' ', c#, count) => classDescription
-     	c# is the unique integer assigned to the class
-     	count is the number of properties
-     
-     classDescription: ("className", propertyNamesList)
-     propertyNamesList: ("property1", '|', "property2", '|' ..., '|', "propertyN")
-     
-     */
-    
-    class NULDBStorageKey;
-    
-    class NULDBClassKey;
-    class NULDBObjectToken;
-    class NULDBArrayToken;
-    class NULDBArrayIndexKey;
-    class NULDBPropertyKey;
-    
-    class NULDBStorageKey {
-    
-    public:
-        
-        static const char keyTypes[];
-        
-        static BOOL valid(Slice *slice) {
-            
-            if(slice->size() < sizeof(NULDBStorageKey))
-                return NO;
-            
-            std::string data = slice->ToString();
-            
-            if(data[0] != 'N' || data[1] != 'U')
-                return NO;
-            
-            // This doesn't verify the property value code, object code, class code, array code, property index or array index
-            for(int i=0; i<5; ++i)
-                if(data[2] == keyTypes[i])
-                    return YES;
-            
-            return NO;
-        }
-        
-        NULDBStorageKey() : prefix1('N'), prefix2('U') {}
-        
-        NULDBStorageKey(char kType, char vType) : prefix1('N'), prefix2('U') {
-            keyType = kType;
-            valType = vType;
-        }
-
-        NULDBStorageKey(Slice &slice) : prefix1('\0'), prefix2('\0') {
-       
-            struct temp {
-                char c[4];
-                NSUInteger u[2];
-            } temp;
-            
-            memcpy(&temp, slice.data(), sizeof(temp));
-            
-            assert(temp.c[0] == 'N');
-            assert(temp.c[1] == 'U');
-            
-            keyType = temp.c[2];
-            valType = temp.c[3];
-            a = temp.u[0];
-            b = temp.u[1];
-        }
-        
-        Slice *slice( void ) {
-            return new Slice((const char*)this, sizeof(*this));
-        }
-        
-        NULDBStorageKey *convert(NULDBStorageKey *other);
-        
-    protected:
-        const char prefix1;
-        const char prefix2;
-        char keyType;
-        char valType;
-        NSUInteger a;
-        NSUInteger b;
-    };
-    
-    const char keyTypes[] = {'O', 'A', 'I', 'P', 'C'};
-
-    
-    class NULDBObjectToken : public NULDBStorageKey {
-        
-    public:
-        
-        NULDBObjectToken(NSUInteger classCode, NSUInteger objectCode) : NULDBStorageKey('O', ' ') {
-            a = classCode;
-            b = objectCode;
-        }
-        
-        NULDBObjectToken(NULDBDB *db, id object) : NULDBStorageKey('O', [db valueCodeForObject:object]) {
-            a = [db classCodeForObject:object];
-            b = [db objectCodeForObject:object];
-        }
-    };
-    
-    
-    class NULDBArrayToken : public NULDBStorageKey {
-   
-    public:
-        
-        NULDBArrayToken(NSUInteger arrayCode, NSUInteger count) : NULDBStorageKey('A', ' ') {
-            a = arrayCode;
-            b = count;
-        }
-    };
-    
-    
-    class NULDBArrayIndexKey : public NULDBStorageKey {
-     
-    public:
-        
-        NULDBArrayIndexKey(char vType, NSUInteger index, NSUInteger arrayCode) : NULDBStorageKey('I', vType) {
-            a = arrayCode;
-            b = index;
-        }
-    };
-
-    class NULDBPropertyKey : public NULDBStorageKey {
-    
-    public:    
-
-        NULDBPropertyKey(char vType, NSUInteger propertyIndex, NSUInteger objectCode) : NULDBStorageKey('P', vType) {
-            a = propertyIndex;
-            b = objectCode;
-        }
-    };
-    
-    
-    class NULDBClassKey : public NULDBStorageKey {
-        
-    public:
-        
-        NULDBClassKey(NULDBDB *db, id object) : NULDBStorageKey('C', ' ') {
-            a = [db classCodeForObject:object];
-            b = [[object properties] count];
-        };
-        
-        NULDBClassKey(NULDBStorageKey *other);
-        
-        unsigned long classCode() {
-            return a;
-        }
-    };
-    
-
-    class NULDBClassDescription {
-
-    public:
-        
-        NULDBClassDescription(id<NULDBSerializable> object) {
-            className = NSStringFromClass([object class]);
-            properties = [object propertyNames];
-        }
-        
-        NULDBClassDescription(Slice &slice) {
-            
-            NSString *temp = [[NSString alloc] initWithUTF8String:slice.ToString().c_str()];
-            NSUInteger sepLoc = [temp rangeOfString:@"|"].location;
-            
-            className = [temp substringToIndex:sepLoc];
-            properties = [[temp substringFromIndex:sepLoc+1] componentsSeparatedByString:@","];
-        }
-        
-        Slice *slice() {
-            
-            NSString *temp = [NSString stringWithFormat:@"%@|%@", className, [properties componentsJoinedByString:@","]];
-            
-            return new Slice([temp UTF8String]);
-        }
-        
-    private:
-        NSString *className;
-        NSArray *properties;
-    };
-    
-
-    class NULDBObjectKey {
-        
-        static const char PREFIX[6];
-      
-    public:
-        
-        NULDBObjectKey(NSString *storageKey) {
-            for(int i=0; i<6; ++i)
-                prefix[i] = PREFIX[i];
-        }
-        
-        NULDBObjectKey(Slice &slice) {
-            memcpy(this, slice.data(), 6*sizeof(char));
-            for(int i=0; i<6; ++i)
-                assert(prefix[i] == PREFIX[i]);
-            storageKey = [[NSString alloc] initWithUTF8String:slice.data()+6];
-        }
-        
-        Slice *slice() {
-            
-            NSMutableData *d = [NSMutableData dataWithBytes:prefix length:6*sizeof(char)];
-            
-            [d appendData:[storageKey dataUsingEncoding:NSUTF8StringEncoding]];
-            
-            return new Slice((const char *)[d bytes], [d length]);
-        }
-        
-    private:
-        char prefix[6];
-        NSString *storageKey;
-    };
-    
-    const char NULDBObjectKey::PREFIX[6] = { 'N', 'U', 'L', 'D', 'B', ':' };
-    
-    
-    class NULDBCounters {
-        
-    public:
-        
-        NULDBCounters(Slice *slice) {
-            memcpy(this, slice, sizeof(*this));
-        }
-      
-        Slice *slice() {
-            return new Slice((const char *)this, sizeof(*this));
-        }
-        
-        NSUInteger addClass( void ) { return ++classes; }
-        NSUInteger addObject( void ) { return ++objects; }
-        NSUInteger addArray( void ) { return ++arrays; }
-        
-    private:
-        
-        NSUInteger classes;
-        NSUInteger objects;
-        NSUInteger arrays;
-        
-    };
-    
-    static const Slice NULDBCountersKey = Slice("NULDBCounters", sizeof("NULDBCounters"));
-}
-
-
-
 @interface NULDBDB ()
 
+#if USE_BINARY_KEYS
+- (void)storeProperty:(id)property forKey:(PropertyKey)key;
+
+- (id)unserializeObjectForKey:(PropertyKey)key;
+
+- (void)storeDictionary:(NSDictionary *)plist forKey:(PropertyKey)key;
+- (NSDictionary *)unserializeDictionary:(NSDictionary *)storedDict;
+- (void)deleteStoredDictionary:(NSDictionary *)storedDict;
+
+- (void)storeArray:(NSArray *)array forKey:(PropertyKey)key;
+- (NSArray *)unserializeArrayForKey:(PropertyKey)key;
+- (void)deleteStoredArrayContentsForKey:(PropertyKey)key;
+
+- (BOOL)checkCounters;
+- (void)prepareCounters;
+
+#else
 - (void)storeObject:(id)obj forKey:(NSString *)key;
 
 - (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj;
 
 - (void)storeDictionary:(NSDictionary *)plist forKey:(NSString *)key;
 - (NSDictionary *)unserializeDictionary:(NSDictionary *)storedDict;
-- (void)deleteStoredDictionary:(NSDictionary *)key;
+- (void)deleteStoredDictionary:(NSDictionary *)storedDict;
 
 - (void)storeArray:(NSArray *)array forKey:(NSString *)key;
 - (NSArray *)unserializeArrayForKey:(NSString *)key;
 - (void)deleteStoredArrayContentsForKey:(NSString *)key;
+#endif
 
 @end
 
@@ -396,11 +70,6 @@ namespace NULDB {
 }
 
 @synthesize location;
-
-//- (void)dealloc {
-//    delete db;
-//    [super dealloc];
-//}
 
 - (void)finalize {
     delete db;
@@ -444,6 +113,10 @@ namespace NULDB {
         
         self.location = path;
         
+#if USE_BINARY_KEYS
+        BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
+#endif
+        
         Status status = DB::Open(options, [path UTF8String], &db);
         
         readOptions.fill_cache = true;
@@ -452,6 +125,12 @@ namespace NULDB {
         if(!status.ok()) {
             NSLog(@"Problem creating LevelDB database: %s", status.ToString().c_str());
         }
+#if USE_BINARY_KEYS
+        else {
+            if(!exists || ![self checkCounters])
+                [self prepareCounters];
+        }
+#endif
         
         classIndexKey = new Slice("NULClassIndex");
     }
@@ -523,135 +202,91 @@ namespace NULDB {
  * TODO: Use a more compact, binary key format with keys of identical lengths
  */
 
+#if USE_BINARY_KEYS
+- (BOOL)checkCounters {
+    
+    std::string value;
+    Status status = db->Get(readOptions, CountersKey, &value);
+    
+    return !status.IsNotFound();
+}
+
+// This will reset the counters!
+- (void)prepareCounters {
+    
+    Counters counters; 
+    Status status = db->Put(writeOptions, CountersKey, counters.slice());
+    
+    assert(status.ok());
+    
+    // We might want to do some kind of integrity check here
+    // For example, if we have any classes, objects or arrays, we may have to count them and fix the counters
+}
+
 - (NSUInteger)classCodeForObject:(id<NULDBSerializable>)object {
     
     NSUInteger result = 0;
     
-    NSString *className = NSStringFromClass([object class]);
     std::string value;
 
-#if 1
-    NULDB::NULDBClassDescription description(object);
-    
-//    NULDB::NULDBClassKey classKey(self, object);
-//    Slice *classKeySlice = classKey.slice();
-//    Status status = db->Get(readOptions, *classKeySlice, &value);
-    
-    Slice *slice = description.slice();
-    Status status = db->Get(readOptions, *slice, &value);
+    Slice slice; // slice is a temp var used repeatedly
+    ClassToken *classToken;
+    StringKey className(NSStringFromClass([object class]));
+
+    Status status = db->Get(readOptions, className.slice(), &value);
     
     if(status.IsNotFound()) {
+
+        // class is not registered; register it
+        // load the counters
+        status = db->Get(readOptions, CountersKey, &value);
+        assert(status.ok());
+        slice = value;
         
-        // The class is new; load, update and save the counters; then save a new class description
-        status = db->Get(readOptions, NULDB::NULDBCountersKey, &value);
+        Counters counters(slice);
+        // increment the class counter
+        classToken = new ClassToken(counters.addClass());
         
+        // write the counters back
+        status = db->Put(writeOptions, CountersKey, counters.slice());
         assert(status.ok());
         
-        Slice *slice = new Slice(value);
-        NULDB::NULDBCounters counters(slice);
-        
-        delete slice;
-
-        result = counters.addClass();
-        slice = counters.slice();
-        status = db->Put(writeOptions, *classKeySlice, *slice);
-        
-        delete slice;
-
+        // save the class token under the classname key
+        status = db->Put(writeOptions, className.slice(), classToken->slice());
         assert(status.ok());
-
-        slice = description.slice();
         
-        status = db->Put(writeOptions, *classKeySlice, *slice);
+        // Since we didn't have a token, we also need to save the class description
+        ClassDescription description(object);
+        ClassKey classKey(classToken->getName());
         
+        status = db->Put(writeOptions, classKey.slice(), description.slice());
         assert(status.ok());
-
-        delete slice;
     }
     else {
-    
-        // unwrap class 
         assert(status.ok());
-    
-        Slice *slice = new Slice(value);
-        
-        
+        slice = value;
+        classToken = new ClassToken(slice);
     }
-    
-    delete classKeySlice;
-    
-#else    
-    /*
-     * How should we store our class index?
-     *
-     * The way below will only get slower and slower as new classes are added
-     * so we could just store every entry in its own key, and endure more overhead per class with amortized cost
-     *
-     */
-    NSError *error = nil;
-    
-    Status status = db->Get(readOptions, *classIndexKey, &value);
-    
-    if(status.ok()) {
 
-        NSData *data = [NSData dataWithBytesNoCopy:&value length:value.length() freeWhenDone:NO];
-        NSMutableDictionary *index = [NSPropertyListSerialization propertyListWithData:data
-                                                                               options:NSPropertyListMutableContainers
-                                                                                format:NULL
-                                                                                 error:&error];
-        NSNumber *number = [index objectForKey:className];
-        BOOL updateIndex = NO;
-        BOOL createIndex = NO;
-        
-        if(number)
-            result = [number unsignedIntegerValue];
-        else if(index) {
-            result = [[index objectForKey:@"!classCounter"] unsignedIntegerValue]+1;
-            updateIndex = YES;
-        }
-        else {
-            createIndex = updateIndex = YES;
-        }
-        
-        if(createIndex) {
-            index = [NSMutableDictionary dictionaryWithCapacity:50];
-        }
-        if(updateIndex) {
-            number = [NSNumber numberWithUnsignedInteger:result];
-            [index setObject:number forKey:@"!classCounter"];
-            [index setObject:number forKey:className];
-            
-            Slice *indexSlice = NULDBSliceFromObject(index);
-            status = db->Put(writeOptions, *classIndexKey, *indexSlice);
-            
-            delete indexSlice;
-            
-            if(!status.ok()) {
-                // This is probably exception-worthy -- I don't know how to recoover fr
-                NSLog(@"Failed to save class index: %s", status.ToString().c_str());
-            }
-        }
-        else {
-            NSLog(@"Failed to load class index: %s", status.ToString().c_str());
-        }
-    }
-#endif
+    result = classToken->getName();
+
+    delete classToken;
     
     return result;
 }
 
-- (NSUInteger)objectCodeForObject:(id)object {
+- (NSUInteger)objectCodeForObject:(id<NULDBSerializable>)object {
     // TODO: implement
     return 0;
 }
 
-- (char)valueCodeForObject:(id)object {
+- (char)valueCodeForObject:(id<NULDBSerializable>)object {
     // TODO: Implement
     return 0;
 }
 
 
-
+#else
 #define NULDBClassToken(_class_name_) ([NSString stringWithFormat:@"%@:NUClass", _class_name_])
 #define NULDBIsClassToken(_key_) ([_key_ hasSuffix:@"NUClass"])
 #define NULDBClassFromToken(_key_) ([_key_ substringToIndex:[_key_ rangeOfString:@":"].location])
@@ -680,10 +315,39 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 #define NULDBArrayIndexKey(_key_, _index_) ([NSString stringWithFormat:@"%u:%@:NUIndex", _index_, _key_])
 #define NULDBIsArrayIndexKey(_key_) ([_key_ hasSuffix:@"NUIndex"])
 #define NULDBArrayCountFromKey(_key_) ([[_key_ substringToIndex:[_key_ rangeOfString:@":"].location] intValue])
+#endif
 
-/*
- * TODO: Convert stored values and indexes to C++
- */
+
+#if USE_BINARY_KEYS
+- (void)storeProperty:(id)obj forKey:(PropertyKey)key {
+    
+    if([obj conformsToProtocol:@protocol(NULDBPlistTransformable)]) {
+
+    }
+    else if([obj conformsToProtocol:@protocol(NULDBSerializable)]) {
+
+    }
+    else if([obj isKindOfClass:[NSArray class]]) {
+        if([obj count]) {
+            
+        }
+    }
+    else if([obj isKindOfClass:[NSSet class]]) {
+        if([obj count]) {
+            
+        }
+    }
+    else if([obj isKindOfClass:[NSDictionary class]]) {
+        if([obj count]) {
+            
+        }
+    }
+    else if([obj conformsToProtocol:@protocol(NSCoding)]) {
+        
+    }
+}
+
+#else
 - (void)storeObject:(id)obj forKey:(NSString *)key {
     
     if([obj conformsToProtocol:@protocol(NULDBPlistTransformable)]) {
@@ -710,14 +374,41 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     else if([obj conformsToProtocol:@protocol(NSCoding)])
         [self storeValue:obj forKey:key];
 }
+#endif
+
 
 // Returns the unique object storage key
 - (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj {
     
+    NSString *key = [obj storageKey];
+    
+#if USE_BINARY_KEYS
+    NSArray *properties = [obj propertyNames];
+
+    StringKey objectName(key);
+    ObjectKey objectKey(self, obj);
+    
+    // Store the name/key as key/value pairs of one another
+    Status status = db->Put(writeOptions, objectName.slice(), objectKey.slice());
+    assert(status.ok());
+    status = db->Put(writeOptions, objectKey.slice(), objectName.slice());
+    assert(status.ok());
+    
+    // TODO: make sure pre-existing class definitions match the provided? OR is that too much work to do now?
+    
+    int i=0;
+
+    for(NSString *property in properties) {
+        
+        PropertyKey propertyKey(i++, objectKey.getName());
+        
+        [self storeProperty:[obj valueForKey:property] forKey:propertyKey];
+    }
+    
+#else
     NSString *className = NSStringFromClass([obj class]);
     NSString *classKey = NULDBClassToken(className);
     NSArray *properties = [self storedValueForKey:classKey];
-    NSString *key = [obj storageKey];
     
     NSAssert1(nil != classKey, @"No key for class %@", className);
     NSAssert1(nil != key, @"No storage key for object %@", obj);
@@ -733,10 +424,51 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     for(NSString *property in properties)
         [self storeObject:[obj valueForKey:property] forKey:NULDBPropertyKey(className, property, key)];
+#endif
 
     return key;
 }
 
+#if USE_BINARY_KEYS
+- (id)unserializeObjectForKey:(PropertyKey)key {
+    
+    // TODO: Implement
+    return nil;
+}
+
+- (void)storeDictionary:(NSDictionary *)plist forKey:(PropertyKey)key {
+    
+    // TODO: Implement
+}
+
+- (NSDictionary *)unserializeDictionary:(NSDictionary *)storedDict {
+    
+    // TODO: Implement
+    return nil;
+}
+
+- (void)deleteStoredDictionary:(NSDictionary *)storedDict {
+    
+    // TODO: Implement
+}
+
+- (void)storeArray:(NSArray *)array forKey:(PropertyKey)key {
+    
+    // TODO: Implement
+}
+
+- (NSArray *)unserializeArrayForKey:(PropertyKey)key {
+    
+    // TODO: Implement
+    return nil;
+}
+
+- (void)deleteStoredArrayContentsForKey:(PropertyKey)key {
+    
+    // TODO: Implement
+}
+
+#else
 - (id)unserializeObjectForClass:(NSString *)className key:(NSString *)key {
 
     NSArray *properties = [self storedValueForKey:NULDBClassToken(className)];
@@ -844,6 +576,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     for(NSUInteger i=0; i<count; ++i)
         [self deleteStoredObjectForKey:NULDBArrayIndexKey(propertyFragment, i)];
 }
+#endif
 
 
 #pragma mark Public Relational Serialization support
@@ -853,6 +586,11 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 
 - (id)storedObjectForKey:(NSString *)key {
         
+#if USE_BINARY_KEYS
+    // TODO: Implement
+    return nil;
+    
+#else
     id storedObj = [self storedValueForKey:key];
         
     // the key is a property key but we don't really care about that; we just need to reconstruct the dictionary
@@ -888,10 +626,15 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     }
 
     return storedObj;
+#endif
 }
 
 - (void)deleteStoredObjectForKey:(NSString *)key {
     
+#if USE_BINARY_KEYS
+    // TODO: Implement
+    
+#else
     id storedObj = [self storedValueForKey:key];
     
     if([storedObj isKindOfClass:[NSDictionary class]]) {
@@ -921,6 +664,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     }
     
     [self deleteStoredValueForKey:key];
+#endif
 }
 
 - (void)iterateWithStart:(NSString *)start limit:(NSString *)limit block:(BOOL (^)(NSString *key, id<NSCoding>value))block {

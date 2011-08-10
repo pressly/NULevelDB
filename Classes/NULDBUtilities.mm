@@ -8,16 +8,12 @@
 
 #import "NULDBUtilities.h"
 
-@implementation NULDBUtilities
 
-- (id)init
-{
-    self = [super init];
-    if (self) {
-        // Initialization code here.
-    }
-    
-    return self;
-}
+Class stringClass;
+Class dataClass;
+Class dictClass;
+
+
+@implementation NULDBUtilities
 
 @end
