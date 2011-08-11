@@ -235,7 +235,7 @@ inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &options, Slice &key, Sli
     return YES;
 }
 
-inline BOOL NULDBLoadValueForKey(DB *db, ReadOptions &options, Slice &key, Slice *value, NSError **error) {
+inline BOOL NULDBLoadValueForKey(DB *db, ReadOptions &options, Slice &key, id *retValue, BOOL isString, NSError **error) {
     
     std::string tempValue;
     Status status = db->Get(options, key, &tempValue);
@@ -254,7 +254,14 @@ inline BOOL NULDBLoadValueForKey(DB *db, ReadOptions &options, Slice &key, Slice
         return NO;
     }
     else {
-        *value = tempValue;
+        
+        Slice value = tempValue;
+        
+        if(isString)
+            *retValue = NULDBStringFromSlice(value);
+        else
+            *retValue = NULDBDataFromSlice(value);
+        
         return YES;
     }
 }
@@ -287,11 +294,10 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
 }
 
 - (NSData *)storedDataForDataKey:(NSData *)key error:(NSError **)error {
-    Slice k = NULDBSliceFromData(key), v;
-    if(NULDBLoadValueForKey(db, readOptions, k, &v, error))
-        return NULDBDataFromSlice(v);
-    else
-        return nil;
+    NSData *result = nil;
+    Slice k = NULDBSliceFromData(key);
+    NULDBLoadValueForKey(db, readOptions, k, &result, NO, error);
+    return result;
 }
 
 - (BOOL)deleteStoredDataForDataKey:(NSData *)key error:(NSError **)error {
@@ -310,12 +316,10 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
 }
 
 - (NSData *)storedDataForKey:(NSString *)key translator:(NSData *(^)(NSString *))block error:(NSError **)error {
+    NSData *result = nil;
     Slice k = NULDBSliceFromData(OptionallyUseBlockEncoder(key, block)), v;
-    
-    if(NULDBLoadValueForKey(db, readOptions, k, &v, error))
-        return NULDBDataFromSlice(v);
-    else
-        return nil;
+    NULDBLoadValueForKey(db, readOptions, k, &result, NO, error);
+    return result;
 }
 
 - (BOOL)deleteStoredDataForKey:(NSString *)key translator:(NSData *(^)(NSString *))block error:(NSError **)error {
@@ -331,11 +335,10 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
 }
 
 - (NSData *)storedDataForKey:(NSString *)key error:(NSError **)error {
-    Slice k = NULDBSliceFromString(key), v;
-    if(NULDBLoadValueForKey(db, readOptions, k, &v, error))
-        return NULDBDataFromSlice(v);
-    else
-        return nil;
+    NSData *result = nil;
+    Slice k = NULDBSliceFromString(key);
+    NULDBLoadValueForKey(db, readOptions, k, &result, NO, error);
+    return result;
 }
 
 - (BOOL)deleteStoredDataForKey:(NSString *)key error:(NSError **)error {
@@ -351,26 +354,24 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
 }
 
 - (NSString *)storedStringForKey:(NSString *)key error:(NSError **)error {
-    Slice k = NULDBSliceFromString(key), v;
-    if(NULDBLoadValueForKey(db, readOptions, k, &v, error))
-        return NULDBStringFromSlice(v);
-    else
-        return nil;
+    NSString *result = nil;
+    Slice k = NULDBSliceFromString(key);
+    NULDBLoadValueForKey(db, readOptions, k, &result, YES, error);
+    return result;
 }
 
 
 #pragma mark Index->Data Access
 - (BOOL)storeData:(NSData *)data forIndexKey:(uint64_t)key error:(NSError **)error {
-    Slice k((char *)&key, sizeof(uint64_t)), v((char *)&key, sizeof(uint64_t));
+    Slice k((char *)&key, sizeof(uint64_t)), v = NULDBSliceFromData(data);
     return NULDBStoreValueForKey(db, writeOptions, k, v, error);
 }
 
 - (NSData *)storedDataForIndexKey:(uint64_t)key error:(NSError **)error {
-    Slice k((char *)&key, sizeof(uint64_t)), v;
-    if(NULDBLoadValueForKey(db, readOptions, k, &v, error))
-        return NULDBDataFromSlice(v);
-    else
-        return nil;
+    NSData *result = nil;
+    Slice k((char *)&key, sizeof(uint64_t));
+    NULDBLoadValueForKey(db, readOptions, k, &result, NO, error);
+    return result;
 }
 
 - (BOOL)deleteStoredDataForIndexKey:(uint64_t)key error:(NSError **)error {

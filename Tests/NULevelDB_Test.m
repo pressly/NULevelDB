@@ -71,7 +71,63 @@
     [super tearDown];
 }
 
-- (void)testExample
+- (NULDBTestAddress *)makeTestAddress {
+    
+    static NULDBTestAddress *address;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        address = [[NULDBTestAddress alloc] init];
+        
+        address.street = @"100 Avenue Road";
+        address.city = @"Toronto";
+        address.state = @"Ontario";
+        address.postalCode = @"M4T 9G3";
+    });
+    
+    return address;
+}
+
+- (NSData *)makeTestData {
+    
+    static NSData *data;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        
+        NSError *error = nil;
+        data = [NSPropertyListSerialization dataWithPropertyList:[[self makeTestAddress] plistRepresentation]
+                                                          format:NSPropertyListBinaryFormat_v1_0
+                                                         options:0
+                                                           error:&error];
+        
+        STAssertNotNil(data, @"Failed to make data. %@", error);
+    });
+    
+    return data;
+}
+
+- (void)verifyAddressFromData:(NSData *)value error:(NSError *)error {
+    
+    STAssertEqualObjects(value, [self makeTestData], @"Test data does not match; expected: %@; actual: %@", [self makeTestData], value);
+    
+    NSDictionary *plist = [NSPropertyListSerialization propertyListWithData:value
+                                                                    options:0
+                                                                     format:NULL
+                                                                      error:&error];
+    
+    STAssertNotNil(plist, @"Could not read plist for value (%@); %@", value, error);
+    
+    NULDBTestAddress *expected = [self makeTestAddress];
+    NULDBTestAddress *actual = [[NULDBTestAddress alloc] initWithPropertyList:plist];
+    
+    STAssertNotNil(actual, @"Failed make address with plist");
+    STAssertEqualObjects(actual, expected, @"Loaded data does not match! Expected: %@; Actual: %@", actual, expected);
+}
+
+
+
+- (void)test01Example
 {
     id e = [NSDictionary dictionaryWithObjectsAndKeys:
                     [NSNumber numberWithFloat:3.0f*93-13.0f/4], @"number",
@@ -83,6 +139,70 @@
     
     id a = [db storedValueForKey:@"dictionary"];
     STAssertTrue([e isEqual:a], @"Stored value not equal on retrieval. Expected %@; actual: %@", e, a);
+}
+
+- (void)test02DataKeys {
+
+    NSError *error = nil;
+    struct test {
+        int foo;
+        double bar;
+        char baz[8];
+    } test;
+    
+    strncpy(test.baz, "my data", 7);
+    
+    NSData *key = [NSData dataWithBytes:&test length:sizeof(struct test)];
+    
+    STAssertTrue([db storeData:[self makeTestData] forDataKey:key error:&error], @"Failed to store data for key (%@): %@", key, error);
+    
+    [self verifyAddressFromData:[db storedDataForDataKey:key error:&error] error:error];
+    
+    STAssertTrue([db deleteStoredDataForDataKey:key error:&error], @"Failed to delete data for key (%@); %@", key, error);
+}
+
+- (void)test03StringKeys {
+ 
+    NSError *error = nil;
+    NSString *key = @"TEST_STRING";
+    
+    STAssertTrue([db storeData:[self makeTestData] forKey:key error:&error], @"Failed to store data for key (%@); %@", key, error);
+    
+    [self verifyAddressFromData:[db storedDataForKey:key error:&error] error:error];
+    
+    STAssertTrue([db deleteStoredDataForKey:key error:&error], @"Failed to delete data for key (%@); %@", key, error);
+}
+
+- (void)test04IndexKeys {
+    
+    NSError *error = nil;
+    uint64_t index = (uint64_t)random() << 32|random();
+    
+    STAssertTrue([db storeData:[self makeTestData] forIndexKey:index error:&error], @"Failed to store data for key %llu; %@", index, error);
+    
+    [self verifyAddressFromData:[db storedDataForIndexKey:index error:&error] error:error];
+    
+    STAssertTrue([db deleteStoredDataForIndexKey:index error:&error], @"Failed to delete data for key (%llu); %@", index, error);
+}
+
+
+- (void)test05KeyConversion {
+    
+    NSError *error = nil;
+    
+    NSData *(^block)(NSString *) = ^ (NSString *string) {
+        return [NSData dataWithBytes:"hello" length:5];
+    };
+        
+    STAssertTrue([db storeData:[self makeTestData] forKey:nil translator:block error:&error], @"Failed to store data for converted key; %@", error);
+    
+    [self verifyAddressFromData:[db storedDataForKey:nil translator:block error:&error] error:error];
+    
+    STAssertTrue([db deleteStoredDataForKey:nil translator:block error:&error], @"Failed to delete data for key (%@); %@", error);
+}
+
+- (void)test06StringValues {
+    
 }
 
 // These performance tests aren't very interesting in relation to iOS
@@ -98,7 +218,7 @@
 //    [db put:1000 valuesOfSize:10 data:NULL];
 //}
 
-- (void)testKeyedArchiveSerialization {
+- (void)test10KeyedArchiveSerialization {
     
     NULDBTestPhone *e = [[NULDBTestPhone alloc] initWithAreaCode:416 exchange:967 line:1111];
     NSString *key = @"phone_1";
@@ -110,19 +230,7 @@
     STAssertTrue([e isEqual:a], @"Stored value discrepancy. Expected: %@; actual: %@.", e, a);
 }
 
-- (NULDBTestAddress *)makeTestAddress {
-    
-    NULDBTestAddress *address = [[NULDBTestAddress alloc] init];
-    
-    address.street = @"100 Avenue Road";
-    address.city = @"Toronto";
-    address.state = @"Ontario";
-    address.postalCode = @"M4T 9G3";
-    
-    return address;
-}
-
-- (void)testPlistSerialization {
+- (void)test11PlistSerialization {
     
     NULDBTestAddress *address = [self makeTestAddress];
     NULDBWrapper *e = [[NULDBWrapper alloc] initWithObject:address identifier:address.uniqueID];
@@ -143,7 +251,7 @@
     STAssertTrue([address isEqual:a], @"Stored value discrepancy. Expected: %@; actual: %@.", e, a);
 }
 
-- (void)testGraphSerialization {
+- (void)test12GraphSerialization {
     
     NULDBTestCompany *company = [NULDBTestCompany randomSizedCompany];
     
