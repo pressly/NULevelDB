@@ -196,10 +196,142 @@ using namespace leveldb;
         NULDBLog(@" X-DEL-X   %@", key);
 }
 
+/*
+ - one for UInt64->Data access
+ - one for Data->Data access
+ All three of these interfaces will share un underlying fast functional implementation that converts between the exposed types and the native storage format used by the leveldb.
+ */
+#pragma mark - Streamlined Access Interfaces
+#pragma mark Private Access Functions
 
-#pragma mark Private Relationship Support
+
+NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
+
+
+#define NULDBSliceFromData(_data_) (Slice((char *)[_data_ bytes], [_data_ length]))
+#define NULDBDataFromSlice(_slice_) ([NSData dataWithBytes:_slice_.data() length:_slice_.size()])
+
+#define NULDBSliceFromString(_string_) (Slice((char *)[_string_ UTF8String], [_string_ lengthOfBytesUsingEncoding:NSUTF8StringEncoding]))
+#define NULDBStringFromSlice(_slice_) ([NSString stringWithCString:slice.data() encoding:NSUTF8StringEncoding])
+
+#define NULDBSliceFromString(_string_) (Slice((char *)[_string_ UTF8String], [_string_ lengthOfBytesUsingEncoding:NSUTF8StringEncoding]))
+#define NULDBStringFromSlice(_slice_) ([NSString stringWithCString:slice.data() encoding:NSUTF8StringEncoding])
+
+inline void NULDBStoreValueForKey(DB *db, WriteOptions &options, NSData *key, NSData *value, NSError **error) {
+    
+    Status status = db->Put(options, NULDBSliceFromData(key), NULDBSliceFromData(value));
+
+    if(!status.ok()) {
+        if(nil != error) {
+            NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                                      [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
+//                                      NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
+                                      nil];
+            *error = [NSError errorWithDomain:NULDBErrorDomain code:1 userInfo:userInfo];
+        }
+        else {
+            NSLog(@"Failed to store value in database: %s", status.ToString().c_str());
+        }
+    }
+}
+
+inline NSData *NULDBLoadValueForKey(DB *db, ReadOptions &options, NSData *key, NSError **error) {
+    
+    NSData *result = nil;
+    
+    std::string tempValue;
+    Status status = db->Get(options, NULDBSliceFromData(key), &tempValue);
+    
+    if(!status.ok() && !status.IsNotFound()) {
+        if(nil != error) {
+            NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                                      [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
+//                                      NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
+                                      nil];
+            *error = [NSError errorWithDomain:NULDBErrorDomain code:2 userInfo:userInfo];
+        }
+        else {
+            NSLog(@"Failed to load value from database: %s", status.ToString().c_str());
+        }
+    }
+    else {
+        Slice slice = tempValue;
+        result = NULDBDataFromSlice(slice);
+    }
+    
+    return result;
+}
+
+inline void NULDBDeleteValueForKey(DB *db, WriteOptions &options, NSData *key, NSError **error) {
+    
+    Status status = db->Delete(options, NULDBSliceFromData(key));
+    
+    if(!status.ok() && !status.IsNotFound()) {
+        if(nil != error) {
+            NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                                      [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
+//                                      NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
+                                      nil];
+            *error = [NSError errorWithDomain:NULDBErrorDomain code:3 userInfo:userInfo];
+        }
+        else {
+            NSLog(@"Failed to delete value in database: %s", status.ToString().c_str());
+        }
+    }    
+}
+
+
+#pragma mark Data->Data Access
+- (void)storeData:(NSData *)data forDataKey:(NSData *)key error:(NSError **)error {
+    NULDBStoreValueForKey(db, writeOptions, key, data, error);
+}
+
+- (NSData *)storedDataForDataKey:(NSData *)key error:(NSError **)error {
+    return NULDBLoadValueForKey(db, readOptions, key, error);
+}
+
+- (void)deleteStoredDataForDataKey:(NSData *)key error:(NSError **)error {
+    NULDBDeleteValueForKey(db, writeOptions, key, error);
+}
+
+
+#pragma mark String->Data->Data Access
+- (void)storeData:(NSData *)data forKey:(NSString *)key translator:(NSData *(^)(NSString *))block error:(NSError **)error {
+    NULDBStoreValueForKey(db, writeOptions, block(key), data, error);
+}
+
+- (NSData *)storedDataForKey:(NSString *)key translator:(NSData *(^)(NSString *))block error:(NSError **)error {
+    return NULDBLoadValueForKey(db, readOptions, block(key), error);
+}
+
+- (void)deleteStoredDataForKey:(NSString *)key translator:(NSData *(^)(NSString *))block error:(NSError **)error {
+    NULDBDeleteValueForKey(db, writeOptions, block(key), error);
+}
+
+
+#pragma mark String->Data Access
+- (void)storeData:(NSData *)data forKey:(NSString *)key error:(NSError **)error {
+    NULDBStoreValueForKey(db, writeOptions, [key dataUsingEncoding:NSUTF8StringEncoding], data, error);
+}
+
+- (NSData *)storedDataForKey:(NSString *)key error:(NSError **)error {
+    return NULDBLoadValueForKey(db, readOptions, [key dataUsingEncoding:NSUTF8StringEncoding], error);
+}
+
+- (void)deleteStoredDataForKey:(NSString *)key error:(NSError **)error {
+    NULDBDeleteValueForKey(db, writeOptions, [key dataUsingEncoding:NSUTF8StringEncoding], error);
+}
+
+
+#pragma mark Index->Data Access
+
+
+
+
+#pragma mark - Private Relationship Support
 
 #if USE_BINARY_KEYS
+#pragma mark Entity Indexing
 - (BOOL)checkCounters {
     
     std::string value;

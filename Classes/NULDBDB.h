@@ -32,6 +32,24 @@
 - (id)storedValueForKey:(id<NSCoding>)key;
 - (void)deleteStoredValueForKey:(id<NSCoding>)key;
 
+//// Streamlined key-value support for pre-encoded Data objects
+// Data keys
+- (void)storeData:(NSData *)data forDataKey:(NSData *)key error:(NSError **)error;
+- (NSData *)storedDataForDataKey:(NSData *)key error:(NSError **)error;
+- (void)deleteStoredDataForDataKey:(NSData *)key error:(NSError **)error;
+
+// String keys - string<->data conversion provided by client
+// This will allow the client to replace string keys with optimized data keys of its own preference
+- (void)storeData:(NSData *)data forKey:(NSString *)key translator:(NSData *(^)(NSString *))block error:(NSError **)error;
+- (NSData *)storedDataForKey:(NSString *)key translator:(NSData *(^)(NSString *))block error:(NSError **)error;
+- (void)deleteStoredDataForKey:(NSString *)key translator:(NSData *(^)(NSString *))block error:(NSError **)error;
+
+// String keys - encoded as-is (UTF8 data)
+- (void)storeData:(NSData *)data forKey:(NSString *)key error:(NSError **)error;
+- (NSData *)storedDataForKey:(NSString *)key error:(NSError **)error;
+- (void)deleteStoredDataForKey:(NSString *)key error:(NSError **)error;
+
+
 // Object graph serialization support
 // Arrays and dictionaries are handled automatically; sets are converted into arrays
 - (void)storeObject:(NSObject<NULDBSerializable> *)obj;
