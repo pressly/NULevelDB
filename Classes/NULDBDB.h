@@ -29,9 +29,9 @@
 
 
 //// Basic key-value support
-- (void)storeValue:(id<NSCoding>)value forKey:(id<NSCoding>)key;
+- (BOOL)storeValue:(id<NSCoding>)value forKey:(id<NSCoding>)key;
 - (id)storedValueForKey:(id<NSCoding>)key;
-- (void)deleteStoredValueForKey:(id<NSCoding>)key;
+- (BOOL)deleteStoredValueForKey:(id<NSCoding>)key;
 
 
 //// Streamlined key-value support for pre-encoded Data objects
@@ -66,6 +66,14 @@
 - (void)storeObject:(NSObject<NULDBSerializable> *)obj;
 - (id)storedObjectForKey:(NSString *)key;
 - (void)deleteStoredObjectForKey:(NSString *)key;
+
+
+//// Bulk storage and retrieval
+// Generalized
+- (BOOL)storeValuesFromDictionary:(NSDictionary *)dictionary;
+- (NSDictionary *)storedValuesForKeys:(NSArray *)keys;
+
+// Data values and data keys
 
 // Iteration and search
 - (void)iterateWithStart:(NSString *)start limit:(NSString *)limit block:(BOOL (^)(NSString *key, id<NSCoding>value))block;

@@ -151,7 +151,7 @@ using namespace leveldb;
 
 
 #pragma mark - Generic NSCoding Access
-- (void)storeValue:(id<NSCoding>)value forKey:(id<NSCoding>)key {
+- (BOOL)storeValue:(id<NSCoding>)value forKey:(id<NSCoding>)key {
 
     Slice k = NULDBSliceFromObject(key);
     Slice v = NULDBSliceFromObject(value);
@@ -163,6 +163,8 @@ using namespace leveldb;
     }
     else
         NULDBLog(@"   PUT->  %@ (%lu bytes)", key, v.size());
+    
+    return (BOOL)status.ok();
 }
 
 - (id)storedValueForKey:(id<NSCoding>)key {
@@ -185,7 +187,7 @@ using namespace leveldb;
     return NULDBObjectFromSlice(v);
 }
 
-- (void)deleteStoredValueForKey:(id<NSCoding>)key {
+- (BOOL)deleteStoredValueForKey:(id<NSCoding>)key {
     
     Slice k = NULDBSliceFromObject(key);
     Status status = db->Delete(writeOptions, k);
@@ -194,6 +196,8 @@ using namespace leveldb;
         NSLog(@"Problem deleting key/value pair in database: %s", status.ToString().c_str());
     else
         NULDBLog(@" X-DEL-X   %@", key);
+    
+    return (BOOL)status.ok();
 }
 
 /*
@@ -1133,11 +1137,34 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 }
 
 
-#pragma mark Aggregate support
-- (NSDictionary *)storedValuesForKeys:(NSArray *)keys {
-    return nil;
+#pragma mark Bulk Save and Load
+- (BOOL)storeValuesFromDictionary:(NSDictionary *)dictionary {
+    
+    for(id key in [dictionary allKeys]) {
+        if(![self storeValue:[dictionary objectForKey:key] forKey:key])
+            return NO;
+    }
+    
+    return YES;
 }
 
+- (NSDictionary *)storedValuesForKeys:(NSArray *)keys {
+    
+    NSMutableDictionary *result = [NSMutableDictionary dictionaryWithCapacity:[keys count]];
+    
+    for(id key in keys) {
+        
+        id value = [self storedValueForKey:key];
+        
+        if(nil != value)
+            [result setObject:value forKey:key];
+    }
+    
+    return [NSDictionary dictionaryWithDictionary:result];
+}
+
+
+#pragma mark Iteration
 - (NSDictionary *)storedValuesFromStart:(NSString *)start toLimit:(NSString *)limit {
     
     NSMutableDictionary *tuples = [NSMutableDictionary dictionary];
