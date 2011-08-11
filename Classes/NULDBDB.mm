@@ -12,7 +12,7 @@
 #include <leveldb/options.h>
 
 
-#define USE_BINARY_KEYS 1
+#define USE_BINARY_KEYS 0
 
 
 #include "NULDBUtilities.h"
@@ -66,7 +66,9 @@ using namespace leveldb;
 
 
 @implementation NULDBDB {
+#if USE_BINARY_KEYS
     Counters *counters;
+#endif
     DB *db;
     ReadOptions readOptions;
     WriteOptions writeOptions;
@@ -76,7 +78,9 @@ using namespace leveldb;
 @synthesize location;
 
 - (void)finalize {
+#if USE_BINARY_KEYS
     delete counters;
+#endif
     delete db;
     delete classIndexKey;
     [super finalize];
@@ -146,7 +150,7 @@ using namespace leveldb;
 }
 
 
-#pragma mark Basic Key-Value Storage support
+#pragma mark - Generic NSCoding Access
 - (void)storeValue:(id<NSCoding>)value forKey:(id<NSCoding>)key {
 
     Slice k = NULDBSliceFromObject(key);
@@ -377,6 +381,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 
 
 #if USE_BINARY_KEYS
+#pragma mark Property Transcoding
 - (void)storeProperty:(id)obj forKey:(PropertyKey)key {
     
     Slice valueSlice;
@@ -441,35 +446,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     return nil;
 }
 
-#else
-- (void)storeObject:(id)obj forKey:(NSString *)key {
-    
-    if([obj conformsToProtocol:@protocol(NULDBPlistTransformable)]) {
-        [self storeValue:NULDBWrappedObject(obj) forKey:key];
-    }
-    else if([obj conformsToProtocol:@protocol(NULDBSerializable)]) {
-        [self storeValue:[self _storeObject:obj] forKey:key];
-    }
-    else if([obj isKindOfClass:[NSArray class]]) {
-        if([obj count])
-            [self storeArray:obj forKey:key];
-    }
-    else if([obj isKindOfClass:[NSSet class]]) {
-        if([obj count])
-            [self storeArray:[obj allObjects] forKey:key];
-    }
-    else if([obj isKindOfClass:[NSDictionary class]]) {
-        if([obj count])
-            [self storeDictionary:obj forKey:key];
-    }
-    else if([obj conformsToProtocol:@protocol(NSCoding)])
-        [self storeValue:obj forKey:key];
-}
-#endif
-
-
 // Returns the unique object storage key
-#if USE_BINARY_KEYS
 - (ObjectKey)serializeObject:(NSObject<NULDBSerializable> *)obj {
     
     NSString *key = [obj storageKey];
@@ -526,7 +503,6 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 
 - (NSDictionary *)storeContentsOfDictionary:(NSDictionary *)dictionary name:(NSString *)name {
     
-    // TODO: Implement
     // replace serializable or plist transformable objects in dictionary with stored representations
     // for each serializable object, serialize it; store the property key in the new dictionary
     NSMutableDictionary *newDict = [NSMutableDictionary dictionaryWithCapacity:[dictionary count]];
@@ -555,9 +531,11 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
         }
         else if([obj isKindOfClass:[NSDictionary class]]) {
             if([obj count]) {
-                // FIXME!!! TODO !!!
-#pragma warning set the name
-                obj = [self storeContentsOfDictionary:obj name:nil];
+
+                PropertyKey propertyKey(i, objectCode);
+                
+                [self storeDictionary:obj forKey:propertyKey];
+                obj = propertyKey.to_data();
             }
         }
                 
@@ -604,6 +582,8 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     if([object isKindOfClass:[NSData class]]) {
         
+        // TODO: decode NSData-encoded StorageKeys
+        // ... or am making this too complicated?
         id obj = nil;
         
         // TODO: FINISH
@@ -642,6 +622,8 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     // TODO: Implement
 }
 
+
+#pragma mark Arrays
 - (ArrayKey)storeElementsInArray:(NSArray *)array objectCode:(NSUInteger)objectCode propertyIndex:(NSUInteger)propertyIndex {
     
     ArrayKey arrayKey(' ', objectCode, propertyIndex); // Fix this - we don't have a vType anymore
@@ -677,6 +659,32 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 }
 
 #else
+#pragma mark - Classic Serialization
+#pragma mark Generic Objects
+- (void)storeObject:(id)obj forKey:(NSString *)key {
+    
+    if([obj conformsToProtocol:@protocol(NULDBPlistTransformable)]) {
+        [self storeValue:NULDBWrappedObject(obj) forKey:key];
+    }
+    else if([obj conformsToProtocol:@protocol(NULDBSerializable)]) {
+        [self storeValue:[self _storeObject:obj] forKey:key];
+    }
+    else if([obj isKindOfClass:[NSArray class]]) {
+        if([obj count])
+            [self storeArray:obj forKey:key];
+    }
+    else if([obj isKindOfClass:[NSSet class]]) {
+        if([obj count])
+            [self storeArray:[obj allObjects] forKey:key];
+    }
+    else if([obj isKindOfClass:[NSDictionary class]]) {
+        if([obj count])
+            [self storeDictionary:obj forKey:key];
+    }
+    else if([obj conformsToProtocol:@protocol(NSCoding)])
+        [self storeValue:obj forKey:key];
+}
+
 - (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj {
     
     NSString *key = [obj storageKey];
@@ -722,6 +730,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     return obj;
 }
 
+#pragma mark Dictionaries
 // Support for NULDBSerializable objects in the dictionary
 - (void)storeDictionary:(NSDictionary *)plist forKey:(NSString *)key {
     
@@ -765,6 +774,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
         [self deleteStoredObjectForKey:key];
 }
 
+#pragma mark Arrays
 // Support for NULDBSerializable objects in the array
 - (void)storeArray:(NSArray *)array forKey:(NSString *)key {
     
@@ -813,7 +823,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 #endif
 
 
-#pragma mark Public Relational Serialization support
+#pragma mark - Public Interface
 - (void)storeObject:(NSObject<NULDBSerializable> *)obj {
 #if USE_BINARY_KEYS
     [self serializeObject:obj];
