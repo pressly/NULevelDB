@@ -1163,6 +1163,16 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     return [NSDictionary dictionaryWithDictionary:result];
 }
 
+- (BOOL)deleteStoredValuesForKeys:(NSArray *)keys {
+    
+    for(id key in keys) {
+        if(![self deleteStoredValueForKey:key])
+           return NO;
+    }
+    
+    return YES;
+}
+
 // Data values and keys
 - (BOOL)storeDataFromDictionary:(NSDictionary *)dictionary error:(NSError **)error {
     
@@ -1193,6 +1203,18 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
         return [NSDictionary dictionaryWithDictionary:dictionary];
 }
 
+- (BOOL)deleteStoredDataForKeys:(NSArray *)keys error:(NSError **)error {
+    
+    for(id key in keys) {
+        
+        Slice k = NULDBSliceFromData(key);
+        if(!NULDBDeleteValueForKey(db, writeOptions, k, error))
+            return NO;
+    }
+    
+    return YES;
+}
+
 // String values and keys
 - (BOOL)storeStringsFromDictionary:(NSDictionary *)dictionary error:(NSError **)error {
  
@@ -1221,6 +1243,18 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     }
 
     return [NSDictionary dictionaryWithDictionary:dictionary];
+}
+
+- (BOOL)deleteStoredStringsForKeys:(NSArray *)keys error:(NSError **)error {
+    
+    for(id key in keys) {
+        
+        Slice k = NULDBSliceFromString(key);
+        if(! NULDBDeleteValueForKey(db, writeOptions, k, error))
+            return NO;
+    }
+    
+    return YES;
 }
 
 

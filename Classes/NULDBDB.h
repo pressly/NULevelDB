@@ -72,14 +72,17 @@
 // Generalized
 - (BOOL)storeValuesFromDictionary:(NSDictionary *)dictionary;
 - (NSDictionary *)storedValuesForKeys:(NSArray *)keys;
+- (BOOL)deleteStoredValuesForKeys:(NSArray *)keys;
 
 // Data values and keys
 - (BOOL)storeDataFromDictionary:(NSDictionary *)dictionary error:(NSError **)error;
 - (NSDictionary *)storedDataForKeys:(NSArray *)keys error:(NSError **)error;
+- (BOOL)deleteStoredDataForKeys:(NSArray *)keys error:(NSError **)error;
 
 // String values and keys
 - (BOOL)storeStringsFromDictionary:(NSDictionary *)dictionary error:(NSError **)error;
 - (NSDictionary *)storedStringsForKeys:(NSArray *)keys error:(NSError **)error;
+- (BOOL)deleteStoredStringsForKeys:(NSArray *)keys error:(NSError **)error;
 
 
 // Iteration and search
