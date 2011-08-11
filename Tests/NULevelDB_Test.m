@@ -110,6 +110,54 @@ static NSString *bigString = @"Erlang looks weird to the uninitiated, so I'll st
     return data;
 }
 
+enum {
+    kGeneric,
+    kData,
+    kString
+};
+
+- (NSDictionary *)makeTestDictionary:(unsigned)type {
+    
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:1000];
+        
+    for(int i = 0; i<1000; ++i) {
+        
+        NULDBTestPerson *person = [NULDBTestPerson randomPerson];
+        NSDictionary *plist = [person plistRepresentation];
+        NSData *plistData = nil;
+        id key = [person uniqueID];
+        id value;
+        
+        if(type > 0) {
+            int plistType = NSPropertyListBinaryFormat_v1_0;
+            if(type > 1)
+                plistType = NSPropertyListXMLFormat_v1_0;
+            plistData = [NSPropertyListSerialization dataWithPropertyList:plist format:plistType options:0 error:NULL];
+        }
+        
+        switch (type) {
+                
+            case kString:
+                value = [[NSString alloc] initWithData:plistData encoding:NSUTF8StringEncoding];
+                break;
+                
+            case kData:
+                value = plistData;
+                key = [key dataUsingEncoding:NSUTF8StringEncoding];
+                break;
+                
+            case kGeneric:
+            default:
+                value = plist;
+                break;
+        }
+
+        [dict setObject:value forKey:key];
+    }
+    
+    return [NSDictionary dictionaryWithDictionary:dict];
+}
+
 - (void)verifyAddressFromData:(NSData *)value error:(NSError *)error {
     
     STAssertEqualObjects(value, [self makeTestData], @"Test data does not match; expected: %@; actual: %@", [self makeTestData], value);
@@ -230,6 +278,47 @@ static NSString *bigString = @"Erlang looks weird to the uninitiated, so I'll st
 //- (void)testPut1000By10 {
 //    [db put:1000 valuesOfSize:10 data:NULL];
 //}
+
+- (void)test07GenericBulk {
+    
+    NSDictionary *dict = [self makeTestDictionary:kGeneric];
+    
+    STAssertTrue([db storeValuesFromDictionary:dict], @"Failed to bulk store generic values");
+    
+    NSDictionary *actual = [db storedValuesForKeys:[dict allKeys]];
+    
+    STAssertEqualObjects(dict, actual, @"Failed to bulk load generic values (non-matching)");
+    
+    STAssertTrue([db deleteStoredValuesForKeys:[dict allKeys]], @"Failed to bulk delete generic values");
+}
+
+- (void)test08DataBulk {
+    
+    NSError *error = nil;
+    NSDictionary *dict = [self makeTestDictionary:kData];
+    
+    STAssertTrue([db storeDataFromDictionary:dict error:&error], @"Failed to bulk store data; %@", error);
+    
+    NSDictionary *actual = [db storedDataForKeys:[dict allKeys] error:&error];
+    
+    STAssertEqualObjects(actual, dict, @"Failed to bulk load data values (non-matching); %@", error);
+    
+    STAssertTrue([db deleteStoredDataForKeys:[dict allKeys] error:&error], @"Failed to bulk delete data values; %@", error);
+}
+
+- (void)test09StringBulk {
+    
+    NSError *error = nil;
+    NSDictionary *dict = [self makeTestDictionary:kString];
+    
+    STAssertTrue([db storeStringsFromDictionary:dict error:&error], @"Failed to bulk store strings; %@", error);
+    
+    NSDictionary *actual = [db storedStringsForKeys:[dict allKeys] error:&error];
+    
+    STAssertEqualObjects(actual, dict, @"Failed to bulk load data values (non-matching); %@", error);
+    
+    STAssertTrue([db deleteStoredStringsForKeys:[dict allKeys] error:&error], @"Failed to bulk delete data values; %@", error);
+}
 
 - (void)test10KeyedArchiveSerialization {
     
