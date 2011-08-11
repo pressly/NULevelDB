@@ -212,14 +212,11 @@ NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
 #define NULDBDataFromSlice(_slice_) ([NSData dataWithBytes:_slice_.data() length:_slice_.size()])
 
 #define NULDBSliceFromString(_string_) (Slice((char *)[_string_ UTF8String], [_string_ lengthOfBytesUsingEncoding:NSUTF8StringEncoding]))
-#define NULDBStringFromSlice(_slice_) ([NSString stringWithCString:slice.data() encoding:NSUTF8StringEncoding])
+#define NULDBStringFromSlice(_slice_) ([NSString stringWithCString:_slice_.data() encoding:NSUTF8StringEncoding])
 
-#define NULDBSliceFromString(_string_) (Slice((char *)[_string_ UTF8String], [_string_ lengthOfBytesUsingEncoding:NSUTF8StringEncoding]))
-#define NULDBStringFromSlice(_slice_) ([NSString stringWithCString:slice.data() encoding:NSUTF8StringEncoding])
-
-inline void NULDBStoreValueForKey(DB *db, WriteOptions &options, NSData *key, NSData *value, NSError **error) {
+inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &options, Slice &key, Slice &value, NSError **error) {
     
-    Status status = db->Put(options, NULDBSliceFromData(key), NULDBSliceFromData(value));
+    Status status = db->Put(options, key, value);
 
     if(!status.ok()) {
         if(nil != error) {
@@ -232,15 +229,16 @@ inline void NULDBStoreValueForKey(DB *db, WriteOptions &options, NSData *key, NS
         else {
             NSLog(@"Failed to store value in database: %s", status.ToString().c_str());
         }
+        return NO;
     }
+    
+    return YES;
 }
 
-inline NSData *NULDBLoadValueForKey(DB *db, ReadOptions &options, NSData *key, NSError **error) {
-    
-    NSData *result = nil;
+inline BOOL NULDBLoadValueForKey(DB *db, ReadOptions &options, Slice &key, Slice *value, NSError **error) {
     
     std::string tempValue;
-    Status status = db->Get(options, NULDBSliceFromData(key), &tempValue);
+    Status status = db->Get(options, key, &tempValue);
     
     if(!status.ok() && !status.IsNotFound()) {
         if(nil != error) {
@@ -253,18 +251,17 @@ inline NSData *NULDBLoadValueForKey(DB *db, ReadOptions &options, NSData *key, N
         else {
             NSLog(@"Failed to load value from database: %s", status.ToString().c_str());
         }
+        return NO;
     }
     else {
-        Slice slice = tempValue;
-        result = NULDBDataFromSlice(slice);
+        *value = tempValue;
+        return YES;
     }
-    
-    return result;
 }
 
-inline void NULDBDeleteValueForKey(DB *db, WriteOptions &options, NSData *key, NSError **error) {
+inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NSError **error) {
     
-    Status status = db->Delete(options, NULDBSliceFromData(key));
+    Status status = db->Delete(options, key);
     
     if(!status.ok() && !status.IsNotFound()) {
         if(nil != error) {
@@ -277,55 +274,109 @@ inline void NULDBDeleteValueForKey(DB *db, WriteOptions &options, NSData *key, N
         else {
             NSLog(@"Failed to delete value in database: %s", status.ToString().c_str());
         }
-    }    
+        return NO;
+    }
+    return YES;
 }
 
 
 #pragma mark Data->Data Access
-- (void)storeData:(NSData *)data forDataKey:(NSData *)key error:(NSError **)error {
-    NULDBStoreValueForKey(db, writeOptions, key, data, error);
+- (BOOL)storeData:(NSData *)data forDataKey:(NSData *)key error:(NSError **)error {
+    Slice k = NULDBSliceFromData(key), v = NULDBSliceFromData(data);
+    return NULDBStoreValueForKey(db, writeOptions, k, v, error);
 }
 
 - (NSData *)storedDataForDataKey:(NSData *)key error:(NSError **)error {
-    return NULDBLoadValueForKey(db, readOptions, key, error);
+    Slice k = NULDBSliceFromData(key), v;
+    if(NULDBLoadValueForKey(db, readOptions, k, &v, error))
+        return NULDBDataFromSlice(v);
+    else
+        return nil;
 }
 
-- (void)deleteStoredDataForDataKey:(NSData *)key error:(NSError **)error {
-    NULDBDeleteValueForKey(db, writeOptions, key, error);
+- (BOOL)deleteStoredDataForDataKey:(NSData *)key error:(NSError **)error {
+    Slice k = NULDBSliceFromData(key);
+    return NULDBDeleteValueForKey(db, writeOptions, k, error);
 }
 
 
 #pragma mark String->Data->Data Access
-- (void)storeData:(NSData *)data forKey:(NSString *)key translator:(NSData *(^)(NSString *))block error:(NSError **)error {
-    NULDBStoreValueForKey(db, writeOptions, block(key), data, error);
+
+#define OptionallyUseBlockEncoder(_key_, _block_) (_block_ ? _block_(_key_) : [key dataUsingEncoding:NSUTF8StringEncoding])
+
+- (BOOL)storeData:(NSData *)data forKey:(NSString *)key translator:(NSData *(^)(NSString *))block error:(NSError **)error {
+    Slice k = NULDBSliceFromData(OptionallyUseBlockEncoder(key, block)), v = NULDBSliceFromData(data);
+    return NULDBStoreValueForKey(db, writeOptions, k, v, error);
 }
 
 - (NSData *)storedDataForKey:(NSString *)key translator:(NSData *(^)(NSString *))block error:(NSError **)error {
-    return NULDBLoadValueForKey(db, readOptions, block(key), error);
+    Slice k = NULDBSliceFromData(OptionallyUseBlockEncoder(key, block)), v;
+    
+    if(NULDBLoadValueForKey(db, readOptions, k, &v, error))
+        return NULDBDataFromSlice(v);
+    else
+        return nil;
 }
 
-- (void)deleteStoredDataForKey:(NSString *)key translator:(NSData *(^)(NSString *))block error:(NSError **)error {
-    NULDBDeleteValueForKey(db, writeOptions, block(key), error);
+- (BOOL)deleteStoredDataForKey:(NSString *)key translator:(NSData *(^)(NSString *))block error:(NSError **)error {
+    Slice k = NULDBSliceFromData(OptionallyUseBlockEncoder(key, block));
+    return NULDBDeleteValueForKey(db, writeOptions, k, error);
 }
 
 
 #pragma mark String->Data Access
-- (void)storeData:(NSData *)data forKey:(NSString *)key error:(NSError **)error {
-    NULDBStoreValueForKey(db, writeOptions, [key dataUsingEncoding:NSUTF8StringEncoding], data, error);
+- (BOOL)storeData:(NSData *)data forKey:(NSString *)key error:(NSError **)error {
+    Slice k = NULDBSliceFromString(key), v = NULDBSliceFromData(data);
+    return NULDBStoreValueForKey(db, writeOptions, k, v, error);
 }
 
 - (NSData *)storedDataForKey:(NSString *)key error:(NSError **)error {
-    return NULDBLoadValueForKey(db, readOptions, [key dataUsingEncoding:NSUTF8StringEncoding], error);
+    Slice k = NULDBSliceFromString(key), v;
+    if(NULDBLoadValueForKey(db, readOptions, k, &v, error))
+        return NULDBDataFromSlice(v);
+    else
+        return nil;
 }
 
-- (void)deleteStoredDataForKey:(NSString *)key error:(NSError **)error {
-    NULDBDeleteValueForKey(db, writeOptions, [key dataUsingEncoding:NSUTF8StringEncoding], error);
+- (BOOL)deleteStoredDataForKey:(NSString *)key error:(NSError **)error {
+    Slice k = NULDBSliceFromString(key);
+    return NULDBDeleteValueForKey(db, writeOptions, k, error);
+}
+
+
+#pragma mark String->String Access
+- (BOOL)storeString:(NSString *)string forKey:(NSString *)key error:(NSError **)error {
+    Slice k = NULDBSliceFromString(key), v = NULDBSliceFromString(string);
+    return NULDBStoreValueForKey(db, writeOptions, k, v, error);
+}
+
+- (NSString *)storedStringForKey:(NSString *)key error:(NSError **)error {
+    Slice k = NULDBSliceFromString(key), v;
+    if(NULDBLoadValueForKey(db, readOptions, k, &v, error))
+        return NULDBStringFromSlice(v);
+    else
+        return nil;
 }
 
 
 #pragma mark Index->Data Access
+- (BOOL)storeData:(NSData *)data forIndexKey:(uint64_t)key error:(NSError **)error {
+    Slice k((char *)&key, sizeof(uint64_t)), v((char *)&key, sizeof(uint64_t));
+    return NULDBStoreValueForKey(db, writeOptions, k, v, error);
+}
 
+- (NSData *)storedDataForIndexKey:(uint64_t)key error:(NSError **)error {
+    Slice k((char *)&key, sizeof(uint64_t)), v;
+    if(NULDBLoadValueForKey(db, readOptions, k, &v, error))
+        return NULDBDataFromSlice(v);
+    else
+        return nil;
+}
 
+- (BOOL)deleteStoredDataForIndexKey:(uint64_t)key error:(NSError **)error {
+    Slice k((char *)&key, sizeof(uint64_t));
+    return NULDBDeleteValueForKey(db, writeOptions, k, error);
+}
 
 
 #pragma mark - Private Relationship Support
