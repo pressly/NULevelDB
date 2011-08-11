@@ -25,12 +25,12 @@ namespace NULDB {
     const Slice CountersKey = Slice("NULDBCounters", sizeof("NULDBCounters"));
 
 
-    BOOL StorageKey::valid(Slice *slice) {
+    BOOL StorageKey::valid(Slice &slice) {
         
-        if(slice->size() < sizeof(StorageKey))
+        if(slice.size() < sizeof(StorageKey))
             return NO;
         
-        std::string data = slice->ToString();
+        std::string data = slice.ToString();
         
         if(data[0] != 'N' || data[1] != 'U')
             return NO;
@@ -57,7 +57,7 @@ namespace NULDB {
         assert(temp.c[1] == 'U');
         
         keyType = temp.c[2];
-        valType = temp.c[3];
+        subType = temp.c[3];
         a = temp.u[0];
         b = temp.u[1];
     }

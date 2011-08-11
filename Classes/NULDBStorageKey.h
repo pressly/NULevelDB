@@ -78,7 +78,7 @@ namespace NULDB {
         
         StorageKey(Slice &slice);
         
-        static BOOL valid(Slice *slice);
+        static BOOL valid(Slice &slice);
         
         Slice slice( void ) {
             return Slice((const char*)this, sizeof(*this));
