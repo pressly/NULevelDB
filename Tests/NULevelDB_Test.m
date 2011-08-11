@@ -17,6 +17,9 @@
 #import "NULDBTestCompany.h"
 
 
+static NSString *bigString = @"Erlang looks weird to the uninitiated, so I'll step it through for you. On the line numbered (1), we define an array with four numbers as elements, and calls the function lists:for_each with that list as a first argument, and a block taking one argument as the second argument (just as the function Enumerable#each takes a block argument in the Ruby example above). The block begins at the -> and goes on until the last end. All that first block does is it spawns a new Erlang process (line (2)), again taking a block as an argument to do the actual test, but now THIS block (line (2) still) is executing concurrently, and thus the test on line (3) is done concurrently for all elements in the array.";
+
+
 @interface NULDBWrapper : NSObject<NULDBSerializable>
 @property (retain) NSString *identifier;
 @property (retain) id object;
@@ -203,6 +206,16 @@
 
 - (void)test06StringValues {
     
+    NSError *error = nil;
+    NSString *key = @"TEST_KEY";
+    
+    STAssertTrue([db storeString:bigString forKey:key error:&error], @"Failed to store big string for key (%@); %@", key, error);
+    
+    NSString *actual = [db storedStringForKey:key error:&error];
+    
+    STAssertEqualObjects(actual, bigString, @"Failed to retrieve string for key (%@); %@", key, error);
+    
+    STAssertTrue([db deleteStoredDataForKey:key error:&error], @"Failed to delete big string for key (%@); %@", key, error);
 }
 
 // These performance tests aren't very interesting in relation to iOS
