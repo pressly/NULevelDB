@@ -73,7 +73,14 @@
 - (BOOL)storeValuesFromDictionary:(NSDictionary *)dictionary;
 - (NSDictionary *)storedValuesForKeys:(NSArray *)keys;
 
-// Data values and data keys
+// Data values and keys
+- (BOOL)storeDataFromDictionary:(NSDictionary *)dictionary error:(NSError **)error;
+- (NSDictionary *)storedDataForKeys:(NSArray *)keys error:(NSError **)error;
+
+// String values and keys
+- (BOOL)storeStringsFromDictionary:(NSDictionary *)dictionary error:(NSError **)error;
+- (NSDictionary *)storedStringsForKeys:(NSArray *)keys error:(NSError **)error;
+
 
 // Iteration and search
 - (void)iterateWithStart:(NSString *)start limit:(NSString *)limit block:(BOOL (^)(NSString *key, id<NSCoding>value))block;

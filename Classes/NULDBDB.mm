@@ -1163,6 +1163,66 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     return [NSDictionary dictionaryWithDictionary:result];
 }
 
+// Data values and keys
+- (BOOL)storeDataFromDictionary:(NSDictionary *)dictionary error:(NSError **)error {
+    
+    for(id key in [dictionary allKeys]) {
+        
+        Slice k = NULDBSliceFromData(key), v = NULDBSliceFromData([dictionary objectForKey:key]);
+        
+        if(!NULDBStoreValueForKey(db, writeOptions, k, v, error))
+            return NO;
+    }
+    
+    return YES;
+}
+
+- (NSDictionary *)storedDataForKeys:(NSArray *)keys error:(NSError **)error {
+    
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:[keys count]];
+    
+    for(id key in keys) {
+        
+        NSData *result = nil;
+        Slice k = NULDBSliceFromData(key);
+        NULDBLoadValueForKey(db, readOptions, k, &result, NO, error);
+        
+        [dictionary setObject:result forKey:key]; 
+    }
+        
+        return [NSDictionary dictionaryWithDictionary:dictionary];
+}
+
+// String values and keys
+- (BOOL)storeStringsFromDictionary:(NSDictionary *)dictionary error:(NSError **)error {
+ 
+    for(id key in [dictionary allKeys]) {
+
+        Slice k = NULDBSliceFromString(key), v = NULDBSliceFromString([dictionary objectForKey:key]);
+        
+        if(!NULDBStoreValueForKey(db, writeOptions, k, v, error))
+            return NO;
+    }
+    
+    return YES;
+}
+
+- (NSDictionary *)storedStringsForKeys:(NSArray *)keys error:(NSError **)error {
+    
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:[keys count]];
+    
+    for(id key in keys) {
+        
+        NSString *result = nil;
+        Slice k = NULDBSliceFromString(key);
+        NULDBLoadValueForKey(db, readOptions, k, &result, YES, error);
+        
+        [dictionary setObject:result forKey:key]; 
+    }
+
+    return [NSDictionary dictionaryWithDictionary:dictionary];
+}
+
 
 #pragma mark Iteration
 - (NSDictionary *)storedValuesFromStart:(NSString *)start toLimit:(NSString *)limit {
