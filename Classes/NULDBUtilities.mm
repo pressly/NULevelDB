@@ -51,7 +51,7 @@ extern id NULDBDecodedObject(NSData *data) {
     
     char type;
     
-    [d getBytes:&type length:1];
+    [data getBytes:&type length:1];
     
     switch (type) {
         case 's':

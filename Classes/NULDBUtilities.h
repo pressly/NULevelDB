@@ -26,6 +26,9 @@ extern NSData *NULDBEncodedObject(id<NSCoding>object);
 extern id NULDBDecodedObject(NSData *data);
 
 static inline Slice NULDBSliceFromObject(id<NSCoding> object) {
+    
+    NSData *d = NULDBEncodedObject(object);
+    
     return Slice((const char *)[d bytes], (size_t)[d length]);
 }
 
