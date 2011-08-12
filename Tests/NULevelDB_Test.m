@@ -15,6 +15,7 @@
 #import "NULDBTestPerson.h"
 #import "NULDBTestAddress.h"
 #import "NULDBTestCompany.h"
+#import "NULDBTestUtilities.h"
 
 
 static NSString *bigString = @"Erlang looks weird to the uninitiated, so I'll step it through for you. On the line numbered (1), we define an array with four numbers as elements, and calls the function lists:for_each with that list as a first argument, and a block taking one argument as the second argument (just as the function Enumerable#each takes a block argument in the Ruby example above). The block begins at the -> and goes on until the last end. All that first block does is it spawns a new Erlang process (line (2)), again taking a block as an argument to do the actual test, but now THIS block (line (2) still) is executing concurrently, and thus the test on line (3) is done concurrently for all elements in the array.";
@@ -116,11 +117,11 @@ enum {
     kString
 };
 
-- (NSDictionary *)makeTestDictionary:(unsigned)type {
+- (NSDictionary *)makeTestDictionary:(unsigned)type count:(NSUInteger)count {
     
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:1000];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:count];
         
-    for(int i = 0; i<1000; ++i) {
+    for(int i = 0; i<count; ++i) {
         
         NULDBTestPerson *person = [NULDBTestPerson randomPerson];
         NSDictionary *plist = [person plistRepresentation];
@@ -281,7 +282,7 @@ enum {
 
 - (void)test07GenericBulk {
     
-    NSDictionary *dict = [self makeTestDictionary:kGeneric];
+    NSDictionary *dict = [self makeTestDictionary:kGeneric count:1000];
     
     STAssertTrue([db storeValuesFromDictionary:dict], @"Failed to bulk store generic values");
     
@@ -295,7 +296,7 @@ enum {
 - (void)test08DataBulk {
     
     NSError *error = nil;
-    NSDictionary *dict = [self makeTestDictionary:kData];
+    NSDictionary *dict = [self makeTestDictionary:kData count:1000];
     
     STAssertTrue([db storeDataFromDictionary:dict error:&error], @"Failed to bulk store data; %@", error);
     
@@ -309,7 +310,7 @@ enum {
 - (void)test09StringBulk {
     
     NSError *error = nil;
-    NSDictionary *dict = [self makeTestDictionary:kString];
+    NSDictionary *dict = [self makeTestDictionary:kString count:1000];
     
     STAssertTrue([db storeStringsFromDictionary:dict error:&error], @"Failed to bulk store strings; %@", error);
     
@@ -320,7 +321,66 @@ enum {
     STAssertTrue([db deleteStoredStringsForKeys:[dict allKeys] error:&error], @"Failed to bulk delete data values; %@", error);
 }
 
-- (void)test10KeyedArchiveSerialization {
+- (void)test10IndexBulk {
+    
+    NSError *error = nil;
+    NSArray *expected = [[self makeTestDictionary:kData count:1000] allValues];
+    NSUInteger count = [expected count];
+    uint64_t *indices = malloc(sizeof(uint64_t) * count);
+    uint64_t *sortIndices = indices;
+    
+    NSAssert(NULL != indices, @"Malloc failure");
+    
+    for(NSUInteger i=0; i<count; ++i) {
+        indices[i] = (uint64_t)random() << 32 | i;
+    }
+    
+    if(count <= 10) {
+        for(NSUInteger i=0; i<count; ++i)
+            NSLog(@"index %u: %llx", i, indices[i]);
+    }
+    
+    NSComparator comp = ^(id obj1, id obj2) {
+        uint64_t i1 = sortIndices[[expected indexOfObject:obj1]], i2 = sortIndices[[expected indexOfObject:obj2]];
+        if(i1 < i2)
+            return -1;
+        if(i1 > i2)
+            return 1;
+        return 0;
+    };
+    
+    expected = [expected sortedArrayUsingComparator:comp];
+    
+    STAssertTrue([db storeDataFromArray:expected forIndexes:indices error:&error], @"Failed to bulk store indexed values; %@", error);
+    
+    // shuffle the indexes
+    uint64_t *indices_copy = malloc(sizeof(uint64_t) * count);
+    
+    memcpy(indices_copy, indices, count*sizeof(uint64_t));
+
+    for(NSUInteger i=0; i<count; ++i) {
+        NSUInteger left = Random_int_in_range(0, count-1), right = Random_int_in_range(0, count-1);
+        if(left == right)
+            continue;
+        uint64_t temp = indices_copy[left];  indices_copy[left] = indices_copy[right]; indices_copy[right] = temp;
+    }
+    
+    if(count <= 10) {
+        for(NSUInteger i=0; i<count; ++i)
+            NSLog(@"copied shuffled index %u: %llx", i, indices_copy[i]);
+    }
+    
+    sortIndices = indices_copy;
+    
+    NSArray *actual = [[db storedDataForIndexes:indices_copy count:count error:&error] sortedArrayUsingComparator:comp];
+    
+    STAssertEqualObjects(expected, actual, @"Failed to bulk load indexed values (objects don't match)");
+    
+    STAssertTrue([db deleteStoredDataForIndexes:indices_copy count:count error:&error], @"Failed to bulk delete indexed values; %@", error);
+}
+
+
+- (void)test20KeyedArchiveSerialization {
     
     NULDBTestPhone *e = [[NULDBTestPhone alloc] initWithAreaCode:416 exchange:967 line:1111];
     NSString *key = @"phone_1";
@@ -332,7 +392,7 @@ enum {
     STAssertTrue([e isEqual:a], @"Stored value discrepancy. Expected: %@; actual: %@.", e, a);
 }
 
-- (void)test11PlistSerialization {
+- (void)test21PlistSerialization {
     
     NULDBTestAddress *address = [self makeTestAddress];
     NULDBWrapper *e = [[NULDBWrapper alloc] initWithObject:address identifier:address.uniqueID];
@@ -353,7 +413,7 @@ enum {
     STAssertTrue([address isEqual:a], @"Stored value discrepancy. Expected: %@; actual: %@.", e, a);
 }
 
-- (void)test12GraphSerialization {
+- (void)test22GraphSerialization {
     
     NULDBTestCompany *company = [NULDBTestCompany randomSizedCompany];
     
