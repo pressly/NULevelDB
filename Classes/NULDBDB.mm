@@ -244,30 +244,45 @@ inline BOOL NULDBLoadValueForKey(DB *db, ReadOptions &options, Slice &key, id *r
     std::string tempValue;
     Status status = db->Get(options, key, &tempValue);
     
-    if(!status.ok() && !status.IsNotFound()) {
-        if(nil != error) {
-            NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
-//                                      NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
-                                      nil];
-            *error = [NSError errorWithDomain:NULDBErrorDomain code:2 userInfo:userInfo];
+    assert(NULL != retValue);
+    
+    if(!status.IsNotFound()) {
+        if(!status.ok()) {
+            if(nil != error) {
+                NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                                          [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
+//                                          NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
+                                          nil];
+                *error = [NSError errorWithDomain:NULDBErrorDomain code:2 userInfo:userInfo];
+            }
+            else {
+                NSLog(@"Failed to load value from database: %s", status.ToString().c_str());
+            }
+            
+            *retValue = nil;
         }
         else {
-            NSLog(@"Failed to load value from database: %s", status.ToString().c_str());
+            
+            Slice value = tempValue;
+            
+            if(isString)
+                *retValue = NULDBStringFromSlice(value);
+            else
+                *retValue = NULDBDataFromSlice(value);
+            
+            return YES;
         }
-        return NO;
     }
-    else {
-        
-        Slice value = tempValue;
-        
-        if(isString)
-            *retValue = NULDBStringFromSlice(value);
-        else
-            *retValue = NULDBDataFromSlice(value);
-        
-        return YES;
+    else if(nil != error) {
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                                  [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
+//                                  NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
+                                  nil];
+        *error = [NSError errorWithDomain:NULDBErrorDomain code:4 userInfo:userInfo];
+        *retValue = nil;
     }
+    
+    return NO;
 }
 
 inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NSError **error) {
@@ -1195,7 +1210,11 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
         
         NSData *result = nil;
         Slice k = NULDBSliceFromData(key);
-        NULDBLoadValueForKey(db, readOptions, k, &result, NO, error);
+        if(!NULDBLoadValueForKey(db, readOptions, k, &result, NO, error))
+            if (4 == [*error code])
+                continue;
+            else
+                return nil;
         
         [dictionary setObject:result forKey:key]; 
     }
@@ -1214,6 +1233,54 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     return YES;
 }
+
+- (BOOL)storeDataFromArray:(NSArray *)array forIndexes:(uint64_t *)indexes error:(NSError **)error {
+    
+    uint64_t *currentIndex = indexes;
+    
+    for(NSData *data in array) {
+        
+        Slice k((char *)currentIndex++, sizeof(uint64_t)), v = NULDBSliceFromData(data);
+        if(!NULDBStoreValueForKey(db, writeOptions, k, v, error))
+            return NO;
+    }
+    
+    return YES;
+}
+
+- (NSArray *)storedDataForIndexes:(uint64_t *)indexes count:(NSUInteger)count error:(NSError **)error {
+    
+    NSMutableArray *array = [NSMutableArray arrayWithCapacity:count];
+    
+    NSData *result = nil;
+
+    for(int i=0; i<count; ++i) {
+        
+        uint64_t index = indexes[i];
+        Slice k((char *)&index, sizeof(uint64_t));
+        if(!NULDBLoadValueForKey(db, readOptions, k, &result, NO, error))
+            if (4 == [*error code])
+                continue;
+            else
+                return nil;
+
+        [array addObject:result];
+    }
+
+    return [NSArray arrayWithArray:array];
+}
+
+- (BOOL)deleteStoredDataForIndexes:(uint64_t *)indexes count:(NSUInteger)count error:(NSError **)error {
+    
+    for(NSUInteger i=0; i<count; ++i) {
+        Slice k((char *)(indexes+i), sizeof(uint64_t));
+        if(!NULDBDeleteValueForKey(db, writeOptions, k, error))
+            return NO;
+    }
+
+    return YES;
+}
+
 
 // String values and keys
 - (BOOL)storeStringsFromDictionary:(NSDictionary *)dictionary error:(NSError **)error {
@@ -1237,9 +1304,13 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
         
         NSString *result = nil;
         Slice k = NULDBSliceFromString(key);
-        NULDBLoadValueForKey(db, readOptions, k, &result, YES, error);
-        
-        [dictionary setObject:result forKey:key]; 
+        if(!NULDBLoadValueForKey(db, readOptions, k, &result, YES, error))
+            if (4 == [*error code])
+                continue;
+            else
+                return nil;
+
+        [dictionary setObject:result forKey:key];
     }
 
     return [NSDictionary dictionaryWithDictionary:dictionary];

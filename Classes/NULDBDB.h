@@ -84,6 +84,11 @@
 - (NSDictionary *)storedStringsForKeys:(NSArray *)keys error:(NSError **)error;
 - (BOOL)deleteStoredStringsForKeys:(NSArray *)keys error:(NSError **)error;
 
+// data values and uint64_t and keys
+- (BOOL)storeDataFromArray:(NSArray *)array forIndexes:(uint64_t *)indexes error:(NSError **)error;
+- (NSArray *)storedDataForIndexes:(uint64_t *)indexes count:(NSUInteger)count error:(NSError **)error;
+- (BOOL)deleteStoredDataForIndexes:(uint64_t *)indexes count:(NSUInteger)count error:(NSError **)error;
+
 
 // Iteration and search
 - (void)iterateWithStart:(NSString *)start limit:(NSString *)limit block:(BOOL (^)(NSString *key, id<NSCoding>value))block;
