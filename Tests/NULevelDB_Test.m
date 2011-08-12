@@ -178,7 +178,6 @@ enum {
 }
 
 
-
 - (void)test01Example
 {
     id e = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -280,6 +279,7 @@ enum {
 //    [db put:1000 valuesOfSize:10 data:NULL];
 //}
 
+#if 0
 - (void)test07GenericBulk {
     
     NSDictionary *dict = [self makeTestDictionary:kGeneric count:1000];
@@ -320,7 +320,9 @@ enum {
     
     STAssertTrue([db deleteStoredStringsForKeys:[dict allKeys] error:&error], @"Failed to bulk delete data values; %@", error);
 }
+#endif
 
+#if 0
 - (void)test10IndexBulk {
     
     NSError *error = nil;
@@ -378,8 +380,9 @@ enum {
     
     STAssertTrue([db deleteStoredDataForIndexes:indices_copy count:count error:&error], @"Failed to bulk delete indexed values; %@", error);
 }
+#endif
 
-
+#if 0
 - (void)test20KeyedArchiveSerialization {
     
     NULDBTestPhone *e = [[NULDBTestPhone alloc] initWithAreaCode:416 exchange:967 line:1111];
@@ -422,6 +425,31 @@ enum {
     NULDBTestCompany *a = [db storedObjectForKey:[company storageKey]];
     
     NSLog(@"%@", a);
+}
+#endif
+
+- (void)test30Iteration {
+    
+    NSUInteger count = 10;
+    NSDictionary *dict = [self makeTestDictionary:kString count:count];
+    NSMutableDictionary *temp = [NSMutableDictionary dictionary];
+    
+    NSUInteger i = 0;
+    for(NSString *key in [dict allKeys]) {
+        [temp setObject:[dict objectForKey:key] forKey:[NSString stringWithFormat:@"KEY%010u", i += (unsigned)Random_int_in_range(1, 4)]];
+    }
+    
+    dict = temp;
+    
+    [db storeValuesFromDictionary:dict];
+    
+    NSArray *keys = [[dict allKeys] sortedArrayUsingSelector:@selector(compare:)];
+    NSUInteger i1 = count/3, i2 = 3*count/4;
+    NSString *key1 = [keys objectAtIndex:i1], *key2 = [keys objectAtIndex:i2];
+    
+    NSDictionary *actual = [db storedValuesFrom:key1 to:key2];
+    
+    STAssertTrue([actual count] == i2-i1, @"Missing values; expected %u; got %u", i2-i1, [actual count]);
 }
 
 @end
