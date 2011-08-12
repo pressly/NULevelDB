@@ -18,6 +18,10 @@
 #import "NULDBTestUtilities.h"
 
 
+// It's annoying when long-running tests run every time you try to build your test
+#define TESTING_NEW_TEST 0
+
+
 static NSString *bigString = @"Erlang looks weird to the uninitiated, so I'll step it through for you. On the line numbered (1), we define an array with four numbers as elements, and calls the function lists:for_each with that list as a first argument, and a block taking one argument as the second argument (just as the function Enumerable#each takes a block argument in the Ruby example above). The block begins at the -> and goes on until the last end. All that first block does is it spawns a new Erlang process (line (2)), again taking a block as an argument to do the actual test, but now THIS block (line (2) still) is executing concurrently, and thus the test on line (3) is done concurrently for all elements in the array.";
 
 
@@ -279,7 +283,7 @@ enum {
 //    [db put:1000 valuesOfSize:10 data:NULL];
 //}
 
-#if 0
+#if ! TESTING_NEW_TEST
 - (void)test07GenericBulk {
     
     NSDictionary *dict = [self makeTestDictionary:kGeneric count:1000];
@@ -322,7 +326,7 @@ enum {
 }
 #endif
 
-#if 0
+#if ! TESTING_NEW_TEST
 - (void)test10IndexBulk {
     
     NSError *error = nil;
@@ -382,7 +386,7 @@ enum {
 }
 #endif
 
-#if 0
+#if ! TESTING_NEW_TEST
 - (void)test20KeyedArchiveSerialization {
     
     NULDBTestPhone *e = [[NULDBTestPhone alloc] initWithAreaCode:416 exchange:967 line:1111];
@@ -449,7 +453,7 @@ enum {
     
     NSDictionary *actual = [db storedValuesFrom:key1 to:key2];
     
-    STAssertTrue([actual count] == i2-i1, @"Missing values; expected %u; got %u", i2-i1, [actual count]);
+    STAssertTrue([actual count] == i2-i1+1, @"Missing values; expected %u; got %u", i2-i1+1, [actual count]);
 }
 
 @end
