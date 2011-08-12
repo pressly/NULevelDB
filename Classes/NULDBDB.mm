@@ -1130,27 +1130,6 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 #endif
 }
 
-- (void)iterateWithStart:(NSString *)start limit:(NSString *)limit block:(BOOL (^)(NSString *key, id<NSCoding>value))block {
-    
-    ReadOptions readopts;
-    
-    readopts.fill_cache = false;
-    
-    Iterator*iter = db->NewIterator(readopts);
-    Slice startSlice = NULDBSliceFromObject(start);
-    Slice limitSlice = NULDBSliceFromObject(limit);
-
-    for(iter->Seek(startSlice); iter->Valid() && iter->key().ToString() < limitSlice.ToString(); iter->Next()) {
-
-        Slice key = iter->key(), value = iter->value();
-        
-        if(!block((NSString *)NULDBObjectFromSlice(key), NULDBObjectFromSlice(value)))
-           return;
-    }
-    
-    delete iter;
-}
-
 
 #pragma mark Bulk Save and Load
 - (BOOL)storeValuesFromDictionary:(NSDictionary *)dictionary {
@@ -1330,16 +1309,81 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 
 
 #pragma mark Iteration
-- (NSDictionary *)storedValuesFromStart:(NSString *)start toLimit:(NSString *)limit {
+inline void NULDBIterate(DB*db, Slice &start, Slice &limit, BOOL (^block)(id<NSCoding>, id<NSCoding>value)) {
+    
+    ReadOptions readopts;
+    
+    readopts.fill_cache = false;
+    
+    Iterator*iter = db->NewIterator(readopts);
+    
+    for(iter->Seek(start); iter->Valid() && iter->key().ToString() <= limit.ToString(); iter->Next()) {
+        
+        Slice key = iter->key(), value = iter->value();
+        
+        if(!block(NULDBObjectFromSlice(key), NULDBObjectFromSlice(value)))
+            return;
+    }
+    
+    delete iter;
+}
+
+- (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block {
+    Slice startSlice = NULDBSliceFromObject(start);
+    Slice limitSlice = NULDBSliceFromObject(limit);
+    NULDBIterate(db, startSlice, limitSlice, block);
+}
+
+- (NSDictionary *)storedValuesFrom:(id<NSCoding>)start to:(id<NSCoding>)limit {
     
     NSMutableDictionary *tuples = [NSMutableDictionary dictionary];
     
-    [self iterateWithStart:start limit:limit block:^(NSString *key, id<NSCoding>value) {
+    [self iterateFrom:start to:limit block:^(id<NSCoding>key, id<NSCoding>value) {
         [tuples setObject:value forKey:key];
         return YES;
     }];
     
     return tuples;
+}
+
+
+inline void NULDBIterate(DB*db, Slice &start, Slice &limit, BOOL (^block)(uint64_t, NSData *value)) {
+    
+    ReadOptions readopts;
+    
+    readopts.fill_cache = false;
+    
+    Iterator*iter = db->NewIterator(readopts);
+    
+    for(iter->Seek(start); iter->Valid() && iter->key().ToString() <= limit.ToString(); iter->Next()) {
+        
+        Slice key = iter->key(), value = iter->value();
+        uint64_t index;
+        memcpy(&index, key.data(), key.size());
+        
+        if(!block(index, NULDBDataFromSlice(value)))
+            return;
+    }
+    
+    delete iter;
+}
+
+- (void)iterateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block {
+    Slice startSlice((char *)start, sizeof(uint64_t));
+    Slice limitSlice((char *)limit, sizeof(uint64_t));
+    NULDBIterate(db, startSlice, limitSlice, block);
+}
+
+- (NSArray *)storedValuesFromIndex:(uint64_t)start to:(uint64_t)limit {
+    
+    NSMutableArray *array = [NSMutableArray array];
+    
+    [self iterateFromIndex:start to:limit block:^(uint64_t key, NSData *data) {
+        [array addObject:data];
+        return YES;
+    }];
+    
+    return array;
 }
 
 @end

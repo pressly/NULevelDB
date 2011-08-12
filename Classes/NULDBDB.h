@@ -91,8 +91,10 @@
 
 
 // Iteration and search
-- (void)iterateWithStart:(NSString *)start limit:(NSString *)limit block:(BOOL (^)(NSString *key, id<NSCoding>value))block;
+- (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block;
+- (NSDictionary *)storedValuesFrom:(id<NSCoding>)start to:(id<NSCoding>)limit;
 
-- (NSDictionary *)storedValuesFromStart:(NSString *)start toLimit:(NSString *)limit;
+- (void)iterateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block;
+- (NSArray *)storedValuesFromIndex:(uint64_t)start to:(uint64_t)limit;
 
 @end
