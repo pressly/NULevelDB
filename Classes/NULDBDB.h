@@ -94,6 +94,9 @@
 - (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block;
 - (NSDictionary *)storedValuesFrom:(id<NSCoding>)start to:(id<NSCoding>)limit;
 
+- (void)iterateFromData:(NSData *)start toData:(NSData *)limit block:(BOOL (^)(NSData *key, NSData *value))block;
+- (NSDictionary *)storedValuesFromData:(NSData *)start toData:(NSData *)limit;
+
 - (void)iterateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block;
 - (NSArray *)storedValuesFromIndex:(uint64_t)start to:(uint64_t)limit;
 
