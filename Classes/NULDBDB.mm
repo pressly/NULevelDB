@@ -10,6 +10,7 @@
 
 #include <leveldb/db.h>
 #include <leveldb/options.h>
+#include <leveldb/comparator.h>
 
 
 #include "NULDBUtilities.h"
@@ -814,15 +815,36 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 
 
 #pragma mark Iteration
-inline void NULDBIterate(DB*db, Slice &start, Slice &limit, BOOL (^block)(id<NSCoding>, id<NSCoding>value)) {
+inline void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(Slice &key, Slice &value)) {
     
     ReadOptions readopts;
+    const Comparator *comp = BytewiseComparator();
     
     readopts.fill_cache = false;
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && iter->key().ToString() <= limit.ToString(); iter->Next()) {
+    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()); iter->Next()) {
+        
+        Slice key = iter->key(), value = iter->value();
+        
+        if(!block(key, value))
+            return;
+    }
+    
+    delete iter;
+}
+
+inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(id<NSCoding>, id<NSCoding>value)) {
+    
+    ReadOptions readopts;
+    const Comparator *comp = BytewiseComparator();
+    
+    readopts.fill_cache = false;
+    
+    Iterator*iter = db->NewIterator(readopts);
+    
+    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()); iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -836,7 +858,7 @@ inline void NULDBIterate(DB*db, Slice &start, Slice &limit, BOOL (^block)(id<NSC
 - (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block {
     Slice startSlice = NULDBSliceFromObject(start);
     Slice limitSlice = NULDBSliceFromObject(limit);
-    NULDBIterate(db, startSlice, limitSlice, block);
+    NULDBIterateCoded(db, startSlice, limitSlice, block);
 }
 
 - (NSDictionary *)storedValuesFrom:(id<NSCoding>)start to:(id<NSCoding>)limit {
@@ -851,16 +873,55 @@ inline void NULDBIterate(DB*db, Slice &start, Slice &limit, BOOL (^block)(id<NSC
     return tuples;
 }
 
-
-inline void NULDBIterate(DB*db, Slice &start, Slice &limit, BOOL (^block)(uint64_t, NSData *value)) {
+inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NSData *key, NSData *value)) {
+    
     
     ReadOptions readopts;
+    const Comparator *comp = BytewiseComparator();
     
     readopts.fill_cache = false;
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && iter->key().ToString() <= limit.ToString(); iter->Next()) {
+    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()); iter->Next()) {
+        
+        Slice key = iter->key(), value = iter->value();
+        
+        if(!block(NULDBDataFromSlice(key), NULDBDataFromSlice(value)))
+            return;
+    }
+    
+    delete iter;
+}
+
+- (void)iterateFromData:(NSData *)start toData:(NSData *)limit block:(BOOL (^)(NSData *key, NSData *value))block {
+    Slice startSlice = NULDBSliceFromData(start);
+    Slice limitSlice = NULDBSliceFromData(limit);
+    NULDBIterateData(db, startSlice, limitSlice, block);
+}
+
+- (NSDictionary *)storedValuesFromData:(NSData *)start toData:(NSData *)limit {
+    
+    NSMutableDictionary *tuples = [NSMutableDictionary dictionary];
+
+    [self iterateFromData:start toData:limit block:^(NSData *key, NSData *value) {
+        [tuples setObject:value forKey:key];
+        return YES;
+    }];
+    
+    return tuples;
+}
+
+inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(uint64_t, NSData *value)) {
+    
+    ReadOptions readopts;
+    const Comparator *comp = BytewiseComparator();
+    
+    readopts.fill_cache = false;
+    
+    Iterator*iter = db->NewIterator(readopts);
+    
+    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()); iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         uint64_t index;
@@ -876,7 +937,7 @@ inline void NULDBIterate(DB*db, Slice &start, Slice &limit, BOOL (^block)(uint64
 - (void)iterateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block {
     Slice startSlice((char *)start, sizeof(uint64_t));
     Slice limitSlice((char *)limit, sizeof(uint64_t));
-    NULDBIterate(db, startSlice, limitSlice, block);
+    NULDBIterateIndex(db, startSlice, limitSlice, block);
 }
 
 - (NSArray *)storedValuesFromIndex:(uint64_t)start to:(uint64_t)limit {
