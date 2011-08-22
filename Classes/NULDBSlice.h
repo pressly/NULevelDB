@@ -9,14 +9,22 @@
 #import <Foundation/Foundation.h>
 
 
-#ifdef __cplusplus
-class Slice;
-#else
-typedef void Slice;
-#endif
+@interface NULDBSlice : NSObject
 
-@interface NULDBSlice : NSObject {
-    Slice *slice;
-}
+// Ensure you know which type you encoded
+@property (readonly) NSData *data;
+@property (readonly) NSString *string;
+@property (readonly) id propertyList;
+@property (readonly) id<NSCoding> object;
+
+- (id)initWithData:(NSData *)data;
+- (id)initWithString:(NSString *)string;
+- (id)initWithPropertyList:(id)plist;
+- (id)initWithObject:(id<NSCoding>)object;
+
++ (id)sliceWithData:(NSData *)data;
++ (id)sliceWithString:(NSString *)string;
++ (id)sliceWithPropertyList:(id)plist;
++ (id)initWithObject:(id<NSCoding>)object;
 
 @end
