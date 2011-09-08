@@ -115,8 +115,8 @@
 				4E68415913E344F800D9EBCF /* UIKit.framework in Frameworks */,
 				4E68415B13E344F800D9EBCF /* Foundation.framework in Frameworks */,
 				4E68415D13E344F800D9EBCF /* CoreGraphics.framework in Frameworks */,
-				4E3CDCF113EB01D900366CD8 /* NULevelDB.framework in Frameworks */,
 				4E221EB213EC981600203E8D /* CoreData.framework in Frameworks */,
+				4E3CDCF113EB01D900366CD8 /* NULevelDB.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -174,7 +174,6 @@
 		4E68414913E344F800D9EBCF = {
 			isa = PBXGroup;
 			children = (
-				4E92A6591419103400AD5CFD /* libstdc++.dylib */,
 				4E68415E13E344F800D9EBCF /* NULevelDB-TestApp */,
 				4E68415713E344F800D9EBCF /* Frameworks */,
 				4E68415513E344F800D9EBCF /* Products */,
@@ -193,6 +192,7 @@
 		4E68415713E344F800D9EBCF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4E92A6591419103400AD5CFD /* libstdc++.dylib */,
 				4E221EB113EC981600203E8D /* CoreData.framework */,
 				4E68415813E344F800D9EBCF /* UIKit.framework */,
 				4E68415A13E344F800D9EBCF /* Foundation.framework */,

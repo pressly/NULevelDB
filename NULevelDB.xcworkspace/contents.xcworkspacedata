@@ -2,9 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:NULevelDB.xcodeproj">
+      location = "group:Tests/NULevelDB-TestApp/NULevelDB-TestApp.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Tests/NULevelDB-TestApp/NULevelDB-TestApp.xcodeproj">
+      location = "group:NULevelDB.xcodeproj">
    </FileRef>
 </Workspace>
