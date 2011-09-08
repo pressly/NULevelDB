@@ -461,7 +461,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     for(NSString *property in properties)
         [obj setValue:[self storedObjectForKey:NULDBPropertyKey(className, property, key)] forKey:property];
     
-    return obj;
+    return [obj autorelease];
 }
 
 #pragma mark Dictionaries
@@ -571,7 +571,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
         Class propClass = NSClassFromString([storedObj objectForKey:@"class"]);
         
         if([propClass conformsToProtocol:@protocol(NULDBPlistTransformable)])
-            return [[propClass alloc] initWithPropertyList:[storedObj objectForKey:@"object"]];
+            return [[[propClass alloc] initWithPropertyList:[storedObj objectForKey:@"object"]] autorelease];
         else
             return [self unserializeDictionary:storedObj];
     }

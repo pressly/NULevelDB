@@ -26,7 +26,7 @@ using namespace leveldb;
 }
 
 - (NSString *)string {
-    return [[NSString alloc] initWithBytes:slice->data() length:slice->size() encoding:NSUTF8StringEncoding];
+    return [[[NSString alloc] initWithBytes:slice->data() length:slice->size() encoding:NSUTF8StringEncoding] autorelease];
 }
 
 - (id)propertyList {
@@ -89,19 +89,19 @@ using namespace leveldb;
 
 
 + (id)sliceWithData:(NSData *)data {
-    return [[self alloc] initWithData:data];
+    return [[[self alloc] initWithData:data] autorelease];
 }
 
 + (id)sliceWithString:(NSString *)string {
-    return [[self alloc] initWithString:string];
+    return [[[self alloc] initWithString:string] autorelease];
 }
 
 + (id)sliceWithPropertyList:(id)plist {
-    return [[self alloc] initWithPropertyList:plist];
+    return [[[self alloc] initWithPropertyList:plist] autorelease];
 }
 
 + (id)initWithObject:(id<NSCoding>)object {
-    return [[self alloc] initWithObject:object];
+    return [[[self alloc] initWithObject:object] autorelease];
 }
 
 @end
