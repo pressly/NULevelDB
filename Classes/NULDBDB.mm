@@ -184,7 +184,7 @@ inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &options, Slice &key, Sli
     Status status = db->Put(options, key, value);
 
     if(!status.ok()) {
-        if(nil != error) {
+        if(NULL != error) {
             NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
                                       [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
 //                                      NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
@@ -209,7 +209,7 @@ inline BOOL NULDBLoadValueForKey(DB *db, ReadOptions &options, Slice &key, id *r
     
     if(!status.IsNotFound()) {
         if(!status.ok()) {
-            if(nil != error) {
+            if(NULL != error) {
                 NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
                                           [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
 //                                          NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
@@ -221,6 +221,8 @@ inline BOOL NULDBLoadValueForKey(DB *db, ReadOptions &options, Slice &key, id *r
             }
             
             *retValue = nil;
+            
+            return NO;
         }
         else {
             
@@ -230,20 +232,15 @@ inline BOOL NULDBLoadValueForKey(DB *db, ReadOptions &options, Slice &key, id *r
                 *retValue = NULDBStringFromSlice(value);
             else
                 *retValue = NULDBDataFromSlice(value);
-            
-            return YES;
         }
     }
-    else if(nil != error) {
-        NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                  [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
-//                                  NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
-                                  nil];
-        *error = [NSError errorWithDomain:NULDBErrorDomain code:4 userInfo:userInfo];
+    else
         *retValue = nil;
-    }
     
-    return NO;
+    if(NULL != error)
+        *error = nil;
+    
+    return YES;
 }
 
 inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NSError **error) {
@@ -251,7 +248,7 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
     Status status = db->Delete(options, key);
     
     if(!status.ok() && !status.IsNotFound()) {
-        if(nil != error) {
+        if(NULL != error) {
             NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
                                       [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
 //                                      NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
