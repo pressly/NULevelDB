@@ -22,7 +22,8 @@
 @implementation NULDBTestCompany
 
 #ifndef NULDBTEST_CORE_DATA
-@synthesize name, /*supervisor,*/ workers, addresses, primaryAddressID, mainAddress, secondaryAddresses;
+@synthesize name, /*supervisor,*/ workers, addresses, primaryAddressID;
+@dynamic mainAddress, secondaryAddresses;
 #endif
 
 @synthesize management;
