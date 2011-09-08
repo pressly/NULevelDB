@@ -75,7 +75,7 @@
 		4E82786213EAF85500C64821 /* NULDBSlice.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E82785213EAF85500C64821 /* NULDBSlice.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4E82786313EAF85500C64821 /* NULDBSlice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E82785313EAF85500C64821 /* NULDBSlice.mm */; };
 		4E82786413EAF85500C64821 /* NULDBStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E82785413EAF85500C64821 /* NULDBStatus.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4E82786513EAF85500C64821 /* NULDBStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E82785513EAF85500C64821 /* NULDBStatus.m */; };
+		4E82786513EAF85500C64821 /* NULDBStatus.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E82785513EAF85500C64821 /* NULDBStatus.mm */; };
 		4E82786613EAF85500C64821 /* NULDBTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E82785613EAF85500C64821 /* NULDBTable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4E82786713EAF85500C64821 /* NULDBTable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E82785713EAF85500C64821 /* NULDBTable.mm */; };
 		4E82788313EAFE1400C64821 /* NULDBTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E82787C13EAFE1400C64821 /* NULDBTestUtilities.m */; };
@@ -265,7 +265,7 @@
 		4E82785213EAF85500C64821 /* NULDBSlice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBSlice.h; sourceTree = "<group>"; };
 		4E82785313EAF85500C64821 /* NULDBSlice.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NULDBSlice.mm; sourceTree = "<group>"; };
 		4E82785413EAF85500C64821 /* NULDBStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBStatus.h; sourceTree = "<group>"; };
-		4E82785513EAF85500C64821 /* NULDBStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NULDBStatus.m; sourceTree = "<group>"; };
+		4E82785513EAF85500C64821 /* NULDBStatus.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NULDBStatus.mm; sourceTree = "<group>"; };
 		4E82785613EAF85500C64821 /* NULDBTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBTable.h; sourceTree = "<group>"; };
 		4E82785713EAF85500C64821 /* NULDBTable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NULDBTable.mm; sourceTree = "<group>"; };
 		4E82787B13EAFE1400C64821 /* NULDBTestUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBTestUtilities.h; sourceTree = "<group>"; };
@@ -590,7 +590,7 @@
 				4E82785213EAF85500C64821 /* NULDBSlice.h */,
 				4E82785313EAF85500C64821 /* NULDBSlice.mm */,
 				4E82785413EAF85500C64821 /* NULDBStatus.h */,
-				4E82785513EAF85500C64821 /* NULDBStatus.m */,
+				4E82785513EAF85500C64821 /* NULDBStatus.mm */,
 				4E82785613EAF85500C64821 /* NULDBTable.h */,
 				4E82785713EAF85500C64821 /* NULDBTable.mm */,
 				4E221ED913F2C40900203E8D /* NULDBUtilities.h */,
@@ -800,7 +800,7 @@
 				4E82785D13EAF85500C64821 /* NULDBComparator.mm in Sources */,
 				4E82786113EAF85500C64821 /* NULDBDB.mm in Sources */,
 				4E82786313EAF85500C64821 /* NULDBSlice.mm in Sources */,
-				4E82786513EAF85500C64821 /* NULDBStatus.m in Sources */,
+				4E82786513EAF85500C64821 /* NULDBStatus.mm in Sources */,
 				4E82786713EAF85500C64821 /* NULDBTable.mm in Sources */,
 				4E221EDD13F2C5D100203E8D /* NULDBUtilities.mm in Sources */,
 			);
