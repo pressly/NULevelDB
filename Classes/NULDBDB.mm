@@ -814,14 +814,16 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 #pragma mark Iteration
 inline void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(Slice &key, Slice &value)) {
     
+    assert(start.size() > 0);
+    
     ReadOptions readopts;
-    const Comparator *comp = BytewiseComparator();
+    const Comparator *comp = limit.size() > 0 ? BytewiseComparator() : NULL;
     
     readopts.fill_cache = false;
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()); iter->Next()) {
+    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key())); iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -834,14 +836,16 @@ inline void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(S
 
 inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(id<NSCoding>, id<NSCoding>value)) {
     
+    assert(start.size() > 0);
+    
     ReadOptions readopts;
-    const Comparator *comp = BytewiseComparator();
+    const Comparator *comp = limit.size() > 0 ? BytewiseComparator() : NULL;
     
     readopts.fill_cache = false;
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()); iter->Next()) {
+    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key())); iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -872,15 +876,16 @@ inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(i
 
 inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NSData *key, NSData *value)) {
     
+    assert(start.size() > 0);
     
     ReadOptions readopts;
-    const Comparator *comp = BytewiseComparator();
+    const Comparator *comp = limit.size() > 0 ? BytewiseComparator() : NULL;
     
     readopts.fill_cache = false;
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()); iter->Next()) {
+    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key())); iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -910,6 +915,8 @@ inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
 }
 
 inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(uint64_t, NSData *value)) {
+    
+    assert(start.size() > 0);
     
     ReadOptions readopts;
     const Comparator *comp = BytewiseComparator();
