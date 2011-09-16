@@ -874,6 +874,46 @@ inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(i
     return tuples;
 }
 
+inline void NULDBIterateKeys(DB*db, Slice &start, Slice &limit, BOOL (^block)(NSString *key, NSData *value)) {
+    
+    assert(start.size() > 0);
+    
+    ReadOptions readopts;
+    const Comparator *comp = limit.size() > 0 ? BytewiseComparator() : NULL;
+    
+    readopts.fill_cache = false;
+    
+    Iterator*iter = db->NewIterator(readopts);
+    
+    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0); iter->Next()) {
+        
+        Slice key = iter->key(), value = iter->value();
+        
+        if(!block(NULDBStringFromSlice(key), NULDBDataFromSlice(value)))
+            return;
+    }
+    
+    delete iter;
+}
+
+- (void)iterateFromKey:(NSString *)start toKey:(NSString *)limit block:(BOOL (^)(NSString *key, NSData *value))block {
+    Slice startSlice = NULDBSliceFromString(start);
+    Slice limitSlice = NULDBSliceFromString(limit);
+    NULDBIterateKeys(db, startSlice, limitSlice, block);
+}
+
+- (NSDictionary *)storedValuesFromKey:(NSString *)start toKey:(NSString *)limit {
+    
+    NSMutableDictionary *tuples = [NSMutableDictionary dictionary];
+    
+    [self iterateFromKey:start toKey:limit block:^BOOL(NSString *key, NSData *value) {
+        [tuples setObject:value forKey:key];
+        return YES;
+    }];
+    
+    return tuples;
+}
+
 inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NSData *key, NSData *value)) {
     
     assert(start.size() > 0);
