@@ -177,7 +177,7 @@ NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
 #define NULDBDataFromSlice(_slice_) ([NSData dataWithBytes:_slice_.data() length:_slice_.size()])
 
 #define NULDBSliceFromString(_string_) (Slice((char *)[_string_ UTF8String], [_string_ lengthOfBytesUsingEncoding:NSUTF8StringEncoding]))
-#define NULDBStringFromSlice(_slice_) ([NSString stringWithCString:_slice_.data() encoding:NSUTF8StringEncoding])
+#define NULDBStringFromSlice(_slice_) ([[[NSString alloc] initWithBytes:_slice_.data() length:_slice_.size() encoding:NSUTF8StringEncoding] autorelease])
 
 inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &options, Slice &key, Slice &value, NSError **error) {
     
@@ -823,7 +823,7 @@ inline void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(S
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key())); iter->Next()) {
+    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0); iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -845,7 +845,7 @@ inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(i
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key())); iter->Next()) {
+    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0); iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -885,7 +885,7 @@ inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key())); iter->Next()) {
+    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0); iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -925,7 +925,7 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()); iter->Next()) {
+    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()) > 0; iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         uint64_t index;
