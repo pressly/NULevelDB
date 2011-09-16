@@ -13,7 +13,9 @@
 
 @interface NULDBDB : NSObject
 
-@property (retain) NSString *location;
+@property (nonatomic, retain) NSString *location;
+@property (nonatomic) BOOL sync;
+@property (nonatomic, getter=isCacheEnabled) BOOL cacheEnabled;
 
 - (id)initWithLocation:(NSString *)path;
 

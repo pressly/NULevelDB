@@ -53,6 +53,22 @@ using namespace leveldb;
     [super finalize];
 }
 
+- (void)setSync:(BOOL)flag {
+    writeOptions.sync = flag;
+}
+
+- (BOOL)sync {
+    return writeOptions.sync;
+}
+
+- (void)setCacheEnabled:(BOOL)flag {
+    readOptions.fill_cache = flag;
+}
+
+- (BOOL)isCacheEnabled {
+    return readOptions.fill_cache;
+}
+
 + (void)enableLogging {
     if(logging)
         --logging;
@@ -92,8 +108,8 @@ using namespace leveldb;
 
         Status status = DB::Open(options, [path UTF8String], &db);
         
-        readOptions.fill_cache = true;
-        writeOptions.sync = true;
+        readOptions.fill_cache = false;
+        writeOptions.sync = false;
         
         if(!status.ok()) {
             NSLog(@"Problem creating LevelDB database: %s", status.ToString().c_str());
