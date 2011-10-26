@@ -200,6 +200,23 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
     return (BOOL)status.ok();
 }
 
+- (BOOL)storedValueExistsForSlice:(Slice)slice {
+
+    // Find the next key after the one provided (there is always at least one more key, the terminator)
+    Iterator *iter = db->NewIterator(readOptions);
+    iter->Seek(slice);
+
+    BOOL result = iter->Valid() && BytewiseComparator()->Compare(slice, iter->key()) == 0;
+    
+    delete iter;
+    
+    return result;
+}
+
+- (BOOL)storedValueExistsForKey:(id<NSCoding>)key {
+    return [self storedValueExistsForSlice:NULDBSliceFromObject(key)];
+}
+
 /*
  - one for UInt64->Data access
  - one for Data->Data access
@@ -297,6 +314,10 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
     return NULDBDeleteValueForKey(db, writeOptions, k, error);
 }
 
+- (BOOL)storedDataExistsForDataKey:(NSData *)key {
+    return [self storedValueExistsForSlice:NULDBSliceFromData(key)];
+}
+
 
 #pragma mark String->Data->Data Access
 
@@ -338,6 +359,10 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
     return NULDBDeleteValueForKey(db, writeOptions, k, error);
 }
 
+- (BOOL)storedDataExistsForKey:(NSString *)key {
+    return [self storedValueExistsForSlice:NULDBSliceFromString(key)];
+}
+
 
 #pragma mark String->String Access
 - (BOOL)storeString:(NSString *)string forKey:(NSString *)key error:(NSError **)error {
@@ -350,6 +375,10 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
     Slice k = NULDBSliceFromString(key);
     NULDBLoadValueForKey(db, readOptions, k, &result, YES, error);
     return result;
+}
+
+- (BOOL)storedStringExistsForKey:(NSString *)key {
+    return [self storedValueExistsForSlice:NULDBSliceFromString(key)];
 }
 
 
@@ -369,6 +398,11 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
 - (BOOL)deleteStoredDataForIndexKey:(uint64_t)key error:(NSError **)error {
     Slice k((char *)&key, sizeof(uint64_t));
     return NULDBDeleteValueForKey(db, writeOptions, k, error);
+}
+
+- (BOOL)storedDataExistsForIndexKey:(uint64_t)key {
+    Slice k((char *)&key, sizeof(uint64_t));
+    return [self storedValueExistsForSlice:k];
 }
 
 

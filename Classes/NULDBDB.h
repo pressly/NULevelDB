@@ -34,13 +34,14 @@
 - (BOOL)storeValue:(id<NSCoding>)value forKey:(id<NSCoding>)key;
 - (id)storedValueForKey:(id<NSCoding>)key;
 - (BOOL)deleteStoredValueForKey:(id<NSCoding>)key;
-
+- (BOOL)storedValueExistsForKey:(id<NSCoding>)key;
 
 //// Streamlined key-value support for pre-encoded Data objects
 // Data keys
 - (BOOL)storeData:(NSData *)data forDataKey:(NSData *)key error:(NSError **)error;
 - (NSData *)storedDataForDataKey:(NSData *)key error:(NSError **)error;
 - (BOOL)deleteStoredDataForDataKey:(NSData *)key error:(NSError **)error;
+- (BOOL)storedDataExistsForDataKey:(NSData *)key;
 
 // String keys - string<->data key conversion provided by optional block
 // This will allow the client to replace string keys with optimized data keys of its own preference
@@ -52,15 +53,18 @@
 - (BOOL)storeData:(NSData *)data forKey:(NSString *)key error:(NSError **)error;
 - (NSData *)storedDataForKey:(NSString *)key error:(NSError **)error;
 - (BOOL)deleteStoredDataForKey:(NSString *)key error:(NSError **)error;
+- (BOOL)storedDataExistsForKey:(NSString *)key;
 
 // string keys and string values encoded as UTF8 data; use deletion methods above
 - (BOOL)storeString:(NSString *)string forKey:(NSString *)key error:(NSError **)error;
 - (NSString *)storedStringForKey:(NSString *)key error:(NSError **)error;
+- (BOOL)storedStringExistsForKey:(NSString *)key;
 
 // 64-bit binary keys and data values
 - (BOOL)storeData:(NSData *)data forIndexKey:(uint64_t)key error:(NSError **)error;
 - (NSData *)storedDataForIndexKey:(uint64_t)key error:(NSError **)error;
 - (BOOL)deleteStoredDataForIndexKey:(uint64_t)key error:(NSError **)error;
+- (BOOL)storedDataExistsForIndexKey:(uint64_t)key;
 
 
 // Object graph serialization support

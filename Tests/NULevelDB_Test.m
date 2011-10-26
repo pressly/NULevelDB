@@ -449,11 +449,52 @@ enum {
     
     NSArray *keys = [[dict allKeys] sortedArrayUsingSelector:@selector(compare:)];
     NSUInteger i1 = count/3, i2 = 3*count/4;
+    NSUInteger retrievedCount = i2-i1;
     NSString *key1 = [keys objectAtIndex:i1], *key2 = [keys objectAtIndex:i2];
     
     NSDictionary *actual = [db storedValuesFrom:key1 to:key2];
     
-    STAssertTrue([actual count] == i2-i1+1, @"Missing values; expected %u; got %u", i2-i1+1, [actual count]);
+    STAssertTrue([actual count] == retrievedCount, @"Missing values; expected %u; got %u", retrievedCount, [actual count]);
+}
+
+- (void)test40EntryExistence {
+    
+    [db storeValue:@"EncodedValue" forKey:@"EncodedKey"];
+    
+    STAssertTrue([db storedValueExistsForKey:@"EncodedKey"], @"Entry existence discrepancy; key 'Key' should exist.");
+    STAssertFalse([db storedValueExistsForKey:@"UnusedKey"], @"Entry existence discrepancy; key 'UnusedKey' should NOT exist.");
+
+    
+    NSData *dataKey = [@"DataKeyForData" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *unusedDataKey = [@"UnusedDataKeyForData" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    [db storeData:[@"DataValueForData" dataUsingEncoding:NSUTF8StringEncoding] forDataKey:dataKey error:NULL];
+    
+    STAssertTrue([db storedDataExistsForDataKey:dataKey], @"Entry existence discrepancy; key '%@' should exist.", dataKey);
+    STAssertFalse([db storedDataExistsForDataKey:unusedDataKey], @"Entry existence discrepancy; key '%@' should NOT exist", unusedDataKey);
+    
+    NSString *stringKey = @"StringKeyForData";
+    NSString *unusedStringKey = @"UnusedStringKeyForData";
+    
+    [db storeData:[@"DataValueForString" dataUsingEncoding:NSUTF8StringEncoding] forKey:stringKey error:NULL];
+    
+    STAssertTrue([db storedDataExistsForKey:stringKey], @"key '%@' should exist.", stringKey);
+    STAssertFalse([db storedDataExistsForKey:unusedStringKey], @"key '%@' should NOT exist.", unusedStringKey);
+    
+    stringKey = @"StringKeyForStringValue";
+    unusedStringKey = @"UnusedStringKeyForStringValue";
+    
+    [db storeString:@"StringValue" forKey:stringKey error:NULL];
+    STAssertTrue([db storedDataExistsForKey:stringKey], @"key '%@' should exist.", stringKey);
+    STAssertFalse([db storedDataExistsForKey:unusedStringKey], @"key '%@' should NOT exist.", unusedStringKey);
+
+    uint64_t indexKey = 1234567;
+    uint64_t unusedIndexKey = 123456789;
+    
+    [db storeData:[@"DataValueForIndex" dataUsingEncoding:NSUTF8StringEncoding] forIndexKey:indexKey error:NULL];
+    
+    STAssertTrue([db storedDataExistsForIndexKey:indexKey], @"key '%d' should exist.", indexKey);
+    STAssertFalse([db storedDataExistsForIndexKey:unusedIndexKey], @"key '%d' should NOT exist.", unusedIndexKey);
 }
 
 @end
