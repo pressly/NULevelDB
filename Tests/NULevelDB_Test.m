@@ -104,11 +104,11 @@ static NSString *bigString = @"Erlang looks weird to the uninitiated, so I'll st
     dispatch_once(&onceToken, ^{
         
         NSError *error = nil;
-        data = [NSPropertyListSerialization dataWithPropertyList:[[self makeTestAddress] plistRepresentation]
-                                                          format:NSPropertyListBinaryFormat_v1_0
-                                                         options:0
-                                                           error:&error];
-        
+        data = [[NSPropertyListSerialization dataWithPropertyList:[[self makeTestAddress] plistRepresentation]
+                                                           format:NSPropertyListBinaryFormat_v1_0
+                                                          options:0
+                                                            error:&error] retain];
+                
         STAssertNotNil(data, @"Failed to make data. %@", error);
     });
     
