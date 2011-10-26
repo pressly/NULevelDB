@@ -35,6 +35,8 @@ using namespace leveldb;
 - (NSArray *)unserializeArrayForKey:(NSString *)key;
 - (void)deleteStoredArrayContentsForKey:(NSString *)key;
 
++ (NSError *)errorForStatus:(Status *)status;
+
 @end
 
 
@@ -47,12 +49,33 @@ using namespace leveldb;
 
 @synthesize location;
 
+
+static NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
+
+static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Slice &key, Slice &value, NSError **error) {
+    
+    Status status = db->Put(writeOptions, key, value);
+    
+    if(!status.ok()) {
+        if(NULL != error)
+            *error = [NULDBDB errorForStatus:&status];
+        else
+            NSLog(@"Failed to store value in database: %s", status.ToString().c_str());
+    }
+    
+    return status.ok();
+}
+
+
+#pragma mark - NSObject
 - (void)finalize {
     delete db;
     delete classIndexKey;
     [super finalize];
 }
 
+
+#pragma mark - Accessors
 - (void)setSync:(BOOL)flag {
     writeOptions.sync = flag;
 }
@@ -127,21 +150,21 @@ using namespace leveldb;
 }
 
 
+#pragma mark - Private Utilities
++ (NSError *)errorForStatus:(Status *)status {
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                              [NSString stringWithUTF8String:status->ToString().c_str()], NSLocalizedDescriptionKey,
+//                              NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
+                              nil];
+    return [NSError errorWithDomain:NULDBErrorDomain code:1 userInfo:userInfo];
+}
+
+
 #pragma mark - Generic NSCoding Access
 - (BOOL)storeValue:(id<NSCoding>)value forKey:(id<NSCoding>)key {
-
     Slice k = NULDBSliceFromObject(key);
     Slice v = NULDBSliceFromObject(value);
-    Status status = db->Put(writeOptions, k, v);
-        
-    if(!status.ok())
-    {
-        NSLog(@"Problem storing key/value pair in database: %s", status.ToString().c_str());
-    }
-    else
-        NULDBLog(@"   PUT->  %@ (%lu bytes)", key, v.size());
-    
-    return (BOOL)status.ok();
+    return NULDBStoreValueForKey(db, writeOptions, k, v, NULL);
 }
 
 - (id)storedValueForKey:(id<NSCoding>)key {
@@ -186,35 +209,11 @@ using namespace leveldb;
 #pragma mark Private Access Functions
 
 
-NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
-
-
 #define NULDBSliceFromData(_data_) (Slice((char *)[_data_ bytes], [_data_ length]))
 #define NULDBDataFromSlice(_slice_) ([NSData dataWithBytes:_slice_.data() length:_slice_.size()])
 
 #define NULDBSliceFromString(_string_) (Slice((char *)[_string_ UTF8String], [_string_ lengthOfBytesUsingEncoding:NSUTF8StringEncoding]))
 #define NULDBStringFromSlice(_slice_) ([[[NSString alloc] initWithBytes:_slice_.data() length:_slice_.size() encoding:NSUTF8StringEncoding] autorelease])
-
-inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &options, Slice &key, Slice &value, NSError **error) {
-    
-    Status status = db->Put(options, key, value);
-
-    if(!status.ok()) {
-        if(NULL != error) {
-            NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
-//                                      NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
-                                      nil];
-            *error = [NSError errorWithDomain:NULDBErrorDomain code:1 userInfo:userInfo];
-        }
-        else {
-            NSLog(@"Failed to store value in database: %s", status.ToString().c_str());
-        }
-        return NO;
-    }
-    
-    return YES;
-}
 
 inline BOOL NULDBLoadValueForKey(DB *db, ReadOptions &options, Slice &key, id *retValue, BOOL isString, NSError **error) {
     
