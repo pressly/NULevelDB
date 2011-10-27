@@ -1062,6 +1062,68 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     }
 }
 
+- (NSUInteger)currentSizeEstimate {
+    
+    // Flaw in DB::GetApproximateSizes() is that you can't measure size of a single entry
+    
+    NSUInteger total = 0;
+    Range range;
+    ReadOptions readopts;
+    
+    readopts.fill_cache = false;
+    
+    Iterator*iter = db->NewIterator(readopts);
+    
+    iter->SeekToFirst();
+    range.start = iter->key();
+    iter->Next();
+    
+    if(iter->Valid()) {
+        range.limit = iter->key();
+    
+        uint64_t size;
+        
+        do {
+            db->GetApproximateSizes(&range, 1, &size);
+            total += size;
+            range.start = range.limit;
+            iter->Next();
+            if(!iter->Valid()) break;
+            range.limit = iter->key();
+        } while(1);
+    }
+    
+    return total;
+}
+
+- (NSUInteger)sizeUsedByKey:(NSString *)key {
+    
+    NSUInteger result = 0;
+    Range range;
+    ReadOptions readopts;
+    
+    readopts.fill_cache = false;
+    
+    Iterator*iter = db->NewIterator(readopts);
+    Slice k = NULDBSliceFromString(key);
+    
+    range.start = k;
+
+    iter->Seek(k);
+    iter->Next();
+    
+    if(iter->Valid()) {
+
+        uint64_t size;
+        
+        range.limit = iter->key();
+        db->GetApproximateSizes(&range, 1, &size);
+        result = size;
+    }
+    
+    return result;
+}
+
 @end
 
 

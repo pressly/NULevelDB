@@ -111,6 +111,12 @@
 
 - (void)enumerateAllEntriesWithBlock:(BOOL (^)(NSData *key, NSData *value))block;
 
+
+// Size of data
+// This is probably expensive and of limited accuracy; it doesn't include sizes of keys or leveldb internal data structures
+- (NSUInteger)currentSizeEstimate;
+- (NSUInteger)sizeUsedByKey:(NSString *)key;
+
 @end
 
 
