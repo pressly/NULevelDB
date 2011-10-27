@@ -457,6 +457,32 @@ enum {
     STAssertTrue([actual count] == retrievedCount, @"Missing values; expected %u; got %u", retrievedCount, [actual count]);
 }
 
+- (void)test31EnumerateAll {
+    
+    NSMutableDictionary *expected = [NSMutableDictionary dictionaryWithCapacity:32];
+    
+    for(NSUInteger i=0; i<32; ++i)
+        [expected setObject:NULDBRandomName() forKey:[NSNumber numberWithInt:Random_int_in_range(i*32, i*32+32)]];
+    
+    for(id number in [expected allKeys]) {
+        NSError *error = nil;
+        BOOL success = [db storeData:[NSKeyedArchiver archivedDataWithRootObject:[expected objectForKey:number]]
+                          forDataKey:[NSKeyedArchiver archivedDataWithRootObject:number] error:&error];
+        STAssertTrue(success, @"DB store failed for key '%@'; error: %@", number, error);
+    }
+    
+    
+    NSMutableDictionary *actual = [NSMutableDictionary dictionaryWithCapacity:[expected count]];
+    
+    [db enumerateAllEntriesWithBlock:^BOOL(NSData *key, NSData *value) {
+        [actual setObject:[NSKeyedUnarchiver unarchiveObjectWithData:value]
+                   forKey:[NSKeyedUnarchiver unarchiveObjectWithData:key]];
+        return YES;
+    }];
+    
+    STAssertEqualObjects(expected, actual, @"Enumeration discrepancy");
+}
+
 - (void)test40EntryExistence {
     
     [db storeValue:@"EncodedValue" forKey:@"EncodedKey"];

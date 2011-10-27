@@ -905,7 +905,7 @@ inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(i
     delete iter;
 }
 
-- (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block {
+- (void)enumerateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block {
     Slice startSlice = NULDBSliceFromObject(start);
     Slice limitSlice = NULDBSliceFromObject(limit);
     NULDBIterateCoded(db, startSlice, limitSlice, block);
@@ -945,7 +945,7 @@ inline void NULDBIterateKeys(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
     delete iter;
 }
 
-- (void)iterateFromKey:(NSString *)start toKey:(NSString *)limit block:(BOOL (^)(NSString *key, NSData *value))block {
+- (void)enumerateFromKey:(NSString *)start toKey:(NSString *)limit block:(BOOL (^)(NSString *key, NSData *value))block {
     Slice startSlice = NULDBSliceFromString(start);
     Slice limitSlice = NULDBSliceFromString(limit);
     NULDBIterateKeys(db, startSlice, limitSlice, block);
@@ -985,7 +985,7 @@ inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
     delete iter;
 }
 
-- (void)iterateFromData:(NSData *)start toData:(NSData *)limit block:(BOOL (^)(NSData *key, NSData *value))block {
+- (void)enumerateFromData:(NSData *)start toData:(NSData *)limit block:(BOOL (^)(NSData *key, NSData *value))block {
     Slice startSlice = NULDBSliceFromData(start);
     Slice limitSlice = NULDBSliceFromData(limit);
     NULDBIterateData(db, startSlice, limitSlice, block);
@@ -1027,7 +1027,7 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     delete iter;
 }
 
-- (void)iterateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block {
+- (void)enumerateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block {
     Slice startSlice((char *)start, sizeof(uint64_t));
     Slice limitSlice((char *)limit, sizeof(uint64_t));
     NULDBIterateIndex(db, startSlice, limitSlice, block);
@@ -1045,4 +1045,37 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     return array;
 }
 
+- (void)enumerateAllEntriesWithBlock:(BOOL (^)(NSData *key, NSData *value))block {
+    
+    ReadOptions readopts;
+    
+    readopts.fill_cache = false;
+    
+    Iterator*iter = db->NewIterator(readopts);
+    
+    for(iter->SeekToFirst(); iter->Valid(); iter->Next()) {
+        
+        Slice key = iter->key(), value = iter->value();
+        
+        if(!block(NULDBDataFromSlice(key), NULDBDataFromSlice(value)))
+            return;
+    }
+}
+
+@end
+
+
+@implementation NULDBDB (NULDBDBAlternativeNames)
+- (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block {
+    [self enumerateFrom:start to:limit block:block];
+}
+- (void)iterateFromKey:(NSString *)start toKey:(NSString *)limit block:(BOOL (^)(NSString *key, NSData *value))block {
+    [self enumerateFromKey:start toKey:limit block:block];
+}
+- (void)iterateFromData:(NSData *)start toData:(NSData *)limit block:(BOOL (^)(NSData *key, NSData *value))block {
+    [self enumerateFromData:start toData:limit block:block];
+}
+- (void)iterateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block {
+    [self enumerateFromIndex:start to:limit block:block];
+}
 @end
