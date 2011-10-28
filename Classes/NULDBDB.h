@@ -17,6 +17,8 @@
 @property (nonatomic) BOOL sync;
 @property (nonatomic, getter=isCacheEnabled) BOOL cacheEnabled;
 
+// size is the write buffer size; default is 4MB
+- (id)initWithLocation:(NSString *)path bufferSize:(NSUInteger)size;
 - (id)initWithLocation:(NSString *)path;
 
 // Erases the database files (files are created automatically)

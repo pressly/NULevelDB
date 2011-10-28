@@ -16,7 +16,7 @@
 #include "NULDBUtilities.h"
 
 static int logging = 0;
-
+static NSUInteger defaultBufferSize = 1<<22; // 1024 * 1024 * 4 => 4MB
 
 using namespace leveldb;
 
@@ -115,16 +115,17 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
 }
 
 - (id)init {
-    return [self initWithLocation:[NULDBDB defaultLocation]];
+    return [self initWithLocation:[NULDBDB defaultLocation] bufferSize:defaultBufferSize];
 }
 
-- (id)initWithLocation:(NSString *)path {
+- (id)initWithLocation:(NSString *)path bufferSize:(NSUInteger)size {
     
     self = [super init];
     if (self) {
         
         Options options;
         options.create_if_missing = true;
+        options.write_buffer_size = size;
         
         self.location = path;
         
@@ -142,6 +143,10 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
     }
     
     return self;
+}
+
+- (id)initWithLocation:(NSString *)path {
+    return [self initWithLocation:path bufferSize:defaultBufferSize];
 }
 
 - (void)destroy {
@@ -1068,11 +1073,8 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     
     NSUInteger total = 0;
     Range range;
-    ReadOptions readopts;
     
-    readopts.fill_cache = false;
-    
-    Iterator*iter = db->NewIterator(readopts);
+    Iterator*iter = db->NewIterator(readOptions);
     
     iter->SeekToFirst();
     range.start = iter->key();
@@ -1100,11 +1102,8 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     
     NSUInteger result = 0;
     Range range;
-    ReadOptions readopts;
     
-    readopts.fill_cache = false;
-    
-    Iterator*iter = db->NewIterator(readopts);
+    Iterator*iter = db->NewIterator(readOptions);
     Slice k = NULDBSliceFromString(key);
     
     range.start = k;
