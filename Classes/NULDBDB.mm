@@ -1068,10 +1068,16 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
 }
 
 - (NSUInteger)currentSizeEstimate {
-    
-    // Flaw in DB::GetApproximateSizes() is that you can't measure size of a single entry
-    
+
     NSUInteger total = 0;
+
+#if 1
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    for(NSString *file in [fm contentsOfDirectoryAtPath:location error:NULL])
+        total += [[fm attributesOfItemAtPath:[location stringByAppendingPathComponent:file] error:NULL] fileSize];
+    
+#else
     Range range;
     
     Iterator*iter = db->NewIterator(readOptions);
@@ -1094,6 +1100,7 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
             range.limit = iter->key();
         } while(1);
     }
+#endif
     
     return total;
 }
