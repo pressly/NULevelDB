@@ -288,7 +288,7 @@ struct ThreadState {
   }
 };
 
-}
+}  // namespace
 
 class Benchmark {
  private:
@@ -796,20 +796,7 @@ class Benchmark {
   }
 
   void Compact(ThreadState* thread) {
-    DBImpl* dbi = reinterpret_cast<DBImpl*>(db_);
-    dbi->TEST_CompactMemTable();
-    int max_level_with_files = 1;
-    for (int level = 1; level < config::kNumLevels; level++) {
-      std::string property;
-      char name[100];
-      snprintf(name, sizeof(name), "leveldb.num-files-at-level%d", level);
-      if (db_->GetProperty(name, &property) && atoi(property.c_str()) > 0) {
-        max_level_with_files = level;
-      }
-    }
-    for (int level = 0; level < max_level_with_files; level++) {
-      dbi->TEST_CompactRange(level, "", "~");
-    }
+    db_->CompactRange(NULL, NULL);
   }
 
   void PrintStats() {
@@ -842,7 +829,7 @@ class Benchmark {
   }
 };
 
-}
+}  // namespace leveldb
 
 int main(int argc, char** argv) {
   FLAGS_write_buffer_size = leveldb::Options().write_buffer_size;
