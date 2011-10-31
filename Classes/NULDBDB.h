@@ -116,7 +116,9 @@
 
 // Size of data
 // This is probably expensive and of limited accuracy; it doesn't include sizes of keys or leveldb internal data structures
-- (NSUInteger)currentSizeEstimate;
+- (NSUInteger)currentFileSizeEstimate;
+- (NSUInteger)sizeForKeyRangeFrom:(NSString *)start to:(NSString *)limit;
+- (NSUInteger)currentSizeEstimate; // checks all entries except those with 0-length keys (don't know what causes these)
 - (NSUInteger)sizeUsedByKey:(NSString *)key;
 
 @end

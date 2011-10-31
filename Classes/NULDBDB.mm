@@ -1067,40 +1067,80 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     }
 }
 
+
+#pragma mark - File Usage Estimation
+- (NSUInteger)currentFileSizeEstimate {
+    
+    NSUInteger total = 0;
+
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self ENDSWITH 'sst'"];
+    NSArray *storageFiles = [[fm contentsOfDirectoryAtPath:location error:NULL] filteredArrayUsingPredicate:predicate];
+    
+    for(NSString *file in storageFiles)
+        total += [[fm attributesOfItemAtPath:[location stringByAppendingPathComponent:file] error:NULL] fileSize];
+    
+    return total;
+}
+
+- (NSUInteger)sizeForKeyRangeFrom:(NSString *)start to:(NSString *)limit {
+    
+    NSUInteger total = 0;
+    
+    Range range(NULDBSliceFromString(start), NULDBSliceFromString(limit));
+    Iterator*iter = db->NewIterator(readOptions);
+
+    iter->Seek(range.start);
+    if(!iter->Valid()) iter->Next();
+    
+    uint64_t size;
+    
+    while(iter->Valid() && BytewiseComparator()->Compare(iter->key(), range.limit) <= 0) {
+        range.limit = iter->key();
+        if(range.start.ToString().length() > 0) {
+            size = 0;
+            db->GetApproximateSizes(&range, 1, &size);
+            total += size;
+        }
+        range.start = range.limit;
+        iter->Next();
+    }
+    
+    return total;
+}
+
 - (NSUInteger)currentSizeEstimate {
 
     NSUInteger total = 0;
 
-#if 1
-    NSFileManager *fm = [NSFileManager defaultManager];
-    
-    for(NSString *file in [fm contentsOfDirectoryAtPath:location error:NULL])
-        total += [[fm attributesOfItemAtPath:[location stringByAppendingPathComponent:file] error:NULL] fileSize];
-    
-#else
-    Range range;
-    
     Iterator*iter = db->NewIterator(readOptions);
     
     iter->SeekToFirst();
-    range.start = iter->key();
-    iter->Next();
+
+    if(!iter->Valid()) return 0;
     
-    if(iter->Valid()) {
-        range.limit = iter->key();
+    // The range.start is set to an empty slice; isn't used
+    std::string *s1 = NULL;
+    std::string *s2 = new std::string(iter->key().ToString());
+    Range range = Range(Slice(), Slice(*s2));
+    uint64_t size;
     
-        uint64_t size;
+    while(iter->Next(), iter->Valid()) {
+
+        s1 = s2;
+        s2 = new std::string(iter->key().ToString());
         
-        do {
+        if(s1->length() > 0) {
+            range = Range(Slice(*s1), Slice(*s2));
+            size = 0;
             db->GetApproximateSizes(&range, 1, &size);
             total += size;
-            range.start = range.limit;
-            iter->Next();
-            if(!iter->Valid()) break;
-            range.limit = iter->key();
-        } while(1);
+        }
+        
+        delete s1;
     }
-#endif
+    
+    delete s2;
     
     return total;
 }
