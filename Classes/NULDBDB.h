@@ -21,7 +21,7 @@
 - (id)initWithLocation:(NSString *)path bufferSize:(NSUInteger)size;
 - (id)initWithLocation:(NSString *)path;
 
-// Erases the database files (files are created automatically)
+// Deprecated - call +destroyDatabase: when you have no active pointers to your db
 - (void)destroy;
 
 // works like a stack (counter); feel free to use indiscriminately
@@ -30,6 +30,9 @@
 
 // User Library folder "Store.db"
 + (NSString *)defaultLocation;
+
+// Erases the database files (files are created automatically)
++ (void)destroyDatabase:(NSString *)path;
 
 
 //// Basic key-value support

@@ -23,6 +23,8 @@ using namespace leveldb;
 
 @interface NULDBDB ()
 
+@property DB *db;
+
 - (void)storeObject:(id)obj forKey:(NSString *)key;
 
 - (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj;
@@ -40,6 +42,7 @@ using namespace leveldb;
 @end
 
 
+#pragma mark -
 @implementation NULDBDB {
     DB *db;
     ReadOptions readOptions;
@@ -47,7 +50,7 @@ using namespace leveldb;
     Slice *classIndexKey;
 }
 
-@synthesize location;
+@synthesize db, location;
 
 
 static NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
@@ -68,14 +71,40 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
 
 
 #pragma mark - NSObject
-- (void)finalize {
-    delete db;
++ (void)initialize {
+    stringClass = [NSString class];
+    dataClass = [NSData class];
+    dictClass = [NSDictionary class];
+}
+
+- (id)init {
+    return [self initWithLocation:[NULDBDB defaultLocation] bufferSize:defaultBufferSize];
+}
+
+- (void)finalize {slo
+    self.db = NULL;
     delete classIndexKey;
+    self.location = nil;
     [super finalize];
 }
 
 
 #pragma mark - Accessors
+- (void)setDb:(DB *)newDB {
+    @synchronized(self) {
+        delete db;
+        db = newDB;
+    }
+}
+
+- (DB *)db {
+    DB *result = NULL;
+    @synchronized(self) {
+        result = db;
+    }
+    return result;
+}
+
 - (void)setSync:(BOOL)flag {
     writeOptions.sync = flag;
 }
@@ -92,6 +121,8 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
     return readOptions.fill_cache;
 }
 
+
+#pragma mark - NULDBDB
 + (void)enableLogging {
     if(logging)
         --logging;
@@ -108,14 +139,9 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
     return [dbFile stringByAppendingPathComponent:@"store.db"];
 }
 
-+ (void)initialize {
-    stringClass = [NSString class];
-    dataClass = [NSData class];
-    dictClass = [NSDictionary class];
-}
-
-- (id)init {
-    return [self initWithLocation:[NULDBDB defaultLocation] bufferSize:defaultBufferSize];
++ (void)destroyDatabase:(NSString *)path {
+    Options options;
+    leveldb::DestroyDB([path UTF8String], options);
 }
 
 - (id)initWithLocation:(NSString *)path bufferSize:(NSUInteger)size {
@@ -150,8 +176,9 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
 }
 
 - (void)destroy {
-    Options  options;
-    leveldb::DestroyDB([[NULDBDB defaultLocation] UTF8String], options);
+    Options options;
+    self.db = NULL;
+    [[self class] destroyDatabase:self.location];
 }
 
 
@@ -688,7 +715,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 }
 
 
-#pragma mark Bulk Save and Load
+#pragma mark - Bulk Save and Load
 - (BOOL)storeValuesFromDictionary:(NSDictionary *)dictionary {
     
     for(id key in [dictionary allKeys]) {
@@ -865,7 +892,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 }
 
 
-#pragma mark Iteration
+#pragma mark - Iteration Conveniences
 inline void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(Slice &key, Slice &value)) {
     
     assert(start.size() > 0);
@@ -1173,6 +1200,7 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
 @end
 
 
+#pragma mark -
 @implementation NULDBDB (NULDBDBAlternativeNames)
 - (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block {
     [self enumerateFrom:start to:limit block:block];
