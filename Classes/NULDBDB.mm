@@ -81,7 +81,7 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
     return [self initWithLocation:[NULDBDB defaultLocation] bufferSize:defaultBufferSize];
 }
 
-- (void)finalize {slo
+- (void)finalize {
     self.db = NULL;
     delete classIndexKey;
     self.location = nil;
