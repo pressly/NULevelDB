@@ -29,6 +29,7 @@
 		4E68416B13E344F800D9EBCF /* NULevelDB_TestAppViewController.h in Resources */ = {isa = PBXBuildFile; fileRef = 4E68416A13E344F800D9EBCF /* NULevelDB_TestAppViewController.h */; };
 		4E68416D13E344F800D9EBCF /* NULevelDB_TestAppViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E68416C13E344F800D9EBCF /* NULevelDB_TestAppViewController.m */; };
 		4E68417013E344F800D9EBCF /* NULevelDB_TestAppViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4E68416E13E344F800D9EBCF /* NULevelDB_TestAppViewController.xib */; };
+		4E92A65A1419103400AD5CFD /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E92A6591419103400AD5CFD /* libstdc++.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +103,7 @@
 		4E68416C13E344F800D9EBCF /* NULevelDB_TestAppViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NULevelDB_TestAppViewController.m; sourceTree = "<group>"; };
 		4E68416F13E344F800D9EBCF /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/NULevelDB_TestAppViewController.xib; sourceTree = "<group>"; };
 		4E68417713E344F900D9EBCF /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		4E92A6591419103400AD5CFD /* libstdc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libstdc++.dylib"; path = "usr/lib/libstdc++.dylib"; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,11 +111,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E92A65A1419103400AD5CFD /* libstdc++.dylib in Frameworks */,
 				4E68415913E344F800D9EBCF /* UIKit.framework in Frameworks */,
 				4E68415B13E344F800D9EBCF /* Foundation.framework in Frameworks */,
 				4E68415D13E344F800D9EBCF /* CoreGraphics.framework in Frameworks */,
-				4E3CDCF113EB01D900366CD8 /* NULevelDB.framework in Frameworks */,
 				4E221EB213EC981600203E8D /* CoreData.framework in Frameworks */,
+				4E3CDCF113EB01D900366CD8 /* NULevelDB.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,6 +192,7 @@
 		4E68415713E344F800D9EBCF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4E92A6591419103400AD5CFD /* libstdc++.dylib */,
 				4E221EB113EC981600203E8D /* CoreData.framework */,
 				4E68415813E344F800D9EBCF /* UIKit.framework */,
 				4E68415A13E344F800D9EBCF /* Foundation.framework */,
@@ -415,6 +419,7 @@
 		4E68418B13E344F900D9EBCF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NULevelDB-TestApp/NULevelDB-TestApp-Prefix.pch";
@@ -422,10 +427,7 @@
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "NULevelDB-TestApp/NULevelDB-TestApp-Info.plist";
 				OTHER_CFLAGS = "-v";
-				OTHER_LDFLAGS = (
-					"-lstdc++",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../ $(PROJECT_DIR)/../../Classes/";
 				WRAPPER_EXTENSION = app;
@@ -435,6 +437,7 @@
 		4E68418C13E344F900D9EBCF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NULevelDB-TestApp/NULevelDB-TestApp-Prefix.pch";
@@ -442,10 +445,7 @@
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "NULevelDB-TestApp/NULevelDB-TestApp-Info.plist";
 				OTHER_CFLAGS = "-v";
-				OTHER_LDFLAGS = (
-					"-lstdc++",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../ $(PROJECT_DIR)/../../Classes/";
 				WRAPPER_EXTENSION = app;

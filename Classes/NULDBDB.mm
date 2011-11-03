@@ -23,12 +23,14 @@ using namespace NULDB;
 #endif
 
 static int logging = 0;
-
+static NSUInteger defaultBufferSize = 1<<22; // 1024 * 1024 * 4 => 4MB
 
 using namespace leveldb;
 
 
 @interface NULDBDB ()
+
+@property DB *db;
 
 #if USE_INDEXED_SERIALIZATION
 - (void)storeProperty:(id)property forKey:(PropertyKey)key;
@@ -51,21 +53,15 @@ using namespace leveldb;
 
 #else
 - (void)storeObject:(id)obj forKey:(NSString *)key;
-
 - (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj;
-
-- (void)storeDictionary:(NSDictionary *)plist forKey:(NSString *)key;
-- (NSDictionary *)unserializeDictionary:(NSDictionary *)storedDict;
-- (void)deleteStoredDictionary:(NSDictionary *)storedDict;
-
-- (void)storeArray:(NSArray *)array forKey:(NSString *)key;
-- (NSArray *)unserializeArrayForKey:(NSString *)key;
-- (void)deleteStoredArrayContentsForKey:(NSString *)key;
 #endif
+
++ (NSError *)errorForStatus:(Status *)status;
 
 @end
 
 
+#pragma mark -
 @implementation NULDBDB {
 #if USE_INDEXED_SERIALIZATION
     Counters *counters;
@@ -76,17 +72,82 @@ using namespace leveldb;
     Slice *classIndexKey;
 }
 
-@synthesize location;
+@synthesize db, location;
+
+
+static NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
+
+static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Slice &key, Slice &value, NSError **error) {
+    
+    Status status = db->Put(writeOptions, key, value);
+    
+    if(!status.ok()) {
+        if(NULL != error)
+            *error = [NULDBDB errorForStatus:&status];
+        else
+            NSLog(@"Failed to store value in database: %s", status.ToString().c_str());
+    }
+    
+    return status.ok();
+}
+
+
+#pragma mark - NSObject
++ (void)initialize {
+    stringClass = [NSString class];
+    dataClass = [NSData class];
+    dictClass = [NSDictionary class];
+}
+
+- (id)init {
+    return [self initWithLocation:[NULDBDB defaultLocation] bufferSize:defaultBufferSize];
+}
 
 - (void)finalize {
 #if USE_INDEXED_SERIALIZATION
     delete counters;
 #endif
-    delete db;
+    self.db = NULL;
     delete classIndexKey;
+    self.location = nil;
     [super finalize];
 }
 
+
+#pragma mark - Accessors
+- (void)setDb:(DB *)newDB {
+    @synchronized(self) {
+        delete db;
+        db = newDB;
+    }
+}
+
+- (DB *)db {
+    DB *result = NULL;
+    @synchronized(self) {
+        result = db;
+    }
+    return result;
+}
+
+- (void)setSync:(BOOL)flag {
+    writeOptions.sync = flag;
+}
+
+- (BOOL)sync {
+    return writeOptions.sync;
+}
+
+- (void)setCacheEnabled:(BOOL)flag {
+    readOptions.fill_cache = flag;
+}
+
+- (BOOL)isCacheEnabled {
+    return readOptions.fill_cache;
+}
+
+
+#pragma mark - NULDBDB
 + (void)enableLogging {
     if(logging)
         --logging;
@@ -103,31 +164,27 @@ using namespace leveldb;
     return [dbFile stringByAppendingPathComponent:@"store.db"];
 }
 
-+ (void)initialize {
-    stringClass = [NSString class];
-    dataClass = [NSData class];
-    dictClass = [NSDictionary class];
++ (void)destroyDatabase:(NSString *)path {
+    Options options;
+    leveldb::DestroyDB([path UTF8String], options);
 }
 
-- (id)init {
-    return [self initWithLocation:[NULDBDB defaultLocation]];
-}
-
-- (id)initWithLocation:(NSString *)path {
+- (id)initWithLocation:(NSString *)path bufferSize:(NSUInteger)size {
     
     self = [super init];
     if (self) {
         
         Options options;
         options.create_if_missing = true;
+        options.write_buffer_size = size;
         
         self.location = path;
         
 
         Status status = DB::Open(options, [path UTF8String], &db);
         
-        readOptions.fill_cache = true;
-        writeOptions.sync = true;
+        readOptions.fill_cache = false;
+        writeOptions.sync = false;
         
         if(!status.ok()) {
             NSLog(@"Problem creating LevelDB database: %s", status.ToString().c_str());
@@ -145,27 +202,32 @@ using namespace leveldb;
     return self;
 }
 
+- (id)initWithLocation:(NSString *)path {
+    return [self initWithLocation:path bufferSize:defaultBufferSize];
+}
+
 - (void)destroy {
-    Options  options;
-    leveldb::DestroyDB([[NULDBDB defaultLocation] UTF8String], options);
+    Options options;
+    self.db = NULL;
+    [[self class] destroyDatabase:self.location];
+}
+
+
+#pragma mark - Private Utilities
++ (NSError *)errorForStatus:(Status *)status {
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                              [NSString stringWithUTF8String:status->ToString().c_str()], NSLocalizedDescriptionKey,
+//                              NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
+                              nil];
+    return [NSError errorWithDomain:NULDBErrorDomain code:1 userInfo:userInfo];
 }
 
 
 #pragma mark - Generic NSCoding Access
 - (BOOL)storeValue:(id<NSCoding>)value forKey:(id<NSCoding>)key {
-
     Slice k = NULDBSliceFromObject(key);
     Slice v = NULDBSliceFromObject(value);
-    Status status = db->Put(writeOptions, k, v);
-        
-    if(!status.ok())
-    {
-        NSLog(@"Problem storing key/value pair in database: %s", status.ToString().c_str());
-    }
-    else
-        NULDBLog(@"   PUT->  %@ (%lu bytes)", key, v.size());
-    
-    return (BOOL)status.ok();
+    return NULDBStoreValueForKey(db, writeOptions, k, v, NULL);
 }
 
 - (id)storedValueForKey:(id<NSCoding>)key {
@@ -201,6 +263,23 @@ using namespace leveldb;
     return (BOOL)status.ok();
 }
 
+- (BOOL)storedValueExistsForSlice:(Slice)slice {
+
+    // Find the next key after the one provided (there is always at least one more key, the terminator)
+    Iterator *iter = db->NewIterator(readOptions);
+    iter->Seek(slice);
+
+    BOOL result = iter->Valid() && BytewiseComparator()->Compare(slice, iter->key()) == 0;
+    
+    delete iter;
+    
+    return result;
+}
+
+- (BOOL)storedValueExistsForKey:(id<NSCoding>)key {
+    return [self storedValueExistsForSlice:NULDBSliceFromObject(key)];
+}
+
 /*
  - one for UInt64->Data access
  - one for Data->Data access
@@ -210,35 +289,11 @@ using namespace leveldb;
 #pragma mark Private Access Functions
 
 
-NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
-
-
 #define NULDBSliceFromData(_data_) (Slice((char *)[_data_ bytes], [_data_ length]))
 #define NULDBDataFromSlice(_slice_) ([NSData dataWithBytes:_slice_.data() length:_slice_.size()])
 
 #define NULDBSliceFromString(_string_) (Slice((char *)[_string_ UTF8String], [_string_ lengthOfBytesUsingEncoding:NSUTF8StringEncoding]))
-#define NULDBStringFromSlice(_slice_) ([NSString stringWithCString:_slice_.data() encoding:NSUTF8StringEncoding])
-
-inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &options, Slice &key, Slice &value, NSError **error) {
-    
-    Status status = db->Put(options, key, value);
-
-    if(!status.ok()) {
-        if(nil != error) {
-            NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
-//                                      NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
-                                      nil];
-            *error = [NSError errorWithDomain:NULDBErrorDomain code:1 userInfo:userInfo];
-        }
-        else {
-            NSLog(@"Failed to store value in database: %s", status.ToString().c_str());
-        }
-        return NO;
-    }
-    
-    return YES;
-}
+#define NULDBStringFromSlice(_slice_) ([[[NSString alloc] initWithBytes:_slice_.data() length:_slice_.size() encoding:NSUTF8StringEncoding] autorelease])
 
 inline BOOL NULDBLoadValueForKey(DB *db, ReadOptions &options, Slice &key, id *retValue, BOOL isString, NSError **error) {
     
@@ -249,7 +304,7 @@ inline BOOL NULDBLoadValueForKey(DB *db, ReadOptions &options, Slice &key, id *r
     
     if(!status.IsNotFound()) {
         if(!status.ok()) {
-            if(nil != error) {
+            if(NULL != error) {
                 NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
                                           [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
 //                                          NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
@@ -261,6 +316,8 @@ inline BOOL NULDBLoadValueForKey(DB *db, ReadOptions &options, Slice &key, id *r
             }
             
             *retValue = nil;
+            
+            return NO;
         }
         else {
             
@@ -270,20 +327,15 @@ inline BOOL NULDBLoadValueForKey(DB *db, ReadOptions &options, Slice &key, id *r
                 *retValue = NULDBStringFromSlice(value);
             else
                 *retValue = NULDBDataFromSlice(value);
-            
-            return YES;
         }
     }
-    else if(nil != error) {
-        NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                  [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
-//                                  NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
-                                  nil];
-        *error = [NSError errorWithDomain:NULDBErrorDomain code:4 userInfo:userInfo];
+    else
         *retValue = nil;
-    }
     
-    return NO;
+    if(NULL != error)
+        *error = nil;
+    
+    return YES;
 }
 
 inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NSError **error) {
@@ -291,7 +343,7 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
     Status status = db->Delete(options, key);
     
     if(!status.ok() && !status.IsNotFound()) {
-        if(nil != error) {
+        if(NULL != error) {
             NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
                                       [NSString stringWithUTF8String:status.ToString().c_str()], NSLocalizedDescriptionKey,
 //                                      NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
@@ -323,6 +375,10 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
 - (BOOL)deleteStoredDataForDataKey:(NSData *)key error:(NSError **)error {
     Slice k = NULDBSliceFromData(key);
     return NULDBDeleteValueForKey(db, writeOptions, k, error);
+}
+
+- (BOOL)storedDataExistsForDataKey:(NSData *)key {
+    return [self storedValueExistsForSlice:NULDBSliceFromData(key)];
 }
 
 
@@ -366,6 +422,10 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
     return NULDBDeleteValueForKey(db, writeOptions, k, error);
 }
 
+- (BOOL)storedDataExistsForKey:(NSString *)key {
+    return [self storedValueExistsForSlice:NULDBSliceFromString(key)];
+}
+
 
 #pragma mark String->String Access
 - (BOOL)storeString:(NSString *)string forKey:(NSString *)key error:(NSError **)error {
@@ -378,6 +438,10 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
     Slice k = NULDBSliceFromString(key);
     NULDBLoadValueForKey(db, readOptions, k, &result, YES, error);
     return result;
+}
+
+- (BOOL)storedStringExistsForKey:(NSString *)key {
+    return [self storedValueExistsForSlice:NULDBSliceFromString(key)];
 }
 
 
@@ -397,6 +461,11 @@ inline BOOL NULDBDeleteValueForKey(DB *db, WriteOptions &options, Slice &key, NS
 - (BOOL)deleteStoredDataForIndexKey:(uint64_t)key error:(NSError **)error {
     Slice k((char *)&key, sizeof(uint64_t));
     return NULDBDeleteValueForKey(db, writeOptions, k, error);
+}
+
+- (BOOL)storedDataExistsForIndexKey:(uint64_t)key {
+    Slice k((char *)&key, sizeof(uint64_t));
+    return [self storedValueExistsForSlice:k];
 }
 
 
@@ -931,7 +1000,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     for(NSString *property in properties)
         [obj setValue:[self storedObjectForKey:NULDBPropertyKey(className, property, key)] forKey:property];
     
-    return obj;
+    return [obj autorelease];
 }
 
 #pragma mark Dictionaries
@@ -1063,7 +1132,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
         Class propClass = NSClassFromString([storedObj objectForKey:@"class"]);
         
         if([propClass conformsToProtocol:@protocol(NULDBPlistTransformable)])
-            return [[propClass alloc] initWithPropertyList:[storedObj objectForKey:@"object"]];
+            return [[[propClass alloc] initWithPropertyList:[storedObj objectForKey:@"object"]] autorelease];
         else
             return [self unserializeDictionary:storedObj];
     }
@@ -1132,7 +1201,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 }
 
 
-#pragma mark Bulk Save and Load
+#pragma mark - Bulk Save and Load
 - (BOOL)storeValuesFromDictionary:(NSDictionary *)dictionary {
     
     for(id key in [dictionary allKeys]) {
@@ -1309,17 +1378,19 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 }
 
 
-#pragma mark Iteration
+#pragma mark - Iteration Conveniences
 inline void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(Slice &key, Slice &value)) {
     
+    assert(start.size() > 0);
+    
     ReadOptions readopts;
-    const Comparator *comp = BytewiseComparator();
+    const Comparator *comp = limit.size() > 0 ? BytewiseComparator() : NULL;
     
     readopts.fill_cache = false;
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()); iter->Next()) {
+    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0); iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -1332,14 +1403,16 @@ inline void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(S
 
 inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(id<NSCoding>, id<NSCoding>value)) {
     
+    assert(start.size() > 0);
+    
     ReadOptions readopts;
-    const Comparator *comp = BytewiseComparator();
+    const Comparator *comp = limit.size() > 0 ? BytewiseComparator() : NULL;
     
     readopts.fill_cache = false;
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()); iter->Next()) {
+    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0); iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -1350,7 +1423,7 @@ inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(i
     delete iter;
 }
 
-- (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block {
+- (void)enumerateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block {
     Slice startSlice = NULDBSliceFromObject(start);
     Slice limitSlice = NULDBSliceFromObject(limit);
     NULDBIterateCoded(db, startSlice, limitSlice, block);
@@ -1368,17 +1441,58 @@ inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(i
     return tuples;
 }
 
-inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NSData *key, NSData *value)) {
+inline void NULDBIterateKeys(DB*db, Slice &start, Slice &limit, BOOL (^block)(NSString *key, NSData *value)) {
     
+    assert(start.size() > 0);
     
     ReadOptions readopts;
-    const Comparator *comp = BytewiseComparator();
+    const Comparator *comp = limit.size() > 0 ? BytewiseComparator() : NULL;
     
     readopts.fill_cache = false;
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()); iter->Next()) {
+    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0); iter->Next()) {
+        
+        Slice key = iter->key(), value = iter->value();
+        
+        if(!block(NULDBStringFromSlice(key), NULDBDataFromSlice(value)))
+            return;
+    }
+    
+    delete iter;
+}
+
+- (void)enumerateFromKey:(NSString *)start toKey:(NSString *)limit block:(BOOL (^)(NSString *key, NSData *value))block {
+    Slice startSlice = NULDBSliceFromString(start);
+    Slice limitSlice = NULDBSliceFromString(limit);
+    NULDBIterateKeys(db, startSlice, limitSlice, block);
+}
+
+- (NSDictionary *)storedValuesFromKey:(NSString *)start toKey:(NSString *)limit {
+    
+    NSMutableDictionary *tuples = [NSMutableDictionary dictionary];
+    
+    [self iterateFromKey:start toKey:limit block:^BOOL(NSString *key, NSData *value) {
+        [tuples setObject:value forKey:key];
+        return YES;
+    }];
+    
+    return tuples;
+}
+
+inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NSData *key, NSData *value)) {
+    
+    assert(start.size() > 0);
+    
+    ReadOptions readopts;
+    const Comparator *comp = limit.size() > 0 ? BytewiseComparator() : NULL;
+    
+    readopts.fill_cache = false;
+    
+    Iterator*iter = db->NewIterator(readopts);
+    
+    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0); iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -1389,7 +1503,7 @@ inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
     delete iter;
 }
 
-- (void)iterateFromData:(NSData *)start toData:(NSData *)limit block:(BOOL (^)(NSData *key, NSData *value))block {
+- (void)enumerateFromData:(NSData *)start toData:(NSData *)limit block:(BOOL (^)(NSData *key, NSData *value))block {
     Slice startSlice = NULDBSliceFromData(start);
     Slice limitSlice = NULDBSliceFromData(limit);
     NULDBIterateData(db, startSlice, limitSlice, block);
@@ -1409,6 +1523,8 @@ inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
 
 inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(uint64_t, NSData *value)) {
     
+    assert(start.size() > 0);
+    
     ReadOptions readopts;
     const Comparator *comp = BytewiseComparator();
     
@@ -1416,7 +1532,7 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()); iter->Next()) {
+    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()) > 0; iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         uint64_t index;
@@ -1429,7 +1545,7 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     delete iter;
 }
 
-- (void)iterateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block {
+- (void)enumerateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block {
     Slice startSlice((char *)start, sizeof(uint64_t));
     Slice limitSlice((char *)limit, sizeof(uint64_t));
     NULDBIterateIndex(db, startSlice, limitSlice, block);
@@ -1447,4 +1563,141 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     return array;
 }
 
+- (void)enumerateAllEntriesWithBlock:(BOOL (^)(NSData *key, NSData *value))block {
+    
+    ReadOptions readopts;
+    
+    readopts.fill_cache = false;
+    
+    Iterator*iter = db->NewIterator(readopts);
+    
+    for(iter->SeekToFirst(); iter->Valid(); iter->Next()) {
+        
+        Slice key = iter->key(), value = iter->value();
+        
+        if(!block(NULDBDataFromSlice(key), NULDBDataFromSlice(value)))
+            return;
+    }
+}
+
+
+#pragma mark - File Usage Estimation
+- (NSUInteger)currentFileSizeEstimate {
+    
+    NSUInteger total = 0;
+
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self ENDSWITH 'sst'"];
+    NSArray *storageFiles = [[fm contentsOfDirectoryAtPath:location error:NULL] filteredArrayUsingPredicate:predicate];
+    
+    for(NSString *file in storageFiles)
+        total += [[fm attributesOfItemAtPath:[location stringByAppendingPathComponent:file] error:NULL] fileSize];
+    
+    return total;
+}
+
+- (NSUInteger)sizeForKeyRangeFrom:(NSString *)start to:(NSString *)limit {
+    
+    NSUInteger total = 0;
+    
+    Range range(NULDBSliceFromString(start), NULDBSliceFromString(limit));
+    Iterator*iter = db->NewIterator(readOptions);
+
+    iter->Seek(range.start);
+    if(!iter->Valid()) iter->Next();
+    
+    uint64_t size;
+    
+    while(iter->Valid() && BytewiseComparator()->Compare(iter->key(), range.limit) <= 0) {
+        range.limit = iter->key();
+        if(range.start.ToString().length() > 0) {
+            size = 0;
+            db->GetApproximateSizes(&range, 1, &size);
+            total += size;
+        }
+        range.start = range.limit;
+        iter->Next();
+    }
+    
+    return total;
+}
+
+- (NSUInteger)currentSizeEstimate {
+
+    NSUInteger total = 0;
+
+    Iterator*iter = db->NewIterator(readOptions);
+    
+    iter->SeekToFirst();
+
+    if(!iter->Valid()) return 0;
+    
+    // The range.start is set to an empty slice; isn't used
+    std::string *s1 = NULL;
+    std::string *s2 = new std::string(iter->key().ToString());
+    Range range = Range(Slice(), Slice(*s2));
+    uint64_t size;
+    
+    while(iter->Next(), iter->Valid()) {
+
+        s1 = s2;
+        s2 = new std::string(iter->key().ToString());
+        
+        if(s1->length() > 0) {
+            range = Range(Slice(*s1), Slice(*s2));
+            size = 0;
+            db->GetApproximateSizes(&range, 1, &size);
+            total += size;
+        }
+        
+        delete s1;
+    }
+    
+    delete s2;
+    
+    return total;
+}
+
+- (NSUInteger)sizeUsedByKey:(NSString *)key {
+    
+    NSUInteger result = 0;
+    Range range;
+    
+    Iterator*iter = db->NewIterator(readOptions);
+    Slice k = NULDBSliceFromString(key);
+    
+    range.start = k;
+
+    iter->Seek(k);
+    iter->Next();
+    
+    if(iter->Valid()) {
+
+        uint64_t size;
+        
+        range.limit = iter->key();
+        db->GetApproximateSizes(&range, 1, &size);
+        result = size;
+    }
+    
+    return result;
+}
+
+@end
+
+
+#pragma mark -
+@implementation NULDBDB (NULDBDBAlternativeNames)
+- (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block {
+    [self enumerateFrom:start to:limit block:block];
+}
+- (void)iterateFromKey:(NSString *)start toKey:(NSString *)limit block:(BOOL (^)(NSString *key, NSData *value))block {
+    [self enumerateFromKey:start toKey:limit block:block];
+}
+- (void)iterateFromData:(NSData *)start toData:(NSData *)limit block:(BOOL (^)(NSData *key, NSData *value))block {
+    [self enumerateFromData:start toData:limit block:block];
+}
+- (void)iterateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block {
+    [self enumerateFromIndex:start to:limit block:block];
+}
 @end

@@ -27,4 +27,6 @@ The object storage interface currently expects strings for keys, but this is not
 
 Keys and values of string, data or dictionary type (including transformed objects) are stored using the best storage format for each of those classes when they are converted to raw data for use by the underlying leveldb library.
 
-Performance testing reveals raw storage, loading and deletion performance about three times that of Core Data. Of course, you lose most of the power of Core Data, including sophisticated searching, KVC/KVO/bindings (and array controllers), guaranteed uniqueing, undo and more. Some of these could be added to NULevelDB in future. Perhaps NULevelDB could be used to create a new Atomic Store type.
+Performance testing reveals raw storage, loading and deletion performance about three times that of Core Data. Of course, you lose most of the power of Core Data, including sophisticated searching, KVC/KVO/bindings (and array controllers), guaranteed uniqueing, undo and more. Some of these could be added to NULevelDB in future. Perhaps NULevelDB could be used to create a new Atomic Store type. See the Tests folder for benchmarking test apps.
+
+Consider the code to be licensed the same as whatever leveldb itself is using. I haven't gotten around to putting the license on every file.

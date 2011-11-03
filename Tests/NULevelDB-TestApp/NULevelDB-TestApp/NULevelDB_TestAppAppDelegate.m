@@ -247,7 +247,7 @@ typedef struct testResult {
     
     NSLog(@"Iterating over some values");
     
-    NSDictionary *sample = [self storedValuesFromStart:@"0100" toLimit:@"0120"];
+    NSDictionary *sample = [self storedValuesFrom:@"0100" to:@"0120"];
     
     NSLog(@"%@", sample);
 }

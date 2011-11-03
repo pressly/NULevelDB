@@ -104,11 +104,11 @@ static NSString *bigString = @"Erlang looks weird to the uninitiated, so I'll st
     dispatch_once(&onceToken, ^{
         
         NSError *error = nil;
-        data = [NSPropertyListSerialization dataWithPropertyList:[[self makeTestAddress] plistRepresentation]
-                                                          format:NSPropertyListBinaryFormat_v1_0
-                                                         options:0
-                                                           error:&error];
-        
+        data = [[NSPropertyListSerialization dataWithPropertyList:[[self makeTestAddress] plistRepresentation]
+                                                           format:NSPropertyListBinaryFormat_v1_0
+                                                          options:0
+                                                            error:&error] retain];
+                
         STAssertNotNil(data, @"Failed to make data. %@", error);
     });
     
@@ -449,11 +449,122 @@ enum {
     
     NSArray *keys = [[dict allKeys] sortedArrayUsingSelector:@selector(compare:)];
     NSUInteger i1 = count/3, i2 = 3*count/4;
+    NSUInteger retrievedCount = i2-i1;
     NSString *key1 = [keys objectAtIndex:i1], *key2 = [keys objectAtIndex:i2];
     
     NSDictionary *actual = [db storedValuesFrom:key1 to:key2];
     
-    STAssertTrue([actual count] == i2-i1+1, @"Missing values; expected %u; got %u", i2-i1+1, [actual count]);
+    STAssertTrue([actual count] == retrievedCount, @"Missing values; expected %u; got %u", retrievedCount, [actual count]);
+}
+
+- (void)test31EnumerateAll {
+    
+    NSMutableDictionary *expected = [NSMutableDictionary dictionaryWithCapacity:32];
+    
+    for(NSUInteger i=0; i<32; ++i)
+        [expected setObject:NULDBRandomName() forKey:[NSNumber numberWithInt:Random_int_in_range(i*32, i*32+32)]];
+    
+    for(id number in [expected allKeys]) {
+        NSError *error = nil;
+        BOOL success = [db storeData:[NSKeyedArchiver archivedDataWithRootObject:[expected objectForKey:number]]
+                          forDataKey:[NSKeyedArchiver archivedDataWithRootObject:number] error:&error];
+        STAssertTrue(success, @"DB store failed for key '%@'; error: %@", number, error);
+    }
+    
+    
+    NSMutableDictionary *actual = [NSMutableDictionary dictionaryWithCapacity:[expected count]];
+    
+    [db enumerateAllEntriesWithBlock:^BOOL(NSData *key, NSData *value) {
+        [actual setObject:[NSKeyedUnarchiver unarchiveObjectWithData:value]
+                   forKey:[NSKeyedUnarchiver unarchiveObjectWithData:key]];
+        return YES;
+    }];
+    
+    STAssertEqualObjects(expected, actual, @"Enumeration discrepancy");
+}
+
+- (void)test40EntryExistence {
+    
+    [db storeValue:@"EncodedValue" forKey:@"EncodedKey"];
+    
+    STAssertTrue([db storedValueExistsForKey:@"EncodedKey"], @"Entry existence discrepancy; key 'Key' should exist.");
+    STAssertFalse([db storedValueExistsForKey:@"UnusedKey"], @"Entry existence discrepancy; key 'UnusedKey' should NOT exist.");
+
+    
+    NSData *dataKey = [@"DataKeyForData" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *unusedDataKey = [@"UnusedDataKeyForData" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    if([db storeData:[@"DataValueForData" dataUsingEncoding:NSUTF8StringEncoding] forDataKey:dataKey error:NULL])
+        STAssertTrue([db storedDataExistsForDataKey:dataKey], @"Entry existence discrepancy; key '%@' should exist.", dataKey);
+    STAssertFalse([db storedDataExistsForDataKey:unusedDataKey], @"Entry existence discrepancy; key '%@' should NOT exist", unusedDataKey);
+    
+    if([db deleteStoredDataForDataKey:dataKey error:NULL])
+        STAssertFalse([db storedDataExistsForDataKey:dataKey], @"Entry existence discrepancy; key '%@' should NOT exist (was deleted).", dataKey);
+    
+    NSString *stringKey = @"StringKeyForData";
+    NSString *unusedStringKey = @"UnusedStringKeyForData";
+    
+    if([db storeData:[@"DataValueForString" dataUsingEncoding:NSUTF8StringEncoding] forKey:stringKey error:NULL])
+        STAssertTrue([db storedDataExistsForKey:stringKey], @"key '%@' should exist.", stringKey);
+    STAssertFalse([db storedDataExistsForKey:unusedStringKey], @"key '%@' should NOT exist.", unusedStringKey);
+    
+    if([db deleteStoredDataForKey:stringKey error:NULL])
+        STAssertFalse([db storedDataExistsForKey:stringKey], @"key '%@' should NOT exist (was deleted).", stringKey);
+    
+    stringKey = @"StringKeyForStringValue";
+    unusedStringKey = @"UnusedStringKeyForStringValue";
+    
+    if([db storeString:@"StringValue" forKey:stringKey error:NULL])
+        STAssertTrue([db storedDataExistsForKey:stringKey], @"key '%@' should exist.", stringKey);
+    STAssertFalse([db storedDataExistsForKey:unusedStringKey], @"key '%@' should NOT exist.", unusedStringKey);
+    
+    if([db deleteStoredDataForKey:stringKey error:NULL])
+        STAssertFalse([db storedDataExistsForKey:stringKey], @"key '%@' should NOT exist.", stringKey);
+
+    uint64_t indexKey = 1234567;
+    uint64_t unusedIndexKey = 123456789;
+    
+    [db storeData:[@"DataValueForIndex" dataUsingEncoding:NSUTF8StringEncoding] forIndexKey:indexKey error:NULL];
+    
+    STAssertTrue([db storedDataExistsForIndexKey:indexKey], @"key '%d' should exist.", indexKey);
+    STAssertFalse([db storedDataExistsForIndexKey:unusedIndexKey], @"key '%d' should NOT exist.", unusedIndexKey);
+    
+    if([db deleteStoredDataForIndexKey:indexKey error:NULL])
+        STAssertFalse([db storedDataExistsForIndexKey:indexKey], @"key '%d' should NOT exist.", indexKey);
+}
+
+- (void)test50EntrySize {
+    
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:[self makeTestData]];
+    NSString *key = @"Key";
+    
+    db.sync = YES;
+    db.cacheEnabled = NO;
+
+    if([db storeData:data forKey:key error:NULL] && [db storeData:[NSData data] forKey:@"Kez" error:NULL]) {
+
+        // close and re-open the database with 0 write buffer size to flush the internal log
+        [db release]; db = [[NULDBDB alloc] initWithLocation:[NULDBDB defaultLocation] bufferSize:0];
+        
+        NSUInteger size = [db sizeUsedByKey:key];
+        STAssertTrue(size > 0, @"Entry size discrepancy; got %u for data of length %u.", size, [data length]);
+    }
+}
+
+- (void)test51AllEntriesSize {
+    
+    db.sync = YES;
+    db.cacheEnabled = NO;
+    
+    if([db put:32 valuesOfSize:64 data:NULL]) {
+
+        // close and re-open the database with 0 write buffer size to flush the internal log
+        [db release]; db = [[NULDBDB alloc] initWithLocation:[NULDBDB defaultLocation] bufferSize:0];
+        
+        NSUInteger total = 32 * 64;
+        NSUInteger size = [db currentSizeEstimate];
+        STAssertTrue(size > total/8, @"DB size discrepancy; got %u for data of length %u.", size, total);
+    }
 }
 
 @end

@@ -22,7 +22,8 @@
 @implementation NULDBTestCompany
 
 #ifndef NULDBTEST_CORE_DATA
-@synthesize name, /*supervisor,*/ workers, addresses, primaryAddressID, mainAddress, secondaryAddresses;
+@synthesize name, /*supervisor,*/ workers, addresses, primaryAddressID;
+@dynamic mainAddress, secondaryAddresses;
 #endif
 
 @synthesize management;
@@ -33,7 +34,7 @@ static NSArray *titles;
 
 + (void)initialize {
     if([self class] == [NULDBTestCompany class]) {
-        propertyNames = [[NSArray alloc] initWithObjects:/*@"supervisor",*/ @"name", @"workers", @"management", @"mainAddress", @"addresses", nil];
+        propertyNames = [[NSArray alloc] initWithObjects:/*@"supervisor",*/ @"name", @"workers", @"management", @"addresses", nil];
         titles = [[NSArray alloc] initWithObjects:@"CEO", @"VP Operations", @"VP Sales", @"VP Logistics", @"Shop Manager", @"Human Resources", @"Accountant", @"COO", @"Chief Scientist", @"Mad Scientist", @"Boy Wonder", @"Crypt Keeper", @"Slave Driver", @"Middle Manager", @"Enforcer", @"Lion Tamer", @"Captain", @"Major", @"Colonel", @"General", nil];
     }
 }

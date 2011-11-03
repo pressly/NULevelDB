@@ -13,11 +13,15 @@
 
 @interface NULDBDB : NSObject
 
-@property (retain) NSString *location;
+@property (nonatomic, retain) NSString *location;
+@property (nonatomic) BOOL sync;
+@property (nonatomic, getter=isCacheEnabled) BOOL cacheEnabled;
 
+// size is the write buffer size; default is 4MB
+- (id)initWithLocation:(NSString *)path bufferSize:(NSUInteger)size;
 - (id)initWithLocation:(NSString *)path;
 
-// Erases the database files (files are created automatically)
+// Deprecated - call +destroyDatabase: when you have no active pointers to your db
 - (void)destroy;
 
 // works like a stack (counter); feel free to use indiscriminately
@@ -27,18 +31,22 @@
 // User Library folder "Store.db"
 + (NSString *)defaultLocation;
 
+// Erases the database files (files are created automatically)
++ (void)destroyDatabase:(NSString *)path;
+
 
 //// Basic key-value support
 - (BOOL)storeValue:(id<NSCoding>)value forKey:(id<NSCoding>)key;
 - (id)storedValueForKey:(id<NSCoding>)key;
 - (BOOL)deleteStoredValueForKey:(id<NSCoding>)key;
-
+- (BOOL)storedValueExistsForKey:(id<NSCoding>)key;
 
 //// Streamlined key-value support for pre-encoded Data objects
 // Data keys
 - (BOOL)storeData:(NSData *)data forDataKey:(NSData *)key error:(NSError **)error;
 - (NSData *)storedDataForDataKey:(NSData *)key error:(NSError **)error;
 - (BOOL)deleteStoredDataForDataKey:(NSData *)key error:(NSError **)error;
+- (BOOL)storedDataExistsForDataKey:(NSData *)key;
 
 // String keys - string<->data key conversion provided by optional block
 // This will allow the client to replace string keys with optimized data keys of its own preference
@@ -50,15 +58,18 @@
 - (BOOL)storeData:(NSData *)data forKey:(NSString *)key error:(NSError **)error;
 - (NSData *)storedDataForKey:(NSString *)key error:(NSError **)error;
 - (BOOL)deleteStoredDataForKey:(NSString *)key error:(NSError **)error;
+- (BOOL)storedDataExistsForKey:(NSString *)key;
 
 // string keys and string values encoded as UTF8 data; use deletion methods above
 - (BOOL)storeString:(NSString *)string forKey:(NSString *)key error:(NSError **)error;
 - (NSString *)storedStringForKey:(NSString *)key error:(NSError **)error;
+- (BOOL)storedStringExistsForKey:(NSString *)key;
 
 // 64-bit binary keys and data values
 - (BOOL)storeData:(NSData *)data forIndexKey:(uint64_t)key error:(NSError **)error;
 - (NSData *)storedDataForIndexKey:(uint64_t)key error:(NSError **)error;
 - (BOOL)deleteStoredDataForIndexKey:(uint64_t)key error:(NSError **)error;
+- (BOOL)storedDataExistsForIndexKey:(uint64_t)key;
 
 
 // Object graph serialization support
@@ -90,14 +101,35 @@
 - (BOOL)deleteStoredDataForIndexes:(uint64_t *)indexes count:(NSUInteger)count error:(NSError **)error;
 
 
-// Iteration and search
-- (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block;
+// Enumeration and search
+- (void)enumerateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block;
 - (NSDictionary *)storedValuesFrom:(id<NSCoding>)start to:(id<NSCoding>)limit;
 
-- (void)iterateFromData:(NSData *)start toData:(NSData *)limit block:(BOOL (^)(NSData *key, NSData *value))block;
+- (void)enumerateFromKey:(NSString *)start toKey:(NSString *)limit block:(BOOL (^)(NSString *key, NSData *value))block;
+- (NSDictionary *)storedValuesFromKey:(NSString *)start toKey:(NSString *)limit;
+
+- (void)enumerateFromData:(NSData *)start toData:(NSData *)limit block:(BOOL (^)(NSData *key, NSData *value))block;
 - (NSDictionary *)storedValuesFromData:(NSData *)start toData:(NSData *)limit;
 
-- (void)iterateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block;
+- (void)enumerateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block;
 - (NSArray *)storedValuesFromIndex:(uint64_t)start to:(uint64_t)limit;
 
+- (void)enumerateAllEntriesWithBlock:(BOOL (^)(NSData *key, NSData *value))block;
+
+
+// Size of data
+// This is probably expensive and of limited accuracy; it doesn't include sizes of keys or leveldb internal data structures
+- (NSUInteger)currentFileSizeEstimate;
+- (NSUInteger)sizeForKeyRangeFrom:(NSString *)start to:(NSString *)limit;
+- (NSUInteger)currentSizeEstimate; // checks all entries except those with 0-length keys (don't know what causes these)
+- (NSUInteger)sizeUsedByKey:(NSString *)key;
+
+@end
+
+
+@interface NULDBDB (NULDBDBAlternativeNames)
+- (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block;
+- (void)iterateFromKey:(NSString *)start toKey:(NSString *)limit block:(BOOL (^)(NSString *key, NSData *value))block;
+- (void)iterateFromData:(NSData *)start toData:(NSData *)limit block:(BOOL (^)(NSData *key, NSData *value))block;
+- (void)iterateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block;
 @end
