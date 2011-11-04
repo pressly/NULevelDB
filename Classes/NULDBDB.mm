@@ -909,7 +909,7 @@ inline void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(S
         Slice key = iter->key(), value = iter->value();
         
         if(!block(key, value))
-            return;
+            break;
     }
     
     delete iter;
@@ -931,7 +931,7 @@ inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(i
         Slice key = iter->key(), value = iter->value();
         
         if(!block(NULDBObjectFromSlice(key), NULDBObjectFromSlice(value)))
-            return;
+            break;
     }
     
     delete iter;
@@ -971,7 +971,7 @@ inline void NULDBIterateKeys(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
         Slice key = iter->key(), value = iter->value();
         
         if(!block(NULDBStringFromSlice(key), NULDBDataFromSlice(value)))
-            return;
+            break;
     }
     
     delete iter;
@@ -1011,7 +1011,7 @@ inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
         Slice key = iter->key(), value = iter->value();
         
         if(!block(NULDBDataFromSlice(key), NULDBDataFromSlice(value)))
-            return;
+            break;
     }
     
     delete iter;
@@ -1053,7 +1053,7 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
         memcpy(&index, key.data(), key.size());
         
         if(!block(index, NULDBDataFromSlice(value)))
-            return;
+            break;
     }
     
     delete iter;
@@ -1090,8 +1090,10 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
         Slice key = iter->key(), value = iter->value();
         
         if(!block(NULDBDataFromSlice(key), NULDBDataFromSlice(value)))
-            return;
+            break;
     }
+    
+    delete iter;
 }
 
 
@@ -1133,6 +1135,8 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
         iter->Next();
     }
     
+    delete iter;
+    
     return total;
 }
 
@@ -1168,6 +1172,7 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     }
     
     delete s2;
+    delete iter;
     
     return total;
 }
@@ -1193,6 +1198,8 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
         db->GetApproximateSizes(&range, 1, &size);
         result = size;
     }
+    
+    delete iter;
     
     return result;
 }
