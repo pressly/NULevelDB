@@ -24,6 +24,7 @@ using namespace leveldb;
 @interface NULDBDB ()
 
 @property DB *db;
+@property BOOL compacting;
 
 - (void)storeObject:(id)obj forKey:(NSString *)key;
 
@@ -48,9 +49,10 @@ using namespace leveldb;
     ReadOptions readOptions;
     WriteOptions writeOptions;
     Slice *classIndexKey;
+    size_t bufferSize;
 }
 
-@synthesize db, location;
+@synthesize db, location, compacting;
 
 
 static NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
@@ -92,7 +94,7 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
 #pragma mark - Accessors
 - (void)setDb:(DB *)newDB {
     @synchronized(self) {
-        delete db;
+        if(NULL != db) delete db;
         db = newDB;
     }
 }
@@ -144,28 +146,41 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
     leveldb::DestroyDB([path UTF8String], options);
 }
 
+- (BOOL)NU_openDatabase {
+    
+    Options options;
+    options.create_if_missing = true;
+    options.write_buffer_size = bufferSize;
+
+    DB *theDB;
+    
+    Status status = DB::Open(options, [self.location UTF8String], &theDB);
+        
+    if(!status.ok())
+        NSLog(@"Problem creating LevelDB database: %s", status.ToString().c_str());
+    else
+        self.db = theDB;
+    
+    return status.ok();
+}
+
 - (id)initWithLocation:(NSString *)path bufferSize:(NSUInteger)size {
     
     self = [super init];
     if (self) {
         
-        Options options;
-        options.create_if_missing = true;
-        options.write_buffer_size = size;
-        
         self.location = path;
+        bufferSize = size;
         
-
-        Status status = DB::Open(options, [path UTF8String], &db);
-        
-        readOptions.fill_cache = false;
-        writeOptions.sync = false;
-        
-        if(!status.ok()) {
-            NSLog(@"Problem creating LevelDB database: %s", status.ToString().c_str());
+        if(![self NU_openDatabase]) {
+            [self release];
+            self = nil;
         }
-        
-        classIndexKey = new Slice("NULClassIndex");
+        else {
+            readOptions.fill_cache = false;
+            writeOptions.sync = false;
+            classIndexKey = new Slice("NULClassIndex");
+        }
     }
     
     return self;
@@ -179,6 +194,23 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
     Options options;
     self.db = NULL;
     [[self class] destroyDatabase:self.location];
+}
+
+- (void)compact {
+    
+    if(self.compacting) return;
+    
+    self.compacting = YES;
+    
+    db->CompactRange(NULL, NULL);
+    
+    self.compacting = NO;
+}
+
+- (void)reopen {
+    // The existing database object MUST be removed/closed before a new one is created
+    self.db = nil;
+    [self NU_openDatabase];
 }
 
 
