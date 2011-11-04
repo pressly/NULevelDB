@@ -31,6 +31,7 @@ using namespace leveldb;
 @interface NULDBDB ()
 
 @property DB *db;
+@property BOOL compacting;
 
 #if USE_INDEXED_SERIALIZATION
 - (void)storeProperty:(id)property forKey:(PropertyKey)key;
@@ -70,9 +71,10 @@ using namespace leveldb;
     ReadOptions readOptions;
     WriteOptions writeOptions;
     Slice *classIndexKey;
+    size_t bufferSize;
 }
 
-@synthesize db, location;
+@synthesize db, location, compacting;
 
 
 static NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
@@ -117,7 +119,7 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
 #pragma mark - Accessors
 - (void)setDb:(DB *)newDB {
     @synchronized(self) {
-        delete db;
+        if(NULL != db) delete db;
         db = newDB;
     }
 }
@@ -169,34 +171,43 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
     leveldb::DestroyDB([path UTF8String], options);
 }
 
+- (BOOL)NU_openDatabase {
+    
+    Options options;
+    options.create_if_missing = true;
+    options.write_buffer_size = bufferSize;
+
+    DB *theDB;
+    
+    Status status = DB::Open(options, [self.location UTF8String], &theDB);
+        
+    if(!status.ok())
+        NSLog(@"Problem creating LevelDB database: %s", status.ToString().c_str());
+    else
+        self.db = theDB;
+    
+    return status.ok();
+}
+
 - (id)initWithLocation:(NSString *)path bufferSize:(NSUInteger)size {
     
     self = [super init];
     if (self) {
         
-        Options options;
-        options.create_if_missing = true;
-        options.write_buffer_size = size;
-        
         self.location = path;
+        bufferSize = size;
         
-
-        Status status = DB::Open(options, [path UTF8String], &db);
-        
-        readOptions.fill_cache = false;
-        writeOptions.sync = false;
-        
-        if(!status.ok()) {
-            NSLog(@"Problem creating LevelDB database: %s", status.ToString().c_str());
+        if(![self NU_openDatabase]) {
+            [self release];
+            self = nil;
         }
-#if USE_INDEXED_SERIALIZATION
         else {
-            if(![self checkCounters])
-                [self saveCounters];
+            readOptions.fill_cache = false;
+            writeOptions.sync = false;
+            classIndexKey = new Slice("NULClassIndex");
+
+            if(![self checkCounters]) [self saveCounters];
         }
-#endif
-        
-        classIndexKey = new Slice("NULClassIndex");
     }
     
     return self;
@@ -210,6 +221,23 @@ static inline BOOL NULDBStoreValueForKey(DB *db, WriteOptions &writeOptions, Sli
     Options options;
     self.db = NULL;
     [[self class] destroyDatabase:self.location];
+}
+
+- (void)compact {
+    
+    if(self.compacting) return;
+    
+    self.compacting = YES;
+    
+    db->CompactRange(NULL, NULL);
+    
+    self.compacting = NO;
+}
+
+- (void)reopen {
+    // The existing database object MUST be removed/closed before a new one is created
+    self.db = nil;
+    [self NU_openDatabase];
 }
 
 
@@ -1395,7 +1423,7 @@ inline void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(S
         Slice key = iter->key(), value = iter->value();
         
         if(!block(key, value))
-            return;
+            break;
     }
     
     delete iter;
@@ -1417,7 +1445,7 @@ inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(i
         Slice key = iter->key(), value = iter->value();
         
         if(!block(NULDBObjectFromSlice(key), NULDBObjectFromSlice(value)))
-            return;
+            break;
     }
     
     delete iter;
@@ -1457,7 +1485,7 @@ inline void NULDBIterateKeys(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
         Slice key = iter->key(), value = iter->value();
         
         if(!block(NULDBStringFromSlice(key), NULDBDataFromSlice(value)))
-            return;
+            break;
     }
     
     delete iter;
@@ -1497,7 +1525,7 @@ inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
         Slice key = iter->key(), value = iter->value();
         
         if(!block(NULDBDataFromSlice(key), NULDBDataFromSlice(value)))
-            return;
+            break;
     }
     
     delete iter;
@@ -1539,7 +1567,7 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
         memcpy(&index, key.data(), key.size());
         
         if(!block(index, NULDBDataFromSlice(value)))
-            return;
+            break;
     }
     
     delete iter;
@@ -1576,8 +1604,10 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
         Slice key = iter->key(), value = iter->value();
         
         if(!block(NULDBDataFromSlice(key), NULDBDataFromSlice(value)))
-            return;
+            break;
     }
+    
+    delete iter;
 }
 
 
@@ -1619,6 +1649,8 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
         iter->Next();
     }
     
+    delete iter;
+    
     return total;
 }
 
@@ -1654,6 +1686,7 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     }
     
     delete s2;
+    delete iter;
     
     return total;
 }
@@ -1679,6 +1712,8 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
         db->GetApproximateSizes(&range, 1, &size);
         result = size;
     }
+    
+    delete iter;
     
     return result;
 }

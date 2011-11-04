@@ -24,6 +24,10 @@
 // Deprecated - call +destroyDatabase: when you have no active pointers to your db
 - (void)destroy;
 
+- (void)compact;
+
+- (void)reopen; // closes and opens the database; triggers a variety of maintenance routines on open
+
 // works like a stack (counter); feel free to use indiscriminately
 + (void)enableLogging;
 + (void)disableLogging;
