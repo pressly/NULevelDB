@@ -9,9 +9,6 @@
 #import "NULDBDB_private.h"
 
 
-#define USE_INDEXED_SERIALIZATION 0
-
-
 @interface NULDBDB (Serializing_private)
 - (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj;
 
@@ -41,16 +38,17 @@
 - (NSArray *)unserializeArrayForKey:(ArrayKey)key;
 - (void)deleteStoredArrayContentsForKey:(PropertyKey)key;
 
-- (BOOL)checkCounters;
-- (void)saveCounters;
 #endif
 
 @end
 
 
-@implementation NULDBDB (Serializing) {
+@implementation NULDBDB (Serializing)
+#if USE_INDEXED_SERIALIZATION
+{
     Counters *counters;
 }
+#endif
 
 #define NULDBClassToken(_class_name_) ([NSString stringWithFormat:@"%@:NUClass", _class_name_])
 #define NULDBIsClassToken(_key_) ([_key_ hasSuffix:@"NUClass"])
@@ -751,6 +749,6 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     // TODO: Implement
 }
-
+#endif
 
 @end

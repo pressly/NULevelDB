@@ -16,6 +16,9 @@
 #include <leveldb/comparator.h>
 
 
+#define USE_INDEXED_SERIALIZATION 0
+
+
 extern int logging;
 
 
@@ -29,6 +32,12 @@ using namespace leveldb;
     Slice *classIndexKey;
     size_t bufferSize;
 }
+
+#if USE_INDEXED_SERIALIZATION
+- (BOOL)checkCounters;
+- (void)saveCounters;
+#endif
+
 @end
 
 

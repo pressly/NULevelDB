@@ -157,7 +157,9 @@ NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
             writeOptions.sync = false;
             classIndexKey = new Slice("NULClassIndex");
 
+#if USE_INDEXED_SERIALIZATION
             if(![self checkCounters]) [self saveCounters];
+#endif
         }
     }
     
