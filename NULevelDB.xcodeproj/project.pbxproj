@@ -24,6 +24,10 @@
 		4E221EE113F2D0D500203E8D /* NULDBUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E221ED913F2C40900203E8D /* NULDBUtilities.h */; };
 		4E3CDCF213EB020D00366CD8 /* libleveldb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82780113EAF4A600C64821 /* libleveldb.a */; };
 		4E3CDD5613EC319F00366CD8 /* NULDBDB+Testing.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E82784F13EAF85500C64821 /* NULDBDB+Testing.m */; };
+		4E7D08B81464625D001F4447 /* NULDBDB+Enumeration.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E7D08B61464625D001F4447 /* NULDBDB+Enumeration.mm */; };
+		4E7D08BC1464644B001F4447 /* NULDBDB+SizeEstimation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E7D08BA1464644B001F4447 /* NULDBDB+SizeEstimation.mm */; };
+		4E7D08C0146465D8001F4447 /* NULDBDB+BulkAccess.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E7D08BE146465D8001F4447 /* NULDBDB+BulkAccess.mm */; };
+		4E7D08C4146466D6001F4447 /* NULDBDB+Serializing.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E7D08C2146466D6001F4447 /* NULDBDB+Serializing.mm */; };
 		4E82772913EAF44500C64821 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82772813EAF44500C64821 /* Foundation.framework */; };
 		4E82772F13EAF44500C64821 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4E82772D13EAF44500C64821 /* InfoPlist.strings */; };
 		4E82773813EAF44500C64821 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82773713EAF44500C64821 /* SenTestingKit.framework */; };
@@ -135,6 +139,11 @@
 		4E221ED913F2C40900203E8D /* NULDBUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBUtilities.h; sourceTree = "<group>"; };
 		4E221EDA13F2C40A00203E8D /* NULDBUtilities.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NULDBUtilities.mm; sourceTree = "<group>"; };
 		4E221EDE13F2D07D00203E8D /* NULDBSerializable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBSerializable.h; sourceTree = "<group>"; };
+		4E7D08B314646094001F4447 /* NULDBDB_private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NULDBDB_private.h; sourceTree = "<group>"; };
+		4E7D08B61464625D001F4447 /* NULDBDB+Enumeration.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NULDBDB+Enumeration.mm"; sourceTree = "<group>"; };
+		4E7D08BA1464644B001F4447 /* NULDBDB+SizeEstimation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NULDBDB+SizeEstimation.mm"; sourceTree = "<group>"; };
+		4E7D08BE146465D8001F4447 /* NULDBDB+BulkAccess.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NULDBDB+BulkAccess.mm"; sourceTree = "<group>"; };
+		4E7D08C2146466D6001F4447 /* NULDBDB+Serializing.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NULDBDB+Serializing.mm"; sourceTree = "<group>"; };
 		4E82772513EAF44500C64821 /* NULevelDB.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = NULevelDB.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E82772813EAF44500C64821 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		4E82772C13EAF44500C64821 /* NULevelDB-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NULevelDB-Info.plist"; sourceTree = "<group>"; };
@@ -582,6 +591,7 @@
 		4E82784713EAF85500C64821 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				4E7D08B314646094001F4447 /* NULDBDB_private.h */,
 				4E221EDE13F2D07D00203E8D /* NULDBSerializable.h */,
 				4E82784813EAF85500C64821 /* NSLDBIterator.h */,
 				4E82784913EAF85500C64821 /* NSLDBIterator.mm */,
@@ -601,6 +611,10 @@
 				4E221ED613F2BE6700203E8D /* NULDBStorageKey.mm */,
 				4E221ED913F2C40900203E8D /* NULDBUtilities.h */,
 				4E221EDA13F2C40A00203E8D /* NULDBUtilities.mm */,
+				4E7D08B61464625D001F4447 /* NULDBDB+Enumeration.mm */,
+				4E7D08BA1464644B001F4447 /* NULDBDB+SizeEstimation.mm */,
+				4E7D08BE146465D8001F4447 /* NULDBDB+BulkAccess.mm */,
+				4E7D08C2146466D6001F4447 /* NULDBDB+Serializing.mm */,
 			);
 			path = Classes;
 			sourceTree = SOURCE_ROOT;
@@ -811,6 +825,10 @@
 				4E82786713EAF85500C64821 /* NULDBTable.mm in Sources */,
 				4E221EDC13F2C5CD00203E8D /* NULDBStorageKey.mm in Sources */,
 				4E221EDD13F2C5D100203E8D /* NULDBUtilities.mm in Sources */,
+				4E7D08B81464625D001F4447 /* NULDBDB+Enumeration.mm in Sources */,
+				4E7D08BC1464644B001F4447 /* NULDBDB+SizeEstimation.mm in Sources */,
+				4E7D08C0146465D8001F4447 /* NULDBDB+BulkAccess.mm in Sources */,
+				4E7D08C4146466D6001F4447 /* NULDBDB+Serializing.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1008,7 +1026,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NULevelDB/NULevelDB-Prefix.pch";
 				INFOPLIST_FILE = "NULevelDBTests/NULevelDBTests-Info.plist";
-				OTHER_LDFLAGS = "-lstdc++";
+				OTHER_LDFLAGS = (
+					"-all_load",
+					"-lstdc++",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = octest;
 			};
@@ -1024,7 +1045,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NULevelDB/NULevelDB-Prefix.pch";
 				INFOPLIST_FILE = "NULevelDBTests/NULevelDBTests-Info.plist";
-				OTHER_LDFLAGS = "-lstdc++";
+				OTHER_LDFLAGS = (
+					"-all_load",
+					"-lstdc++",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = octest;
 			};

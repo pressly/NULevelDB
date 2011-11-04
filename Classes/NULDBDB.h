@@ -11,6 +11,9 @@
 #import <NULevelDB/NULDBSerializable.h>
 
 
+extern NSString *NULDBErrorDomain;
+
+
 @interface NULDBDB : NSObject
 
 @property (nonatomic, retain) NSString *location;
@@ -21,12 +24,9 @@
 - (id)initWithLocation:(NSString *)path bufferSize:(NSUInteger)size;
 - (id)initWithLocation:(NSString *)path;
 
-// Deprecated - call +destroyDatabase: when you have no active pointers to your db
-- (void)destroy;
-
 - (void)compact;
-
-- (void)reopen; // closes and opens the database; triggers a variety of maintenance routines on open
+- (void)reopen;  // closes and opens the database; triggers a variety of maintenance routines on open
+- (void)destroy; // Deprecated - call +destroyDatabase: when you have no active pointers to your db
 
 // works like a stack (counter); feel free to use indiscriminately
 + (void)enableLogging;
@@ -75,15 +75,11 @@
 - (BOOL)deleteStoredDataForIndexKey:(uint64_t)key error:(NSError **)error;
 - (BOOL)storedDataExistsForIndexKey:(uint64_t)key;
 
-
-// Object graph serialization support
-// Arrays and dictionaries are handled automatically; sets are converted into arrays
-- (void)storeObject:(NSObject<NULDBSerializable> *)obj;
-- (id)storedObjectForKey:(NSString *)key;
-- (void)deleteStoredObjectForKey:(NSString *)key;
+@end
 
 
-//// Bulk storage and retrieval
+@interface NULDBDB (BulkAccess)
+
 // Generalized
 - (BOOL)storeValuesFromDictionary:(NSDictionary *)dictionary;
 - (NSDictionary *)storedValuesForKeys:(NSArray *)keys;
@@ -104,8 +100,11 @@
 - (NSArray *)storedDataForIndexes:(uint64_t *)indexes count:(NSUInteger)count error:(NSError **)error;
 - (BOOL)deleteStoredDataForIndexes:(uint64_t *)indexes count:(NSUInteger)count error:(NSError **)error;
 
+@end
 
-// Enumeration and search
+
+@interface NULDBDB (Enumeration)
+
 - (void)enumerateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block;
 - (NSDictionary *)storedValuesFrom:(id<NSCoding>)start to:(id<NSCoding>)limit;
 
@@ -120,18 +119,26 @@
 
 - (void)enumerateAllEntriesWithBlock:(BOOL (^)(NSData *key, NSData *value))block;
 
-
-// Size of data
-// This is probably expensive and of limited accuracy; it doesn't include sizes of keys or leveldb internal data structures
-- (NSUInteger)currentFileSizeEstimate;
-- (NSUInteger)sizeForKeyRangeFrom:(NSString *)start to:(NSString *)limit;
-- (NSUInteger)currentSizeEstimate; // checks all entries except those with 0-length keys (don't know what causes these)
-- (NSUInteger)sizeUsedByKey:(NSString *)key;
-
 @end
 
 
-@interface NULDBDB (NULDBDBAlternativeNames)
+
+@interface NULDBDB (Serializing)
+- (void)storeObject:(NSObject<NULDBSerializable> *)obj;
+- (id)storedObjectForKey:(NSString *)key;
+- (void)deleteStoredObjectForKey:(NSString *)key;
+@end
+
+
+@interface NULDBDB (SizeEstimation)
+- (NSUInteger)currentFileSizeEstimate;
+- (NSUInteger)sizeForKeyRangeFrom:(NSString *)start to:(NSString *)limit;
+- (NSUInteger)currentSizeEstimate;
+- (NSUInteger)sizeUsedByKey:(NSString *)key;
+@end
+
+
+@interface NULDBDB (Deprecated)
 - (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block;
 - (void)iterateFromKey:(NSString *)start toKey:(NSString *)limit block:(BOOL (^)(NSString *key, NSData *value))block;
 - (void)iterateFromData:(NSData *)start toData:(NSData *)limit block:(BOOL (^)(NSData *key, NSData *value))block;
