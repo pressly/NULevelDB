@@ -1,0 +1,58 @@
+
+Serialization
+2011.11.04
+
+To store an arbitrary archived object is easy enough. In order to restore it, it's necessary to be able to identify its type. This information can be encoded in the key.
+
+In order to restore relationships, that information also has to be encoded.
+
+Objects in the database also have to be uniquely identifiable, just like objects in memory. This requires assigning a guaranteed unique value to identify the object. This value has to be stored in a global index, or else the same object will get stored each time it is encountered in an object graph being serialized.
+
+In the modern Objective-C runtime, it is no longer necessary for object classes to be specially constructed to be compatible with the storage system. The object's unique identifier can be assigned to any object using the new associated objects facility. Classes that want to support individual property storing must adopt the NUSerializable protocol. (Even that isn't really necessary, as a category would suffice, like in the old days. A category could even make totally ignorant classes compatible with serialization.)
+
+We will develop a system for serialization and indexing by starting with simple cases and going from there.
+
+
+Indexing
+
+- goal is to make the key order the same as the value order
+- but the keys need to be of fixed size, whereas values can be any size (arbitrary strings and data blobs)
+- otherwise we have to store the index as a blob or a sequence of blobs
+    - rely on the memory caching to keep them around, or keep a copy around separately
+
+
+Value classes
+
+- stored as keyed archives (like they already are)
+
+key => <archive>
+
+
+Basic classes
+
+- stored as a set of entries, one for each scalar property
+- 
+- unique ID and property index encoded in every property key
+- each property value is either a keyed archive (value type) or  raw data (data or string)
+- each class is stored as a key made up of a 4-byte constant prefix followed by a 3-byte class ID, and a value which is a binary plist describing the class
+
+Class Key: CLASS<class_id> => <properties>
+Storage Key: <obj_id>O<class_id> => ""
+Property Key: <owner_obj_id>P<prop_index> => <archive>|<data>
+
+
+Container classes
+
+- Dictionary
+    - stored as a binary property list replacing custom objects with their encoded storage keys -- not indexable by properties (use custom classes)
+- Array and Set
+    - stored as a set of keys, one for each object in the collection, which each refer to the object's encoded storage key
+- 
+
+
+Relational classes
+
+- each relationship is encoded storage key for another object (custom, array, set or dictionary)
+
+Property Key: <owner_obj_id>P<prop_index> => <storage_key>
+

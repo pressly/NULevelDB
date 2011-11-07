@@ -10,6 +10,27 @@
 
 
 @interface NULDBDB (Serializing_private)
+
+#if USE_INDEXED_SERIALIZATION
+- (void)storeProperty:(id)property forKey:(PropertyKey)key;
+- (id)propertyForKey:(PropertyKey)key;
+
+- (ObjectKey)serializeObject:(id<NULDBSerializable>)object;
+- (id)unserializeObjectForKey:(ObjectKey)key;
+
+- (NSDictionary *)storeContentsOfDictionary:(NSDictionary *)dictionary name:(NSString *)name;
+- (void)storeDictionary:(NSDictionary *)plist forKey:(PropertyKey)key;
+- (NSDictionary *)unserializeDictionary:(NSDictionary *)storedDict;
+- (void)deleteStoredDictionary:(NSDictionary *)storedDict;
+
+- (NSUInteger)arrayCodeForArrayKey:(ArrayKey)arrayKey;
+
+- (ArrayKey)storeElementsInArray:(NSArray *)array objectCode:(NSUInteger)objectCode propertyIndex:(NSUInteger)propertyIndex;
+- (void)storeArray:(NSArray *)array forKey:(PropertyKey)key;
+- (NSArray *)unserializeArrayForKey:(ArrayKey)key;
+- (void)deleteStoredArrayContentsForKey:(PropertyKey)key;
+
+#else
 - (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj;
 
 - (void)storeObject:(id)obj forKey:(NSString *)key;
@@ -21,34 +42,12 @@
 - (void)storeArray:(NSArray *)array forKey:(NSString *)key;
 - (NSArray *)unserializeArrayForKey:(NSString *)key;
 - (void)deleteStoredArrayContentsForKey:(NSString *)key;
-
-#if USE_INDEXED_SERIALIZATION
-- (void)storeProperty:(id)property forKey:(PropertyKey)key;
-
-- (ObjectKey)serializeObject:(id<NULDBSerializable>)object;
-- (id)unserializeObjectForKey:(ObjectKey)key;
-
-- (NSDictionary *)storeContentsOfDictionary:(NSDictionary *)dictionary name:(NSString *)name;
-- (void)storeDictionary:(NSDictionary *)plist forKey:(PropertyKey)key;
-- (NSDictionary *)unserializeDictionary:(NSDictionary *)storedDict;
-- (void)deleteStoredDictionary:(NSDictionary *)storedDict;
-
-- (ArrayKey)storeElementsInArray:(NSArray *)array objectCode:(NSUInteger)objectCode propertyIndex:(NSUInteger)propertyIndex;
-- (void)storeArray:(NSArray *)array forKey:(PropertyKey)key;
-- (NSArray *)unserializeArrayForKey:(ArrayKey)key;
-- (void)deleteStoredArrayContentsForKey:(PropertyKey)key;
-
 #endif
 
 @end
 
 
 @implementation NULDBDB (Serializing)
-#if USE_INDEXED_SERIALIZATION
-{
-    Counters *counters;
-}
-#endif
 
 #define NULDBClassToken(_class_name_) ([NSString stringWithFormat:@"%@:NUClass", _class_name_])
 #define NULDBIsClassToken(_key_) ([_key_ hasSuffix:@"NUClass"])
@@ -85,6 +84,139 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 }
 
 
+- (id)unserializeObjectForClass:(NSString *)className key:(NSString *)key {
+    
+    NSArray *properties = [self storedValueForKey:NULDBClassToken(className)];
+    
+    if([properties count] < 1)
+        return nil;
+    
+    
+    id obj = [[NSClassFromString(className) alloc] init];
+    
+    
+    NULDBLog(@" RESTORE %@", className);
+    
+    for(NSString *property in properties)
+        [obj setValue:[self storedObjectForKey:NULDBPropertyKey(className, property, key)] forKey:property];
+    
+    return [obj autorelease];
+}
+
+#pragma mark Dictionaries
+#if USE_INDEXED_SERIALIZATION
+- (void)storeDictionary:(NSDictionary *)plist forKey:(PropertyKey)key {
+    
+    // Here's an unfortunate slowdown, but I need it to unique this dictionary
+    // If there was a way to calculate a hash on the dict before storing it, we could at least prevent redundant writing
+    NSString *name = nil;
+    std::string tempValue;
+    Status status = db->Get(readOptions, key.slice(), &tempValue);
+    
+    if(!status.IsNotFound()) {
+        
+        Slice slice = tempValue;
+        
+        name = [NULDBObjectFromSlice(slice) objectForKey:@"name"];
+    }
+    
+    if(nil == name)
+        name = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, CFUUIDCreate(NULL));
+    
+    
+    NSDictionary *namedDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                               [self storeContentsOfDictionary:plist name:name], @"content",
+                               name, @"name",
+                               nil];
+    
+    status = db->Put(writeOptions, key.slice(), NULDBSliceFromObject(namedDict));
+    assert(status.ok());
+}
+
+- (id)decodeDictionaryObject:(id)object {
+    
+    if([object isKindOfClass:[NSDictionary class]])
+        return [self unserializeDictionary:object];
+    
+    if([object isKindOfClass:[NSData class]]) {
+        
+        // TODO: decode NSData-encoded StorageKeys
+        // ... or am making this too complicated?
+        id obj = nil;
+        
+        // TODO: FINISH
+        if(0){
+            
+            PropertyKey *propertyKey;
+            
+            obj = [self propertyForKey:*propertyKey];
+        }
+        
+        return NULDBDecodedObject(object);
+        
+    }
+    
+    return nil;
+}
+
+- (id)unserializeDictionary:(NSDictionary *)storedDict {
+    
+    Class objcClass = NSClassFromString([storedDict objectForKey:@"class"]);
+    
+    if([objcClass conformsToProtocol:@protocol(NULDBPlistTransformable)])
+        return NULDBUnwrappedObject(storedDict, objcClass);
+    
+    
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:[storedDict count]];
+    
+    for(NSString *key in [storedDict allKeys])
+        [dictionary setObject:[self decodeDictionaryObject:[storedDict objectForKey:key]] forKey:key];
+    
+    return dictionary;
+}
+
+- (void)deleteStoredDictionary:(NSDictionary *)storedDict {
+    
+    // TODO: Implement
+}
+
+
+#pragma mark Arrays
+- (ArrayKey)storeElementsInArray:(NSArray *)array objectCode:(NSUInteger)objectCode propertyIndex:(NSUInteger)propertyIndex {
+    
+    ArrayKey arrayKey(' ', objectCode, propertyIndex); // Fix this - we don't have a vType anymore
+    NSUInteger arrayCode = [self arrayCodeForArrayKey:arrayKey];
+    
+    // TODO: Implement
+    int i=0;
+    for(id item in array) {
+        
+        ArrayIndexKey indexKey(i++, arrayCode);
+    }
+    
+    return arrayKey;
+}
+
+- (void)storeArray:(NSArray *)array forKey:(PropertyKey)key {
+    
+    ArrayKey arrayKey = [self storeElementsInArray:array objectCode:key.getObjectName() propertyIndex:key.getPropertyIndex()];
+    Status status = db->Put(writeOptions, key.slice(), arrayKey.slice());
+    
+    assert(status.ok());
+}
+
+- (NSArray *)unserializeArrayForKey:(ArrayKey)key {
+    
+    // TODO: Implement
+    return nil;
+}
+
+- (void)deleteStoredArrayContentsForKey:(PropertyKey)key {
+    
+    // TODO: Implement
+}
+
+#else
 #pragma mark Generic Objects
 - (NSString *)_storeObject:(NSObject<NULDBSerializable> *)obj {
     
@@ -136,26 +268,6 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
         [self storeValue:obj forKey:key];
 }
 
-- (id)unserializeObjectForClass:(NSString *)className key:(NSString *)key {
-    
-    NSArray *properties = [self storedValueForKey:NULDBClassToken(className)];
-    
-    if([properties count] < 1)
-        return nil;
-    
-    
-    id obj = [[NSClassFromString(className) alloc] init];
-    
-    
-    NULDBLog(@" RESTORE %@", className);
-    
-    for(NSString *property in properties)
-        [obj setValue:[self storedObjectForKey:NULDBPropertyKey(className, property, key)] forKey:property];
-    
-    return [obj autorelease];
-}
-
-#pragma mark Dictionaries
 // Support for NULDBSerializable objects in the dictionary
 - (void)storeDictionary:(NSDictionary *)plist forKey:(NSString *)key {
     
@@ -245,15 +357,23 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     for(NSUInteger i=0; i<count; ++i)
         [self deleteStoredObjectForKey:NULDBArrayIndexKey(propertyFragment, i)];
 }
+#endif
 
 
 #pragma mark - Public Interface
 - (void)storeObject:(NSObject<NULDBSerializable> *)obj {
+#if USE_INDEXED_SERIALIZATION
+    
+#else
     [self _storeObject:obj];
+#endif
 }
 
 - (id)storedObjectForKey:(NSString *)key {
     
+#if USE_INDEXED_SERIALIZATION
+    return nil;
+#else
     id storedObj = [self storedValueForKey:key];
     
     // the key is a property key but we don't really care about that; we just need to reconstruct the dictionary
@@ -289,10 +409,15 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     }
     
     return storedObj;
+#endif
 }
 
 - (void)deleteStoredObjectForKey:(NSString *)key {
     
+#if USE_INDEXED_SERIALIZATION
+    
+    
+#else
     id storedObj = [self storedValueForKey:key];
     
     if([storedObj isKindOfClass:[NSDictionary class]]) {
@@ -322,6 +447,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     }
     
     [self deleteStoredValueForKey:key];
+#endif
 }
 
 
@@ -639,116 +765,6 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     return newDict;
 }
 
-- (void)storeDictionary:(NSDictionary *)plist forKey:(PropertyKey)key {
-    
-    // Here's an unfortunate slowdown, but I need it to unique this dictionary
-    // If there was a way to calculate a hash on the dict before storing it, we could at least prevent redundant writing
-    NSString *name = nil;
-    std::string tempValue;
-    Status status = db->Get(readOptions, key.slice(), &tempValue);
-    
-    if(!status.IsNotFound()) {
-        
-        Slice slice = tempValue;
-        
-        name = [NULDBObjectFromSlice(slice) objectForKey:@"name"];
-    }
-    
-    if(nil == name)
-        name = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, CFUUIDCreate(NULL));
-    
-    
-    NSDictionary *namedDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                               [self storeContentsOfDictionary:plist name:name], @"content",
-                               name, @"name",
-                               nil];
-    
-    status = db->Put(writeOptions, key.slice(), NULDBSliceFromObject(namedDict));
-    assert(status.ok());
-}
-
-- (id)decodeDictionaryObject:(id)object {
-    
-    if([object isKindOfClass:[NSDictionary class]])
-        return [self unserializeDictionary:object];
-    
-    if([object isKindOfClass:[NSData class]]) {
-        
-        // TODO: decode NSData-encoded StorageKeys
-        // ... or am making this too complicated?
-        id obj = nil;
-        
-        // TODO: FINISH
-        if(0){
-            
-            PropertyKey *propertyKey;
-            
-            obj = [self propertyForKey:*propertyKey];
-        }
-        
-        return NULDBDecodedObject(object);
-        
-    }
-    
-    return nil;
-}
-
-- (id)unserializeDictionary:(NSDictionary *)storedDict {
-    
-    Class objcClass = NSClassFromString([storedDict objectForKey:@"class"]);
-    
-    if([objcClass conformsToProtocol:@protocol(NULDBPlistTransformable)])
-        return NULDBUnwrappedObject(storedDict, objcClass);
-    
-    
-    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:[storedDict count]];
-    
-    for(NSString *key in [storedDict allKeys])
-        [dictionary setObject:[self decodeDictionaryObject:[storedDict objectForKey:key]] forKey:key];
-    
-    return dictionary;
-}
-
-- (void)deleteStoredDictionary:(NSDictionary *)storedDict {
-    
-    // TODO: Implement
-}
-
-
-#pragma mark Arrays
-- (ArrayKey)storeElementsInArray:(NSArray *)array objectCode:(NSUInteger)objectCode propertyIndex:(NSUInteger)propertyIndex {
-    
-    ArrayKey arrayKey(' ', objectCode, propertyIndex); // Fix this - we don't have a vType anymore
-    NSUInteger arrayCode = [self arrayCodeForArrayKey:arrayKey];
-    
-    // TODO: Implement
-    int i=0;
-    for(id item in array) {
-        
-        ArrayIndexKey indexKey(i++, arrayCode);
-    }
-    
-    return arrayKey;
-}
-
-- (void)storeArray:(NSArray *)array forKey:(PropertyKey)key {
-    
-    ArrayKey arrayKey = [self storeElementsInArray:array objectCode:key.getObjectName() propertyIndex:key.getPropertyIndex()];
-    Status status = db->Put(writeOptions, key.slice(), arrayKey.slice());
-    
-    assert(status.ok());
-}
-
-- (NSArray *)unserializeArrayForKey:(ArrayKey)key {
-    
-    // TODO: Implement
-    return nil;
-}
-
-- (void)deleteStoredArrayContentsForKey:(PropertyKey)key {
-    
-    // TODO: Implement
-}
 #endif
 
 @end

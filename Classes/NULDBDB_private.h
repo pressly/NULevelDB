@@ -10,19 +10,21 @@
 #import "NULDBDB.h"
 
 #import "NULDBUtilities.h"
+#import "NULDBStorageKey.h"
 
 #include <leveldb/db.h>
 #include <leveldb/options.h>
 #include <leveldb/comparator.h>
 
 
-#define USE_INDEXED_SERIALIZATION 0
+#define USE_INDEXED_SERIALIZATION 1
 
 
 extern int logging;
 
 
 using namespace leveldb;
+using namespace NULDB;
 
 
 @interface NULDBDB () {
@@ -31,14 +33,19 @@ using namespace leveldb;
     WriteOptions writeOptions;
     Slice *classIndexKey;
     size_t bufferSize;
+#if USE_INDEXED_SERIALIZATION
+    Counters *counters;
+#endif
 }
+@end
+
 
 #if USE_INDEXED_SERIALIZATION
+@interface NULDBDB (ClassCounting)
 - (BOOL)checkCounters;
 - (void)saveCounters;
-#endif
-
 @end
+#endif
 
 
 @interface NULDBDB (ErrorConstructing)
