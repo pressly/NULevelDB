@@ -10,7 +10,7 @@
 
 #import "NULDBTestCompany.h"
 
-#import "NULDBDB.h"
+#import <NULevelDB/NULDBDB.h>
 
 
 @implementation NULevelDBTester

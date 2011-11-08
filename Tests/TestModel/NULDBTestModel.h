@@ -30,7 +30,7 @@
 
 #else
 
-#import "NULDBDB.h"
+#import <NULevelDB/NULDBDB.h>
 #endif
 
 @interface NULDBTestModel :

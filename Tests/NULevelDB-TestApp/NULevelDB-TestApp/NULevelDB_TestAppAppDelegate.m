@@ -9,7 +9,7 @@
 #import "NULevelDB_TestAppAppDelegate.h"
 
 #import "NULevelDB_TestAppViewController.h"
-#import "NULDBDB.h"
+#import <NULevelDB/NULDBDB.h>
 #import "NULDBDB+Testing.h"
 #import "NULDBTestUtilities.h"
 

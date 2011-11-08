@@ -8,7 +8,7 @@
 
 #import "NULevelDB_Test.h"
 
-#import "NULDBDB.h"
+#import <NULevelDB/NULDBDB.h>
 #import "NULDBDB+Testing.h"
 
 #import "NULDBTestPhone.h"

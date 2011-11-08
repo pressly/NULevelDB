@@ -13,7 +13,7 @@
 #import "NULDBTestPerson.h"
 #import "NULDBTestPhone.h"
 
-#import "NULDBDB.h"
+#import <NULevelDB/NULDBDB.h>
 
 
 NSString *kNUPhoneTestName = @"phone";
