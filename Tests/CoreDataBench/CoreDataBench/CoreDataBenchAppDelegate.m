@@ -100,19 +100,26 @@
                                                 nil];
     fetch.predicate = [NSPredicate predicateWithFormat:@"name in %@", names];
     
-    start = end;
-    
 
     NSArray *sort = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
-    NSArray *companies = [[self.managedObjectContext executeFetchRequest:fetch error:&error] sortedArrayUsingDescriptors:sort];
 
-    for(NULDBTestCompany *company in companies) {
-        NSLog(@"Workers for company %@:\n%@", company.name, [[[[company.workers valueForKey:@"fullName"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
-        NSLog(@"Addresses for company %@:\n%@", company.name, [[[[company.addresses valueForKey:@"description"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@"\n"]);
-    }
+    
+    start = [NSDate timeIntervalSinceReferenceDate];
+
+    NSArray *companies = [self.managedObjectContext executeFetchRequest:fetch error:&error];
     
     end = [NSDate timeIntervalSinceReferenceDate];
     NSLog(@"Finished loading. Took %0.4f seconds. Starting deleting.", end - start);
+    
+    
+    companies = [companies sortedArrayUsingDescriptors:sort];
+
+//    for(NULDBTestCompany *company in companies) {
+//        NSLog(@"Workers for company %@:\n%@", company.name, [[[[company.workers valueForKey:@"fullName"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
+//        NSLog(@"Addresses for company %@:\n%@", company.name, [[[[company.addresses valueForKey:@"description"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@"\n"]);
+//    }
+    
+    start = [NSDate timeIntervalSinceReferenceDate];
     
     for(NULDBTestCompany *company in companies) {
         [self.managedObjectContext deleteObject:company];

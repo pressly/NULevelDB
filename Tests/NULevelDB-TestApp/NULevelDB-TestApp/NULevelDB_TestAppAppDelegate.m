@@ -19,7 +19,7 @@
 
 
 @interface NULDBDB (Tests)
-- (void)runTests;
+- (void)runTests:(id)testDelegate;
 @end
 
 
@@ -102,14 +102,18 @@
 
 - (void)runTests {
     
-    NSString *testPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"test.storage"];
+    NSString *docPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *testPath = [docPath stringByAppendingPathComponent:@"test.storage"];
+    NSString *resultsPath = [docPath stringByAppendingPathComponent:@"results.storage"];
     
     if([[NSFileManager defaultManager] removeItemAtPath:testPath error:NULL])
-        NSLog(@"Deleted test db");
+        NSLog(@"Deleted previous test db");
+    if([[NSFileManager defaultManager] removeItemAtPath:resultsPath error:NULL])
+        NSLog(@"Deleted previous test results db");
     
     NULDBDB *db = [[NULDBDB alloc] initWithLocation:testPath];
     
-    [db runTests];
+    [db runTests:self];
     [db destroy];
 }
 
@@ -252,7 +256,7 @@ typedef struct testResult {
     NSLog(@"%@", sample);
 }
 
-- (void)runGraphTests {
+- (void)runGraphTests:(id)testDelegate {
     
     NSMutableDictionary *companies = [NSMutableDictionary dictionary];
     
@@ -273,25 +277,26 @@ typedef struct testResult {
     NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
 
     NSLog(@"Finished storing. Took %0.4f seconds. Starting loading.", end - start);
-    
-    start = end;
-    
+        
     NSMutableArray *companiesArray = [NSMutableArray array];
     
+    start = [NSDate timeIntervalSinceReferenceDate];
     for(id key in [companies allKeys])
         [companiesArray addObject:[self storedObjectForKey:key]];
     
-    NSArray *sort = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
-
-    for(NULDBTestCompany *company in [companiesArray sortedArrayUsingDescriptors:sort]) {
-        NSLog(@"Workers for company %@:\n%@", company.name, [[[[company.workers valueForKey:@"fullName"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
-        NSLog(@"Addresses for company %@:\n%@", company.name, [[[[company.addresses valueForKey:@"description"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@"\n"]);
-    }
-
-    
     end = [NSDate timeIntervalSinceReferenceDate];
     NSLog(@"Finished loading. Took %0.4f seconds. Starting deleting.", end - start);
+
     
+//    NSArray *sort = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
+
+//    for(NULDBTestCompany *company in [companiesArray sortedArrayUsingDescriptors:sort]) {
+//        NSLog(@"Workers for company %@:\n%@", company.name, [[[[company.workers valueForKey:@"fullName"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
+//        NSLog(@"Addresses for company %@:\n%@", company.name, [[[[company.addresses valueForKey:@"description"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@"\n"]);
+//    }
+    
+    start = [NSDate timeIntervalSinceReferenceDate];
+
     for(id key in [companies allKeys])
         [self deleteStoredObjectForKey:key];
     
@@ -483,7 +488,7 @@ typedef struct testResult {
     }
 }
 
-- (void)runTests {
+- (void)runTests:(id)testDelegate {
     
 //    [self run4By8Tests];
     
@@ -491,9 +496,9 @@ typedef struct testResult {
     
 //    [self run4By14Tests];
     
-//    [self runGraphTests];
+    [self runGraphTests:(id)testDelegate];
     
-    [self runBulkOperationTests];
+//    [self runBulkOperationTests];
     
     NSLog(@"Testing finished");
 }

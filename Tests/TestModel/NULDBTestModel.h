@@ -39,7 +39,7 @@
 NSManagedObject
 
 #else
-NSObject
+NSObject<NULDBSerializable>
 
 - (id)objectID;
 - (void)willAccessValueForKey:(NSString *)key;
