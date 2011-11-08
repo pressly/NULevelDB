@@ -56,4 +56,8 @@ typedef NSTimeInterval (^NUTimedBlock)(NUTestBlock block);
 - (NSTimeInterval)runCompanyTest;
 - (NSTimeInterval)runBigTest;
 
+- (NSDictionary *)allResults;
+
+- (NSString *)resultsTableString;
+
 @end

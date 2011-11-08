@@ -12,6 +12,8 @@
 #import <NULevelDB/NULDBDB.h>
 #import "NULDBDB+Testing.h"
 #import "NULDBTestUtilities.h"
+#import "NULevelDBTester.h"
+#import "NUCoreDataTester.h"
 
 #import "NULDBTestCompany.h"
 #import "NULDBTestAddress.h"
@@ -104,17 +106,27 @@
     
     NSString *docPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
     NSString *testPath = [docPath stringByAppendingPathComponent:@"test.storage"];
-    NSString *resultsPath = [docPath stringByAppendingPathComponent:@"results.storage"];
+    // TODO add support for changing location of the test results database
+//    NSString *resultsPath = [docPath stringByAppendingPathComponent:@"results.storage"];
     
     if([[NSFileManager defaultManager] removeItemAtPath:testPath error:NULL])
         NSLog(@"Deleted previous test db");
-    if([[NSFileManager defaultManager] removeItemAtPath:resultsPath error:NULL])
-        NSLog(@"Deleted previous test results db");
     
+
     NULDBDB *db = [[NULDBDB alloc] initWithLocation:testPath];
     
+#if 1
+    NUDatabaseTester *tester = [[NULevelDBTester alloc] init];
+    
+    tester.database = db;
+    
+    [tester runBigTest];
+    NSLog(@"Results: %@", [tester resultsTableString]);
+    
+#else
     [db runTests:self];
     [db destroy];
+#endif
 }
 
 @end

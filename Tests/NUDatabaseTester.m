@@ -51,6 +51,88 @@ NSString *kNUBigCompanyTestName = @"big_company";
 @end
 
 
+@interface NUDatabaseTestRecord : NSObject<NSCoding> {
+@public
+    NSString *name;
+    NSString *databaseClass;
+    NSTimeInterval duration;
+    NSUInteger databaseSize; // approximate
+}
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSString *databaseClass;
+@end
+
+@implementation NUDatabaseTestRecord
+@synthesize name, databaseClass;
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+    [aCoder encodeObject:self.name forKey:@"1"];
+    [aCoder encodeObject:self.databaseClass forKey:@"2"];
+    [aCoder encodeFloat:duration forKey:@"3"];
+    [aCoder encodeInteger:databaseSize forKey:@"4"];
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    self = [super init];
+    if(self) {
+        self.name = [aDecoder decodeObjectForKey:@"1"];
+        self.databaseClass = [aDecoder decodeObjectForKey:@"2"];
+        duration = [aDecoder decodeFloatForKey:@"3"];
+        databaseSize = [aDecoder decodeIntegerForKey:@"4"];
+    }
+    
+    return self;
+}
+
+- (id)initWithName:(NSString *)n db:(NSString *)db duration:(NSTimeInterval)dur size:(NSUInteger)size {
+    self = [super init];
+    if(self) {
+        self.name = n;
+        self.databaseClass = db;
+        duration = dur;
+        databaseSize = size;
+    }
+    return self;
+}
+
+@end
+
+@interface NUDatabaseTestAverage : NSObject {
+@public
+    NSString *name;
+    NSString *databaseClass;
+    NSTimeInterval totalDuration;
+    NSUInteger count;
+    NSUInteger databaseSize;
+}
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSString *databaseClass;
+@end
+
+@implementation NUDatabaseTestAverage
+@synthesize name, databaseClass;
+- (NSString *)description {
+    return [NSString stringWithFormat:@"%@ %@ %u %u %0.4f (%0.4f)", self.databaseClass, self.name, databaseSize, count, totalDuration, totalDuration/count];
+}
+
+- (id)initWithRecord:(NUDatabaseTestRecord *)record {
+    self = [super init];
+    if(self) {
+        self.name = record.name;
+        self.databaseClass = record.databaseClass;
+        totalDuration = record->duration;
+        databaseSize = record->databaseSize;
+        count = 1;
+    }
+    return self;
+}
+
+- (void)addRecord:(NUDatabaseTestRecord *)record {
+    totalDuration += record->duration;
+    ++count;
+}
+@end
+
+
 @implementation NUDatabaseTester
 
 @dynamic database;
@@ -58,7 +140,9 @@ NSString *kNUBigCompanyTestName = @"big_company";
 - (id)init {
     self = [super init];
     if(self) {
-        resultsDB = [[NULDBDB alloc] init];
+        NSString *docsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+        NSString *location = [docsPath stringByAppendingPathComponent:@"testResults.storage"];
+        resultsDB = [[NULDBDB alloc] initWithLocation:location];
         testBlocks = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                       [[self class] phoneTestBlock], kNUPhoneTestName,
                       [[self class] addressTestBlock], kNUAddressTestName,
@@ -126,6 +210,7 @@ NSString *kNUBigCompanyTestName = @"big_company";
     NSTimeInterval totalTime = 0;
     NUTimedBlock timerBlock = [self timerBlock];
     NSMutableDictionary *results = [NSMutableDictionary dictionary];
+    NSString *dbName = NSStringFromClass([self class]);
     
     for(NSString *name in [tests allKeys]) {
         
@@ -135,11 +220,7 @@ NSString *kNUBigCompanyTestName = @"big_company";
 
             NSTimeInterval time = timerBlock([self blockForTestName:name]);
             
-            [results setObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                [NSNumber numberWithDouble:time], @"time",
-                                name, @"name",
-                                NSStringFromClass([self class]), @"database",
-                                nil]
+            [results setObject:[[NUDatabaseTestRecord alloc] initWithName:name db:dbName duration:time size:0]
                         forKey:[NSDate date]];
             totalTime += time;
         }
@@ -168,6 +249,36 @@ NSString *kNUBigCompanyTestName = @"big_company";
 
 - (NSTimeInterval)runBigTest {
     return [self runTestSet:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:5] forKey:kNUBigCompanyTestName]];
+}
+
+- (NSDictionary *)allResults {
+    
+    NSMutableDictionary *results = [NSMutableDictionary dictionary];
+    
+    [resultsDB enumerateFrom:nil to:nil block:^BOOL(NSDate *key, NUDatabaseTestRecord *record) {
+       
+        NUDatabaseTestAverage *average = [results objectForKey:record.name];
+        
+        if(nil == average) {
+            average = [[NUDatabaseTestAverage alloc] initWithRecord:record];
+            [results setObject:average forKey:record.name];
+        }
+        else
+            [average addRecord:record];
+        
+        return YES;
+    }];
+    
+    return [results copy];
+}
+
+- (NSString *)resultsTableString {
+    
+    NSDictionary *results = [self allResults];
+    
+    // TODO: log the device
+    
+    return [results description];
 }
 
 @end
