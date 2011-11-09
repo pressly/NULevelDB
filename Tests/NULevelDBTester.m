@@ -25,7 +25,6 @@
     return database;
 }
 
-
 @end
 
 @implementation NULDBDB (NUTestDatabase)

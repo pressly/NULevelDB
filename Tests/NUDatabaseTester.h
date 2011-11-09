@@ -18,7 +18,9 @@ extern NSString *kNUAddressTestName;
 extern NSString *kNUPersonTestName;
 extern NSString *kNUCompanyTestName;
 extern NSString *kNUBigCompanyTestName;
-
+extern NSString *kNUWriteTestName; 
+extern NSString *kNUReadTestName;
+extern NSString *kNUDeleteTestName;
 
 @interface NSObject (NUTestDatabase)
 - (void)saveObjects:(NSArray *)objects;
@@ -30,8 +32,52 @@ extern NSString *kNUBigCompanyTestName;
 - (id)uniqueIdentifier;
 @end
 
-typedef void (^NUTestBlock)(id database);
-typedef NSTimeInterval (^NUTimedBlock)(NUTestBlock block);
+
+@interface NUDatabaseTestSet : NSObject {
+@private
+    NSString *name;
+    NSArray *testNames;
+    NSMutableDictionary *testData;
+@public
+    NSUInteger count;
+}
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSArray *testNames;
+@property (nonatomic, strong)id testData;
+
++ (NUDatabaseTestSet *)testSetWithName:(NSString *)name testNames:(NSArray *)testNames count:(NSUInteger)count;
+@end
+
+
+@interface NUDatabaseTestRecord : NSObject<NSCoding> {
+@private
+    NSString *name;
+    NSString *databaseClass;
+@public
+    NSTimeInterval duration;
+    NSUInteger databaseSize; // approximate
+}
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSString *databaseClass;
+@end
+
+
+@interface NUDatabaseTestAverage : NSObject {
+@private
+    NSString *name;
+    NSString *databaseClass;
+@public
+    NSTimeInterval totalDuration;
+    NSUInteger databaseSize;
+    NSUInteger count;
+}
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSString *databaseClass;
+@end
+
+
+typedef void (^NUTestBlock)(id database, NUDatabaseTestSet *testSet);
+typedef NSTimeInterval (^NUTimedBlock)(NUTestBlock block, NUDatabaseTestSet *testSet);
 
 @interface NUDatabaseTester : NSObject {
     NULDBDB *resultsDB;
@@ -47,14 +93,17 @@ typedef NSTimeInterval (^NUTimedBlock)(NUTestBlock block);
 - (NUTestBlock)blockForTestName:(NSString *)name;
 - (void)addBlock:(NUTestBlock)block forTestName:(NSString *)name;
 
-// A test set is a dictionary of test names (keys) and times to run them (numbers)
-- (NSTimeInterval)runTestSet:(NSDictionary *)tests;
+// tests is an array of NUDatabaseTestSet objects
+- (NSTimeInterval)runTestSets:(NSArray *)tests;
 
-- (NSTimeInterval)runPhoneTest;
-- (NSTimeInterval)runAddressTest;
-- (NSTimeInterval)runPersonTest;
-- (NSTimeInterval)runCompanyTest;
-- (NSTimeInterval)runBigTest;
+- (NSTimeInterval)runPhoneTest:(NSUInteger)count;
+- (NSTimeInterval)runAddressTest:(NSUInteger)count;
+- (NSTimeInterval)runPersonTest:(NSUInteger)count;
+- (NSTimeInterval)runCompanyTest:(NSUInteger)count;
+- (NSTimeInterval)runBigTest:(NSUInteger)count;
+
+// does count writes, reads, and then deletes, measuring each step seperately
+- (NSTimeInterval)runFineGrainedTests:(NSUInteger)count;
 
 - (NSDictionary *)allResults;
 

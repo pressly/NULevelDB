@@ -21,6 +21,9 @@ NSString *kNUAddressTestName = @"address";
 NSString *kNUPersonTestName = @"person";
 NSString *kNUCompanyTestName = @"company";
 NSString *kNUBigCompanyTestName = @"big_company";
+NSString *kNUWriteTestName = @"write";
+NSString *kNUReadTestName = @"read";
+NSString *kNUDeleteTestName = @"delete";
 
 @interface NUDatabaseTester ()
 
@@ -29,6 +32,9 @@ NSString *kNUBigCompanyTestName = @"big_company";
 + (NUTestBlock)personTestBlock;
 + (NUTestBlock)companyTestBlock;
 + (NUTestBlock)bigCompanyTestBlock;
++ (NUTestBlock)writeTestBlock;
++ (NUTestBlock)readTestBlock;
++ (NUTestBlock)deleteTestBlock;
 
 - (NUTimedBlock)timerBlock;
 
@@ -51,16 +57,29 @@ NSString *kNUBigCompanyTestName = @"big_company";
 @end
 
 
-@interface NUDatabaseTestRecord : NSObject<NSCoding> {
-@public
-    NSString *name;
-    NSString *databaseClass;
-    NSTimeInterval duration;
-    NSUInteger databaseSize; // approximate
+@implementation NUDatabaseTestSet
+@synthesize name, testNames, testData;
+
+- (id)init {
+    self = [super init];
+    if(self)
+        self.testData = [NSMutableDictionary dictionary];
+    return self;
 }
-@property (nonatomic, strong) NSString *name;
-@property (nonatomic, strong) NSString *databaseClass;
+
++ (NUDatabaseTestSet *)testSetWithName:(NSString *)name testNames:(NSArray *)testNames count:(NSUInteger)count {
+    
+    NUDatabaseTestSet *set = [[self alloc] init];
+    
+    set.name = name;
+    set.testNames = testNames;
+    set->count = count;
+    
+    return set;
+}
+
 @end
+
 
 @implementation NUDatabaseTestRecord
 @synthesize name, databaseClass;
@@ -96,22 +115,11 @@ NSString *kNUBigCompanyTestName = @"big_company";
 
 @end
 
-@interface NUDatabaseTestAverage : NSObject {
-@public
-    NSString *name;
-    NSString *databaseClass;
-    NSTimeInterval totalDuration;
-    NSUInteger count;
-    NSUInteger databaseSize;
-}
-@property (nonatomic, strong) NSString *name;
-@property (nonatomic, strong) NSString *databaseClass;
-@end
 
 @implementation NUDatabaseTestAverage
 @synthesize name, databaseClass;
 - (NSString *)description {
-    return [NSString stringWithFormat:@"%@ %@ %u %u %0.4f (%0.4f)", self.databaseClass, self.name, databaseSize, count, totalDuration, totalDuration/count];
+    return [NSString stringWithFormat:@"%@ %u %0.4f (%0.7f)", self.databaseClass, count, totalDuration, totalDuration/count];
 }
 
 - (id)initWithRecord:(NUDatabaseTestRecord *)record {
@@ -149,38 +157,72 @@ NSString *kNUBigCompanyTestName = @"big_company";
                       [[self class] personTestBlock], kNUPersonTestName,
                       [[self class] companyTestBlock], kNUCompanyTestName,
                       [[self class] bigCompanyTestBlock], kNUBigCompanyTestName,
+                      [[self class] writeTestBlock], kNUWriteTestName,
+                      [[self class] readTestBlock], kNUReadTestName,
+                      [[self class] deleteTestBlock], kNUDeleteTestName,
                       nil];
     }
     return self;
 }
 
 + (NUTestBlock)phoneTestBlock {
-    return [^(id database) {
+    return [^(id database, NUDatabaseTestSet *testSet) {
         [database cycleObject:[NULDBTestPhone randomPhone]];
     } copy];
 }
 
 + (NUTestBlock)addressTestBlock {
-    return [^(id database) {
+    return [^(id database, NUDatabaseTestSet *testSet) {
         [database cycleObject:[NULDBTestAddress randomAddress]];
     } copy];
 }
 
 + (NUTestBlock)personTestBlock {
-    return [^(id database) {
+    return [^(id database, NUDatabaseTestSet *testSet) {
         [database cycleObject:[NULDBTestPerson randomPerson]];
     } copy];
 }
 
 + (NUTestBlock)companyTestBlock {
-    return [^(id database) {
+    return [^(id database, NUDatabaseTestSet *testSet) {
         [database cycleObject:[NULDBTestCompany companyOf10]];
     } copy];
 }
 
 + (NUTestBlock)bigCompanyTestBlock {
-    return [^(id database) {
+    return [^(id database, NUDatabaseTestSet *testSet) {
+#if TARGET_IPHONE_SIMULATOR
+        [database cycleObject:[NULDBTestCompany companyOf1000]];
+#else
         [database cycleObject:[NULDBTestCompany companyOf100]];
+#endif
+    } copy];
+}
+
++ (NUTestBlock)writeTestBlock {
+    return [^(id database, NUDatabaseTestSet *testSet) {
+#if TARGET_IPHONE_SIMULATOR
+        NULDBTestCompany *co = [NULDBTestCompany companyOf1000];
+#else
+        NULDBTestCompany *co = [NULDBTestCompany companyOf100];
+#endif
+        [database saveObjects:[NSArray arrayWithObject:co]];
+        [testSet.testData setObject:[co storageKey] forKey:@"storage_key"];
+    } copy];
+}
+
++ (NUTestBlock)readTestBlock {
+    return [^(id database, NUDatabaseTestSet *testSet) {
+        NSString *key = [testSet.testData objectForKey:@"storage_key"];
+        NSDictionary *results = [database loadObjects:[NSArray arrayWithObject:key]];
+        assert([results count] > 0);
+    } copy];
+}
+
++ (NUTestBlock)deleteTestBlock {
+    return [^(id database, NUDatabaseTestSet *testSet) {
+        NSString *key = [testSet.testData objectForKey:@"storage_key"];
+        [database deleteObjects:[NSArray arrayWithObject:key]];
     } copy];
 }
 
@@ -188,10 +230,12 @@ NSString *kNUBigCompanyTestName = @"big_company";
     static NUTimedBlock timerBlock;
     static dispatch_once_t timerToken;
     dispatch_once(&timerToken, ^{
-        timerBlock = [^(NUTestBlock block) {
-            NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
-            block(self.database);
-            return [NSDate timeIntervalSinceReferenceDate] - start;
+        timerBlock = [^(NUTestBlock block, NUDatabaseTestSet *testSet) {
+            @autoreleasepool {
+                NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
+                block(self.database, testSet);
+                return [NSDate timeIntervalSinceReferenceDate] - start;
+            }
         } copy];
     });
     return timerBlock;
@@ -205,50 +249,77 @@ NSString *kNUBigCompanyTestName = @"big_company";
     [testBlocks setObject:[block copy] forKey:name];
 }
 
-- (NSTimeInterval)runTestSet:(NSDictionary *)tests {
+- (NSTimeInterval)runTestSets:(NSArray *)tests {
     
     NSTimeInterval totalTime = 0;
     NUTimedBlock timerBlock = [self timerBlock];
     NSMutableDictionary *results = [NSMutableDictionary dictionary];
     NSString *dbName = NSStringFromClass([self class]);
     
-    for(NSString *name in [tests allKeys]) {
+    for(NUDatabaseTestSet *set in tests) {
         
-        NSUInteger count = [[tests objectForKey:name] unsignedIntegerValue];
+        NSLog(@"Running test '%@' %u times...", set.name, set->count);
         
-        for(NSUInteger i=0; i<count; ++i) {
-
-            NSTimeInterval time = timerBlock([self blockForTestName:name]);
-            
-            [results setObject:[[NUDatabaseTestRecord alloc] initWithName:name db:dbName duration:time size:0]
-                        forKey:[NSDate date]];
-            totalTime += time;
+        @autoreleasepool {
+            for(NSUInteger i=0; i<set->count; ++i) {
+                
+                for(NSString *testName in set.testNames) {
+                    NSTimeInterval time = timerBlock([self blockForTestName:testName], set);
+                    
+                    [results setObject:[[NUDatabaseTestRecord alloc] initWithName:testName db:dbName duration:time size:0]
+                                forKey:[NSDate date]];
+                    totalTime += time;
+                }
+            }
         }
         
-        [resultsDB storeValuesFromDictionary:results];
+        NSLog(@"...finished.");
     }
-
+    
+    [resultsDB storeValuesFromDictionary:results];
+    
     return totalTime;
 }
 
-- (NSTimeInterval)runPhoneTest {
-    return [self runTestSet:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:1] forKey:kNUPhoneTestName]];
+- (NSTimeInterval)runTestSet:(NUDatabaseTestSet *)set {
+    return [self runTestSets:[NSArray arrayWithObject:set]];
 }
 
-- (NSTimeInterval)runAddressTest {
-    return [self runTestSet:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:1] forKey:kNUAddressTestName]];
+- (NSTimeInterval)runPhoneTest:(NSUInteger)count {
+    return [self runTestSet:[NUDatabaseTestSet testSetWithName:@"r/w/d phone"
+                                                     testNames:[NSArray arrayWithObject:kNUPhoneTestName]
+                                                         count:count]];
 }
 
-- (NSTimeInterval)runPersonTest {
-    return [self runTestSet:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:1] forKey:kNUPersonTestName]];
+- (NSTimeInterval)runAddressTest:(NSUInteger)count {
+    return [self runTestSet:[NUDatabaseTestSet testSetWithName:@"r/w/d address"
+                                                     testNames:[NSArray arrayWithObject:kNUAddressTestName]
+                                                         count:count]];
 }
 
-- (NSTimeInterval)runCompanyTest {
-    return [self runTestSet:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:1] forKey:kNUCompanyTestName]];
+- (NSTimeInterval)runPersonTest:(NSUInteger)count {
+    return [self runTestSet:[NUDatabaseTestSet testSetWithName:@"r/w/d person"
+                                                     testNames:[NSArray arrayWithObject:kNUPersonTestName]
+                                                         count:count]];
 }
 
-- (NSTimeInterval)runBigTest {
-    return [self runTestSet:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:5] forKey:kNUBigCompanyTestName]];
+- (NSTimeInterval)runCompanyTest:(NSUInteger)count {
+    return [self runTestSet:[NUDatabaseTestSet testSetWithName:@"r/w/d company"
+                                                     testNames:[NSArray arrayWithObject:kNUCompanyTestName]
+                                                         count:count]];
+}
+
+- (NSTimeInterval)runBigTest:(NSUInteger)count {
+    return [self runTestSet:[NUDatabaseTestSet testSetWithName:@"big test"
+                                                     testNames:[NSArray arrayWithObject:kNUBigCompanyTestName]
+                                                         count:count]];
+}
+
+- (NSTimeInterval)runFineGrainedTests:(NSUInteger)count {
+    
+    NSArray *testNames = [NSArray arrayWithObjects:kNUWriteTestName, kNUReadTestName, kNUDeleteTestName, nil];
+    
+    return [self runTestSet:[NUDatabaseTestSet testSetWithName:@"fine grained r/w/d companies" testNames:testNames count:count]];
 }
 
 - (NSDictionary *)allResults {

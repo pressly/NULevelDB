@@ -8,6 +8,8 @@
 
 #import "NUDatabaseTester.h"
 
-@interface NUCoreDataTester : NUDatabaseTester
+@interface NUCoreDataTester : NUDatabaseTester {
+    NSManagedObjectContext *database;
+}
 
 @end

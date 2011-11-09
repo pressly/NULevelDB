@@ -120,7 +120,11 @@
     
     tester.database = db;
     
-    [tester runBigTest];
+    const int testCount = 100;
+    
+//    [tester runCompanyTest:testCount];
+//    [tester runBigTest:testCount];
+    [tester runFineGrainedTests:testCount];
     NSLog(@"Results: %@", [tester resultsTableString]);
     
 #else
