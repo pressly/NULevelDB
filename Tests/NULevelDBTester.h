@@ -13,4 +13,6 @@
     NULDBDB *database;
 }
 
+- (void)runValuesTest:(NSUInteger)count size:(NSUInteger)size;
+
 @end
