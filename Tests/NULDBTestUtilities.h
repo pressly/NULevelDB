@@ -28,6 +28,17 @@ static inline NSString *randomString(NSUInteger length) {
     return [[NSString alloc] initWithBytesNoCopy:buffer length:length encoding:NSASCIIStringEncoding freeWhenDone:YES];
 }
 
+static inline NSString *uuidString( void ) {
+    
+    CFUUIDRef uuid = CFUUIDCreate(NULL);
+    CFStringRef string = CFUUIDCreateString(NULL, uuid);
+    NSString *result = (__bridge NSString *)string;
+
+    CFRelease(string);
+    CFRelease(uuid);
+
+    return result;
+}
 
 @interface NULDBTestUtilities : NSObject
 

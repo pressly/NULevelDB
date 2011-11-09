@@ -36,7 +36,7 @@ static NSArray *roads;
 - (id)init {
     self = [super init];
     if(self)
-        self.uniqueID = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, CFUUIDCreate(NULL));
+        self.uniqueID = uuidString();
 
     return self;
 }
