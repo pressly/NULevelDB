@@ -7,20 +7,7 @@
 //
 
 #import "NULDBDB+Testing.h"
-
-
-#define Random_ASCII() (((float)random()/(float)INT_MAX) * ('~' - ' ') + ' ')
-
-static inline NSString *randomString(NSUInteger length) {
-    
-    char *buffer = (char *)malloc(sizeof(char)*length);
-    NSUInteger i;
-    
-    for (i=0; i<length; ++i)
-        buffer[i] = Random_ASCII();
-    
-    return [[NSString alloc] initWithBytesNoCopy:buffer length:length encoding:NSASCIIStringEncoding freeWhenDone:YES];
-}
+#import "NULDBTestUtilities.h"
 
 
 @implementation NULDBDB (NULDBDB_Testing)

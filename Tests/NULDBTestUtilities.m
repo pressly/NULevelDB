@@ -54,6 +54,7 @@ NSString *NULDBRandomName( void ) {
     return [NSString stringWithCString:buffer encoding:NSASCIIStringEncoding];
 }
 
+
 @implementation NULDBTestUtilities
 
 @end
