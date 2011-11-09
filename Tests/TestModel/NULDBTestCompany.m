@@ -76,7 +76,11 @@ static NSArray *titles;
 
 #pragma mark NULDBSerializable
 - (NSString *)storageKey {
+#ifdef NULDBTEST_CORE_DATA
+    return [[[self objectID] URIRepresentation] absoluteString];
+#else
     return self.name;
+#endif
 }
 
 - (NSArray *)propertyNames {

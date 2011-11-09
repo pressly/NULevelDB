@@ -50,7 +50,11 @@ static NSArray *properties;
 }
 
 - (NSString *)storageKey {
+#ifdef NULDBTEST_CORE_DATA
+    return [[[self objectID] URIRepresentation] absoluteString];
+#else
     return self.uniqueID;
+#endif
 }
 
 - (void)awakeFromStorage:(NSString *)storageKey {
