@@ -95,6 +95,7 @@ typedef NSTimeInterval (^NUTimedBlock)(NUTestBlock block, NUDatabaseTestSet *tes
 
 // tests is an array of NUDatabaseTestSet objects
 - (NSTimeInterval)runTestSets:(NSArray *)tests;
+- (NSTimeInterval)runTestSet:(NUDatabaseTestSet *)set;
 
 - (NSTimeInterval)runPhoneTest:(NSUInteger)count;
 - (NSTimeInterval)runAddressTest:(NSUInteger)count;
