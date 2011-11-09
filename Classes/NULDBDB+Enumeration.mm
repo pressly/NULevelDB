@@ -12,9 +12,7 @@
 
 
 inline void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(Slice &key, Slice &value)) {
-    
-    assert(start.size() > 0);
-    
+
     ReadOptions readopts;
     const Comparator *comp = limit.size() > 0 ? BytewiseComparator() : NULL;
     
@@ -22,7 +20,9 @@ inline void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(S
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0); iter->Next()) {
+    for(start.size() > 0 ? iter->Seek(start) : iter->SeekToFirst();
+        iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0);
+        iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -35,8 +35,6 @@ inline void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(S
 
 inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(id<NSCoding>, id<NSCoding>value)) {
     
-    assert(start.size() > 0);
-    
     ReadOptions readopts;
     const Comparator *comp = limit.size() > 0 ? BytewiseComparator() : NULL;
     
@@ -44,7 +42,9 @@ inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(i
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0); iter->Next()) {
+    for(start.size() > 0 ? iter->Seek(start) : iter->SeekToFirst();
+        iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0);
+        iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -57,8 +57,6 @@ inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(i
 
 inline void NULDBIterateKeys(DB*db, Slice &start, Slice &limit, BOOL (^block)(NSString *key, NSData *value)) {
     
-    assert(start.size() > 0);
-    
     ReadOptions readopts;
     const Comparator *comp = limit.size() > 0 ? BytewiseComparator() : NULL;
     
@@ -66,7 +64,9 @@ inline void NULDBIterateKeys(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0); iter->Next()) {
+    for(start.size() > 0 ? iter->Seek(start) : iter->SeekToFirst();
+        iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0);
+        iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -79,8 +79,6 @@ inline void NULDBIterateKeys(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
 
 inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NSData *key, NSData *value)) {
     
-    assert(start.size() > 0);
-    
     ReadOptions readopts;
     const Comparator *comp = limit.size() > 0 ? BytewiseComparator() : NULL;
     
@@ -88,7 +86,9 @@ inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0); iter->Next()) {
+    for(start.size() > 0 ? iter->Seek(start) : iter->SeekToFirst();
+        iter->Valid() && (NULL == comp || comp->Compare(limit, iter->key()) > 0);
+        iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         
@@ -101,8 +101,6 @@ inline void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NS
 
 inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(uint64_t, NSData *value)) {
     
-    assert(start.size() > 0);
-    
     ReadOptions readopts;
     const Comparator *comp = BytewiseComparator();
     
@@ -110,7 +108,9 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     
     Iterator*iter = db->NewIterator(readopts);
     
-    for(iter->Seek(start); iter->Valid() && comp->Compare(limit, iter->key()) > 0; iter->Next()) {
+    for(start.size() > 0 ? iter->Seek(start) : iter->SeekToFirst();
+        iter->Valid() && comp->Compare(limit, iter->key()) > 0;
+        iter->Next()) {
         
         Slice key = iter->key(), value = iter->value();
         uint64_t index;
