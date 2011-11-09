@@ -50,7 +50,13 @@ static NSArray *titles;
 }
 
 
-#ifndef NULDBTEST_CORE_DATA
+#ifdef NULDBTEST_CORE_DATA
+- (void)awakeFromInsert {
+    if(nil == self.primaryAddressID)
+        self.primaryAddressID = [[[[self.addresses anyObject] objectID] URIRepresentation] absoluteString];
+}
+
+#else
 - (NSArray *)mainAddress {
     return [[self.addresses filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"uniqueID = %@", self.primaryAddressID]] allObjects];
 }
@@ -138,9 +144,11 @@ static NSArray *titles;
 #endif
     NSMutableSet *set = [NSMutableSet setWithCapacity:wcount];
     
-    for (int i = 0; i < wcount; ++i)
-        [set addObject:[NULDBTestPerson randomPerson]];
-    
+    for (int i = 0; i < wcount; ++i) {
+        @autoreleasepool {
+            [set addObject:[NULDBTestPerson randomPerson]];
+        }
+    }
 //    result.supervisor = [NULDBTestPerson randomPerson];
     result.workers = set;
 
@@ -149,8 +157,11 @@ static NSArray *titles;
     
     if(mcount >= [titles count]) {
         [selectedTitles addObjectsFromArray:titles];
-        for (int i=[titles count]; i<mcount; ++i)
-            [selectedTitles addObject:[NSString stringWithFormat:@"Boss %d", i]];
+        for (int i=[titles count]; i<mcount; ++i) {
+            @autoreleasepool {
+                [selectedTitles addObject:[NSString stringWithFormat:@"Boss %d", i]];
+            }
+        }
     }
     else {
         while([selectedTitles count] < mcount)
@@ -175,20 +186,15 @@ static NSArray *titles;
     
     [adds addObject:address];
     
-    for (int i=0; i<acount; ++i)
-        [adds addObject:[NULDBTestAddress randomAddress]];
+    for (int i=0; i<acount; ++i) {
+        @autoreleasepool {
+            [adds addObject:[NULDBTestAddress randomAddress]];
+        }
+    }
     
     result.addresses = adds;
-
-#ifdef NULDBTEST_CORE_DATA
-    [CDBSharedContext() save:NULL];
-    result.primaryAddressID = [[[address objectID] URIRepresentation] absoluteString];
-#else
+#if ! NULDBTEST_CORE_DATA
     result.primaryAddressID = [address uniqueID];
-#endif
-
-#if NULDBTEST_CORE_DATA
-    [CDBSharedContext() save:NULL];
 #endif
     
     return result;

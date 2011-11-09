@@ -98,10 +98,6 @@ static NSArray *properties;
     result.address = [NULDBTestAddress randomAddress];
     result.phone = [NULDBTestPhone randomPhone];
     
-#ifdef NULDBTEST_CORE_DATA
-    [CDBSharedContext() save:NULL];
-#endif
-    
     return result;
 }
 

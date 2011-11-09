@@ -82,7 +82,7 @@ static NSArray *roads;
 
 #pragma mark NULDBPlistTransformable
 - (id)initWithPropertyList:(NSDictionary *)values {
-    self = [self init];
+    self = [super init];
     if(self) {
         self.street = [values objectForKey:@"street"];
         self.city = [values objectForKey:@"city"];
@@ -136,10 +136,6 @@ static inline NSString *randomPostalCode () {
     result.city = NULDBRandomName();
     result.state = NULDBRandomName();
     result.postalCode = randomPostalCode();
-    
-#if NULDBTEST_CORE_DATA
-    [CDBSharedContext() save:NULL];
-#endif
     
     return result;
 }

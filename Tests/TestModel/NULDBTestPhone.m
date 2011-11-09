@@ -112,7 +112,6 @@ static NSArray *propertyNames;
     phone.areaCodeValue = a;
     phone.exchangeValue = x;
     phone.lineValue = l;
-    [CDBSharedContext() save:NULL];
     return phone;
 #else
     return [[NULDBTestPhone alloc] initWithAreaCode:a exchange:x line:l];
