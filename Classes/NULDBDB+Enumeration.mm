@@ -145,8 +145,8 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
 }
 
 - (void)enumerateFromKey:(NSString *)start toKey:(NSString *)limit block:(BOOL (^)(NSString *key, NSData *value))block {
-    Slice startSlice = NULDBSliceFromString(start);
-    Slice limitSlice = NULDBSliceFromString(limit);
+    Slice startSlice = nil == start ? Slice() : NULDBSliceFromString(start);
+    Slice limitSlice = nil == limit ? Slice() : NULDBSliceFromString(limit);
     NULDBIterateKeys(db, startSlice, limitSlice, block);
 }
 
@@ -163,8 +163,8 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
 }
 
 - (void)enumerateFromData:(NSData *)start toData:(NSData *)limit block:(BOOL (^)(NSData *key, NSData *value))block {
-    Slice startSlice = NULDBSliceFromData(start);
-    Slice limitSlice = NULDBSliceFromData(limit);
+    Slice startSlice = nil == start ? Slice() : NULDBSliceFromData(start);
+    Slice limitSlice = nil == limit ? Slice() : NULDBSliceFromData(limit);
     NULDBIterateData(db, startSlice, limitSlice, block);
 }
 
