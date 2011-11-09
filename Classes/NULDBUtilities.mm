@@ -55,7 +55,7 @@ extern id NULDBDecodedObject(NSData *data) {
     
     switch (type) {
         case 's':
-            return [[NSString alloc] initWithData:value encoding:NSUTF8StringEncoding];
+            return [[[NSString alloc] initWithData:value encoding:NSUTF8StringEncoding] autorelease];
             break;
             
         case 'd':

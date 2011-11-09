@@ -105,6 +105,7 @@ extern NSString *NULDBErrorDomain;
 
 @interface NULDBDB (Enumeration)
 
+// nil start value means start at first key; nil limit means proceed to last key
 - (void)enumerateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block;
 - (NSDictionary *)storedValuesFrom:(id<NSCoding>)start to:(id<NSCoding>)limit;
 

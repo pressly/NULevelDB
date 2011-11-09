@@ -18,13 +18,6 @@ int logging = 0;
 static NSUInteger defaultBufferSize = 1<<22; // 1024 * 1024 * 4 => 4MB
 
 
-void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(Slice &key, Slice &value));
-void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(id<NSCoding>, id<NSCoding>value));
-void NULDBIterateKeys(DB*db, Slice &start, Slice &limit, BOOL (^block)(NSString *key, NSData *value));
-void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NSData *key, NSData *value));
-void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(uint64_t, NSData *value));
-
-
 using namespace leveldb;
 
 
