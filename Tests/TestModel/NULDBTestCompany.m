@@ -146,13 +146,10 @@ static NSArray *titles;
 #else
     NULDBTestCompany *result = [[NULDBTestCompany alloc] initWithName:name];
 #endif
-    NSMutableSet *set = [NSMutableSet setWithCapacity:wcount];
+    NSMutableSet *set = [[NSMutableSet alloc] initWithCapacity:wcount];
     
-    for (int i = 0; i < wcount; ++i) {
-        @autoreleasepool {
-            [set addObject:[NULDBTestPerson randomPerson]];
-        }
-    }
+    for (int i = 0; i < wcount; ++i)
+        [set addObject:[NULDBTestPerson randomPerson]];
 //    result.supervisor = [NULDBTestPerson randomPerson];
     result.workers = set;
 
@@ -161,11 +158,8 @@ static NSArray *titles;
     
     if(mcount >= [titles count]) {
         [selectedTitles addObjectsFromArray:titles];
-        for (int i=[titles count]; i<mcount; ++i) {
-            @autoreleasepool {
-                [selectedTitles addObject:[NSString stringWithFormat:@"Boss %d", i]];
-            }
-        }
+        for (int i=[titles count]; i<mcount; ++i)
+            [selectedTitles addObject:[[NSString alloc] initWithFormat:@"Boss %d", i]];
     }
     else {
         while([selectedTitles count] < mcount)
@@ -173,7 +167,7 @@ static NSArray *titles;
     }
     
 
-    NSMutableDictionary *management = [NSMutableDictionary dictionaryWithCapacity:mcount];
+    NSMutableDictionary *management = [[NSMutableDictionary alloc] initWithCapacity:mcount];
     
     for(NSString *title in selectedTitles)
         [management setObject:[NULDBTestPerson randomPerson] forKey:title];
@@ -185,16 +179,13 @@ static NSArray *titles;
     result.management = management;
 #endif
 
-    NSMutableSet *adds = [NSMutableSet set];
+    NSMutableSet *adds = [[NSMutableSet alloc] initWithCapacity:acount];
     NULDBTestAddress *address = [NULDBTestAddress randomAddress];
     
     [adds addObject:address];
     
-    for (int i=0; i<acount; ++i) {
-        @autoreleasepool {
-            [adds addObject:[NULDBTestAddress randomAddress]];
-        }
-    }
+    for (int i=0; i<acount; ++i)
+        [adds addObject:[NULDBTestAddress randomAddress]];
     
     result.addresses = adds;
 #if ! NULDBTEST_CORE_DATA
