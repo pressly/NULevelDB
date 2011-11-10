@@ -41,8 +41,8 @@ NSString *kNUDeleteValuesTestName = @"delete_values";
 - (id)init {
     self = [super init];
     if(self) {
-        [self addBlock:[[self class] storeValuesBlock] forTestName:kNUStoreValuesTestName];
-        [self addBlock:[[self class] loadValuesBlock] forTestName:kNULoadValuesTestName];
+        [self addBlock:[[self class] storeValuesBlock]  forTestName:kNUStoreValuesTestName];
+        [self addBlock:[[self class] loadValuesBlock]   forTestName:kNULoadValuesTestName];
         [self addBlock:[[self class] deleteValuesBlock] forTestName:kNUDeleteValuesTestName];
     }
     
@@ -73,7 +73,7 @@ NSString *kNUDeleteValuesTestName = @"delete_values";
     NSString *name = [@"values " stringByAppendingFormat:@"%u", size];
     NSArray *tests = [NSArray arrayWithObjects:kNUStoreValuesTestName, kNULoadValuesTestName, kNUDeleteValuesTestName, nil];
     NUDatabaseTestSet *set = [NUDatabaseTestSet testSetWithName:name testNames:tests count:count];
-    int width = (int)log10((double)count) + 1;
+    int width = (int)log10((double)count) + 1; // make the keys just long enough to fit the largest value
     
     for (NSUInteger i=0; i<count; ++i)
         [set.testData setObject:randomString(size) forKey:[NSString stringWithFormat:@"%0*d", width, i]];
