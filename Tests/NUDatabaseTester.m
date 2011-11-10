@@ -71,7 +71,7 @@ NSString *kNUDeleteTestName = @"delete";
 
 
 @implementation NUDatabaseTestSet
-@synthesize name, testNames, testData;
+@synthesize name, currentTest, testNames, testData;
 
 - (id)init {
     self = [super init];
@@ -286,9 +286,13 @@ NSString *kNUDeleteTestName = @"delete";
             for(NSUInteger i=0; i<set->count; ++i) {
                 
                 for(NSString *testName in set.testNames) {
-                    NSTimeInterval time = timerBlock([self blockForTestName:testName], set);
                     
-                    [results setObject:[[NUDatabaseTestRecord alloc] initWithName:testName db:dbName duration:time size:0]
+                    set.currentTest = testName;
+                    
+                    NSTimeInterval time = timerBlock([self blockForTestName:testName], set);
+                    NSString *recordName = [[NSString alloc] initWithFormat:@"%@ - %@", set.name, testName];
+                    
+                    [results setObject:[[NUDatabaseTestRecord alloc] initWithName:recordName db:dbName duration:time size:0]
                                 forKey:[NSDate date]];
                     totalTime += time;
                 }

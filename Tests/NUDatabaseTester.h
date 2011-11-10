@@ -36,14 +36,16 @@ extern NSString *kNUDeleteTestName;
 @interface NUDatabaseTestSet : NSObject {
 @private
     NSString *name;
+    NSString *currentTest;
     NSArray *testNames;
     NSMutableDictionary *testData;
 @public
     NSUInteger count;
 }
 @property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSString *currentTest;
 @property (nonatomic, strong) NSArray *testNames;
-@property (nonatomic, strong)id testData;
+@property (nonatomic, strong) NSMutableDictionary *testData;
 
 + (NUDatabaseTestSet *)testSetWithName:(NSString *)name testNames:(NSArray *)testNames count:(NSUInteger)count;
 @end
