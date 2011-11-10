@@ -16,6 +16,17 @@
 #import <NULevelDB/NULDBDB.h>
 
 
+#if STRICT_RELATIONAL
+NSString *kNUPhoneTestName = @"phone (relational)";
+NSString *kNUAddressTestName = @"address (relational)";
+NSString *kNUPersonTestName = @"person (relational)";
+NSString *kNUCompanyTestName = @"company (relational)";
+NSString *kNUBigCompanyTestName = @"big_company (relational)";
+NSString *kNUWriteTestName = @"write (relational)";
+NSString *kNUReadTestName = @"read (relational)";
+NSString *kNUDeleteTestName = @"delete (relational)";
+
+#else
 NSString *kNUPhoneTestName = @"phone";
 NSString *kNUAddressTestName = @"address";
 NSString *kNUPersonTestName = @"person";
@@ -24,6 +35,7 @@ NSString *kNUBigCompanyTestName = @"big_company";
 NSString *kNUWriteTestName = @"write";
 NSString *kNUReadTestName = @"read";
 NSString *kNUDeleteTestName = @"delete";
+#endif
 
 @interface NUDatabaseTester ()
 
@@ -34,6 +46,7 @@ NSString *kNUDeleteTestName = @"delete";
 + (NUTestBlock)bigCompanyTestBlock;
 + (NUTestBlock)writeTestBlock;
 + (NUTestBlock)readTestBlock;
++ (NUTestBlock)verifyReadTestBlock;
 + (NUTestBlock)deleteTestBlock;
 
 - (NUTimedBlock)timerBlock;
@@ -159,6 +172,7 @@ NSString *kNUDeleteTestName = @"delete";
                       [[self class] bigCompanyTestBlock], kNUBigCompanyTestName,
                       [[self class] writeTestBlock], kNUWriteTestName,
                       [[self class] readTestBlock], kNUReadTestName,
+                      [[self class] verifyReadTestBlock], @"verify_read",
                       [[self class] deleteTestBlock], kNUDeleteTestName,
                       nil];
     }
@@ -216,6 +230,14 @@ NSString *kNUDeleteTestName = @"delete";
         NSString *key = [testSet.testData objectForKey:@"storage_key"];
         NSDictionary *results = [database loadObjects:[NSArray arrayWithObject:key]];
         assert([results count] > 0);
+        [testSet.testData setObject:results forKey:@"read_results"];
+    } copy];
+}
+
++ (NUTestBlock)verifyReadTestBlock {
+    return [^(id database, NUDatabaseTestSet *testSet) {
+        NSDictionary *results = [testSet.testData objectForKey:@"read_results"];
+        NSLog(@"read data: %@", results);
     } copy];
 }
 
@@ -273,7 +295,7 @@ NSString *kNUDeleteTestName = @"delete";
             }
         }
         
-        NSLog(@"...finished.");
+        NSLog(@"...finished (%0.7f seconds).", totalTime);
     }
     
     [resultsDB storeValuesFromDictionary:results];
