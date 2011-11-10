@@ -8,6 +8,8 @@
 
 #import "NULDBTestUtilities.h"
 
+#import "NULDBTestPerson.h"
+
 
 NSString *NULDBRandomName( void ) {
     
@@ -52,6 +54,74 @@ NSString *NULDBRandomName( void ) {
 #endif
     
     return [NSString stringWithCString:buffer encoding:NSASCIIStringEncoding];
+}
+
+
+NSString *nameForType(TestDataType type) {
+    switch(type) {
+        case kData:    return @"data";   break;
+        case kString:  return @"string"; break;
+        case kGeneric:
+        default:       return @"value";  break;
+    }
+}
+
+
+id randomTestValue( TestDataType valueType, NSUInteger size ) {
+    
+    NSString *string = newRandomString(size);
+    
+    if(kData == valueType)
+        return [string dataUsingEncoding:NSUTF8StringEncoding];
+    
+    return string;
+}
+
+id randomEncodedTestValue( TestDataType valueType, id *key ) {
+    
+    NULDBTestPerson *person = [NULDBTestPerson randomPerson];
+    NSDictionary *plist = [person plistRepresentation];
+    NSData *plistData = nil;
+    id value;
+
+    if(NULL != key) *key = [person uniqueID];
+
+    if(valueType > 0) {
+        int plistType = NSPropertyListBinaryFormat_v1_0;
+        if(valueType > 1)
+            plistType = NSPropertyListXMLFormat_v1_0;
+        plistData = [NSPropertyListSerialization dataWithPropertyList:plist format:plistType options:0 error:NULL];
+    }
+    
+    switch (valueType) {
+            
+        case kString:
+            value = [[NSString alloc] initWithData:plistData encoding:NSUTF8StringEncoding];
+            break;
+            
+        case kData:
+            value = plistData;
+            if(NULL != key) *key = [*key dataUsingEncoding:NSUTF8StringEncoding];
+            break;
+            
+        case kGeneric:
+        default:
+            value = plist;
+            break;
+    }
+    
+    return value;
+}
+
+NSDictionary *randomTestDictionary( TestDataType contentType, NSUInteger count ) {
+    
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] initWithCapacity:count];
+    id key = nil;
+    
+    for(int i = 0; i<count; ++i)
+        [dict setObject:randomEncodedTestValue(contentType, &key) forKey:key];
+    
+    return [dict copy];
 }
 
 

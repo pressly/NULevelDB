@@ -22,7 +22,7 @@
 NSString *NULDBRandomName( void );
 
 
-static inline NSString *randomString(NSUInteger length) {
+static inline NSString *newRandomString(NSUInteger length) {
     char *buffer = (char *)malloc(sizeof(char)*length);
     for (NSUInteger i=0; i<length; ++i) buffer[i] = Random_ASCII();
     return [[NSString alloc] initWithBytesNoCopy:buffer length:length encoding:NSASCIIStringEncoding freeWhenDone:YES];
@@ -39,6 +39,20 @@ static inline NSString *uuidString( void ) {
 
     return result;
 }
+
+
+typedef enum {
+    kGeneric,
+    kData,
+    kString
+} TestDataType;
+
+extern NSString *nameForType(TestDataType type);
+
+extern id randomTestValue( TestDataType valueType, NSUInteger size );
+extern id randomEncodedTestValue( TestDataType valueType, id *key );
+extern NSDictionary *randomTestDictionary( TestDataType contentType, NSUInteger count );
+
 
 @interface NULDBTestUtilities : NSObject
 

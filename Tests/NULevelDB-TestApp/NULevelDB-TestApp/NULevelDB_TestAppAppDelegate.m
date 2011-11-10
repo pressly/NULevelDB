@@ -107,11 +107,6 @@
 
 @end
 
-typedef enum {
-    kGeneric,
-    kData,
-    kString
-} TestDataType;
 
 typedef struct testResult {
     BOOL failed;
@@ -121,58 +116,6 @@ typedef struct testResult {
     NSTimeInterval load;
     NSTimeInterval delete;
 } TestResult;
-
-
-#if TARGET_IPHONE_SIMULATOR
-#define test_count 10000
-#else
-#define test_count 1000
-#endif
-
-
-NSDictionary *makeTestDictionary( TestDataType contentType );
-
-NSDictionary *makeTestDictionary( TestDataType contentType ) {
-
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:test_count];
-    
-    for(int i = 0; i<test_count; ++i) {
-        
-        NULDBTestPerson *person = [NULDBTestPerson randomPerson];
-        NSDictionary *plist = [person plistRepresentation];
-        NSData *plistData = nil;
-        id key = [person uniqueID];
-        id value;
-        
-        if(contentType > 0) {
-            int plistType = NSPropertyListBinaryFormat_v1_0;
-            if(contentType > 1)
-                plistType = NSPropertyListXMLFormat_v1_0;
-            plistData = [NSPropertyListSerialization dataWithPropertyList:plist format:plistType options:0 error:NULL];
-        }
-        
-        switch (contentType) {
-                
-            case kString:
-                value = [[NSString alloc] initWithData:plistData encoding:NSUTF8StringEncoding];
-                break;
-                
-            case kData:
-                value = plistData;
-                key = [key dataUsingEncoding:NSUTF8StringEncoding];
-                break;
-                
-            case kGeneric:
-            default:
-                value = plist;
-                break;
-        }
-        
-        [dict setObject:value forKey:key];
-    }
-    
-    return [NSDictionary dictionaryWithDictionary:dict];
-}
 
 
 @implementation NULDBDB (Tests)
@@ -276,10 +219,18 @@ NSDictionary *makeTestDictionary( TestDataType contentType ) {
     NSLog(@"Finished deleting. Took %0.4f seconds. Done testing", end - start);
 }
 
+
+#if TARGET_IPHONE_SIMULATOR
+#define test_count 10000
+#else
+#define test_count 1000
+#endif
+
+
 - (BOOL)runBulkGenericTests:(TestResult *)testResult {
     
     NSTimeInterval start, end;
-    NSDictionary *testData = makeTestDictionary(kGeneric);
+    NSDictionary *testData = randomTestDictionary(kGeneric, test_count);
     
     testResult->count = [testData count];
     
@@ -305,7 +256,7 @@ NSDictionary *makeTestDictionary( TestDataType contentType ) {
     
     NSError *error = nil;
     NSTimeInterval start, end;
-    NSDictionary *testData = makeTestDictionary(kData);
+    NSDictionary *testData = randomTestDictionary(kData, test_count);
     
     testResult->count = [testData count];
     
@@ -346,7 +297,7 @@ NSDictionary *makeTestDictionary( TestDataType contentType ) {
     
     NSError *error = nil;
     NSTimeInterval start, end;
-    NSDictionary *testData = makeTestDictionary(kString);
+    NSDictionary *testData = randomTestDictionary(kString, test_count);
     
     testResult->count = [testData count];
     
@@ -387,7 +338,7 @@ NSDictionary *makeTestDictionary( TestDataType contentType ) {
     
     NSError *error = nil;
     NSTimeInterval start, end;
-    NSDictionary *testData = makeTestDictionary(kData);
+    NSDictionary *testData = randomTestDictionary(kData, test_count);
     NSUInteger count = [testData count];
     
     uint64_t *indices = malloc(sizeof(uint64_t)*count);
