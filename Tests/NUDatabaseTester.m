@@ -284,17 +284,15 @@ NSString *kNUDeleteTestName = @"delete";
         
         for(NSUInteger i=0; i<set->count; ++i) {
             for(NSString *testName in set.testNames) {
-                @autoreleasepool {
         
-                    set.currentTest = testName;
-                    
-                    NSTimeInterval time = timerBlock([self blockForTestName:testName], set);
-                    NSString *recordName = [[NSString alloc] initWithFormat:@"%@ - %@", set.name, testName];
-                    
-                    [results setObject:[[NUDatabaseTestRecord alloc] initWithName:recordName db:dbName duration:time size:0]
-                                forKey:[NSDate date]];
-                    totalTime += time;
-                }
+                set.currentTest = testName;
+                
+                NSTimeInterval time = timerBlock([self blockForTestName:testName], set);
+                NSString *recordName = [[NSString alloc] initWithFormat:@"%@ - %@", set.name, testName];
+                
+                [results setObject:[[NUDatabaseTestRecord alloc] initWithName:recordName db:dbName duration:time size:0]
+                            forKey:[[NSDate alloc] init]];
+                totalTime += time;
             }
         }
         
