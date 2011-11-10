@@ -80,20 +80,25 @@
     NULevelDBTester *tester = [[NULevelDBTester alloc] init];
     
     tester.database = db;
-    
-    const int testNumber =  0;
-    const int testCount  =  1;
-    const int size = 32;
-    
-    switch (testNumber) {
-        case 0: [tester runPhoneTest:testCount];            break;
-        case 1: [tester runAddressTest:testCount];          break;
-        case 2: [tester runPersonTest:testCount];           break;
-        case 3: [tester runCompanyTest:testCount];          break;
-        case 4: [tester runBigTest:testCount];              break;
-        case 5: [tester runFineGrainedTests:testCount];     break;
-        case 6: [tester runValuesTest:testCount size:size]; break;
-        default: break;
+
+    const int testCount = 1000;
+    const int size = 256;
+
+    NSUInteger tests[] = { 6, 7, 8 };
+
+    for(NSUInteger i=0; i<sizeof(tests)/sizeof(NSUInteger); ++i) {
+        switch (tests[i]) {
+            case 0: [tester runPhoneTest:testCount];            break;
+            case 1: [tester runAddressTest:testCount];          break;
+            case 2: [tester runPersonTest:testCount];           break;
+            case 3: [tester runCompanyTest:testCount];          break;
+            case 4: [tester runBigTest:testCount];              break;
+            case 5: [tester runFineGrainedTests:testCount];     break;
+            case 6: [tester runValuesTest:testCount size:size]; break;
+            case 7: [tester runDataTest:testCount size:size];   break;
+            case 8: [tester runStringTest:testCount size:size]; break;
+            default: break;
+        }
     }
     
     NSLog(@"Results: %@", [tester resultsTableString]);
