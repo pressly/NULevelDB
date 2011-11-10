@@ -77,51 +77,51 @@
     NULDBDB *db = [[NULDBDB alloc] initWithLocation:testPath];
     
 #if 1
-    NUDatabaseTester *tester = [[NULevelDBTester alloc] init];
+    NULevelDBTester *tester = [[NULevelDBTester alloc] init];
     
     tester.database = db;
     
-    const int testCount = 100;
+    const int testNumber =  0;
+    const int testCount  =  1;
+    const int size = 32;
     
-    [tester runFineGrainedTests:testCount];
-
+    switch (testNumber) {
+        case 0: [tester runPhoneTest:testCount];            break;
+        case 1: [tester runAddressTest:testCount];          break;
+        case 2: [tester runPersonTest:testCount];           break;
+        case 3: [tester runCompanyTest:testCount];          break;
+        case 4: [tester runBigTest:testCount];              break;
+        case 5: [tester runFineGrainedTests:testCount];     break;
+        case 6: [tester runValuesTest:testCount size:size]; break;
+        default: break;
+    }
+    
     NSLog(@"Results: %@", [tester resultsTableString]);
     
 #else
     [db runTests:self];
-    [db destroy];
 #endif
+
+    [NULDBDB destroyDatabase:testPath];
 }
 
 @end
 
-
-@implementation NULDBDB (Tests)
-
-- (NSData *)makeTestData {
-    
-    static NSData *data;
-    static dispatch_once_t onceToken;
-    
-    dispatch_once(&onceToken, ^{
-        
-        NSError *error = nil;
-        data = [NSPropertyListSerialization dataWithPropertyList:[[NULDBTestAddress randomAddress] plistRepresentation]
-                                                          format:NSPropertyListBinaryFormat_v1_0
-                                                         options:0
-                                                           error:&error];
-        if(nil == data)
-            NSLog(@"Failed to make data; %@", error);
-    });
-    
-    return data;
-}
-
-enum {
+typedef enum {
     kGeneric,
     kData,
     kString
-};
+} TestDataType;
+
+typedef struct testResult {
+    BOOL failed;
+    NSUInteger count;
+    NSUInteger loadCount;
+    NSTimeInterval store;
+    NSTimeInterval load;
+    NSTimeInterval delete;
+} TestResult;
+
 
 #if TARGET_IPHONE_SIMULATOR
 #define test_count 10000
@@ -129,8 +129,11 @@ enum {
 #define test_count 1000
 #endif
 
-- (NSDictionary *)makeTestDictionary:(unsigned)type {
-    
+
+NSDictionary *makeTestDictionary( TestDataType contentType );
+
+NSDictionary *makeTestDictionary( TestDataType contentType ) {
+
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:test_count];
     
     for(int i = 0; i<test_count; ++i) {
@@ -141,14 +144,14 @@ enum {
         id key = [person uniqueID];
         id value;
         
-        if(type > 0) {
+        if(contentType > 0) {
             int plistType = NSPropertyListBinaryFormat_v1_0;
-            if(type > 1)
+            if(contentType > 1)
                 plistType = NSPropertyListXMLFormat_v1_0;
             plistData = [NSPropertyListSerialization dataWithPropertyList:plist format:plistType options:0 error:NULL];
         }
         
-        switch (type) {
+        switch (contentType) {
                 
             case kString:
                 value = [[NSString alloc] initWithData:plistData encoding:NSUTF8StringEncoding];
@@ -171,15 +174,8 @@ enum {
     return [NSDictionary dictionaryWithDictionary:dict];
 }
 
-typedef struct testResult {
-    BOOL failed;
-    NSUInteger count;
-    NSUInteger loadCount;
-    NSTimeInterval store;
-    NSTimeInterval load;
-    NSTimeInterval delete;
-} TestResult;
 
+@implementation NULDBDB (Tests)
 
 // a^2 is the number of keys, b^2 is the size
 // a counts up by powers of 2 and by counts down by powers of 2
@@ -283,7 +279,7 @@ typedef struct testResult {
 - (BOOL)runBulkGenericTests:(TestResult *)testResult {
     
     NSTimeInterval start, end;
-    NSDictionary *testData = [self makeTestDictionary:kGeneric];
+    NSDictionary *testData = makeTestDictionary(kGeneric);
     
     testResult->count = [testData count];
     
@@ -309,7 +305,7 @@ typedef struct testResult {
     
     NSError *error = nil;
     NSTimeInterval start, end;
-    NSDictionary *testData = [self makeTestDictionary:kData];
+    NSDictionary *testData = makeTestDictionary(kData);
     
     testResult->count = [testData count];
     
@@ -350,7 +346,7 @@ typedef struct testResult {
     
     NSError *error = nil;
     NSTimeInterval start, end;
-    NSDictionary *testData = [self makeTestDictionary:kString];
+    NSDictionary *testData = makeTestDictionary(kString);
     
     testResult->count = [testData count];
     
@@ -391,7 +387,7 @@ typedef struct testResult {
     
     NSError *error = nil;
     NSTimeInterval start, end;
-    NSDictionary *testData = [self makeTestDictionary:kData];
+    NSDictionary *testData = makeTestDictionary(kData);
     NSUInteger count = [testData count];
     
     uint64_t *indices = malloc(sizeof(uint64_t)*count);
