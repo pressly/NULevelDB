@@ -282,11 +282,10 @@ NSString *kNUDeleteTestName = @"delete";
         
         NSLog(@"Running test '%@' %u times...", set.name, set->count);
         
-        @autoreleasepool {
-            for(NSUInteger i=0; i<set->count; ++i) {
-                
-                for(NSString *testName in set.testNames) {
-                    
+        for(NSUInteger i=0; i<set->count; ++i) {
+            for(NSString *testName in set.testNames) {
+                @autoreleasepool {
+        
                     set.currentTest = testName;
                     
                     NSTimeInterval time = timerBlock([self blockForTestName:testName], set);
