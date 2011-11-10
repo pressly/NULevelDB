@@ -43,6 +43,7 @@ NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
     stringClass = [NSString class];
     dataClass = [NSData class];
     dictClass = [NSDictionary class];
+    arrayClass = [NSArray class];
 }
 
 - (id)init {
