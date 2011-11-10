@@ -51,22 +51,20 @@ NSString *kNUDeleteValuesTestName = @"delete_values";
 
 + (NUTestBlock)storeValuesBlock {
     return [^(NULDBDB *database, NUDatabaseTestSet *set) {
-        NSDictionary *dict = [set.testData objectForKey:@"data"];
+        NSDictionary *dict = set.testData;
         for(id key in [dict allKeys]) [database storeValue:[dict objectForKey:key] forKey:key];
     } copy];
 }
 
 + (NUTestBlock)loadValuesBlock {
     return [^(NULDBDB *database, NUDatabaseTestSet *set) {
-        NSDictionary *dict = [set.testData objectForKey:@"data"];
-        for(id key in [dict allKeys]) [database storedValueForKey:key];
+        for(id key in [set.testData allKeys]) [database storedValueForKey:key];
     } copy];
 }
 
 + (NUTestBlock)deleteValuesBlock {
     return [^(NULDBDB *database, NUDatabaseTestSet *set) {
-        NSDictionary *dict = [set.testData objectForKey:@"data"];
-        for(id key in [dict allKeys]) [database deleteStoredValueForKey:key];        
+        for(id key in [set.testData allKeys]) [database deleteStoredValueForKey:key];        
     } copy];
 }
 
