@@ -9,10 +9,15 @@
 #import "NUDatabaseTester.h"
 
 
+typedef void(^NUDatabaseOperationBlock)(NULDBDB *database, NSDictionary *data, NSString *key);
+
+
 @interface NULevelDBTester : NUDatabaseTester {
     NULDBDB *database;
 }
 
 - (void)runValuesTest:(NSUInteger)count size:(NSUInteger)size;
+- (void)runDataTest:(NSUInteger)count size:(NSUInteger)size;
+- (void)runStringTest:(NSUInteger)count size:(NSUInteger)size;
 
 @end
