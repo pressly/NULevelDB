@@ -46,6 +46,13 @@
 #define NULDBUnwrappedObject(_dict_, _class_) ([[_class_ alloc] initWithPropertyList:[(NSDictionary *)_dict_ objectForKey:@"object"]])
 
 
+static NSMutableDictionary *classProperties;
+
++ (void)load {
+    classProperties = [[NSMutableDictionary alloc] initWithCapacity:100];
+}
+
+
 static inline NSString *NULDBClassFromPropertyKey(NSString *key) {
     
     NSString *classFragment = [key substringFromIndex:[key rangeOfString:@"|"].location+1];
@@ -68,7 +75,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     NSString *className = NSStringFromClass([obj class]);
     NSString *classKey = NULDBClassToken(className);
-    NSArray *properties = [self storedValueForKey:classKey];
+    NSArray *properties = [classProperties objectForKey:classKey];
     
     NSAssert1(nil != classKey, @"No key for class %@", className);
     NSAssert1(nil != key, @"No storage key for object %@", obj);
@@ -76,8 +83,12 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     NULDBLog(@" ARCHIVE %@", className);
     
     if(nil == properties) {
-        properties = [obj propertyNames];
-        [self storeValue:properties forKey:classKey];
+        properties = [self storedValueForKey:classKey];
+        if(nil == properties) {
+            properties = [obj propertyNames];         
+            [self storeValue:properties forKey:classKey];
+        }
+        [classProperties setObject:properties forKey:classKey];
     }
     
     [self storeValue:classKey forKey:key];
@@ -114,7 +125,11 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
 
 - (id)unserializeObjectForClass:(NSString *)className key:(NSString *)key {
     
-    NSArray *properties = [self storedValueForKey:NULDBClassToken(className)];
+    NSString *classKey = NULDBClassToken(className);
+    NSArray *properties = [classProperties objectForKey:classKey];
+    
+    if(nil == properties)
+        properties = [self storedValueForKey:classKey];
     
     if([properties count] < 1)
         return nil;
