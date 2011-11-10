@@ -8,6 +8,8 @@
 
 #import "NUCoreDataTester.h"
 
+#import "NULDBTestCompany.h"
+
 #import <CoreData/CoreData.h>
 
 
@@ -30,9 +32,22 @@
 
 - (void)saveObjects:(NSArray *)objects {
     [self save:NULL];
+    [self reset];
 }
 
 - (NSDictionary *)loadObjects:(NSArray *)keysOrRIDs {
+    
+    static NSFetchRequest *fetch = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        fetch = [NSFetchRequest fetchRequestWithEntityName:@"Company"];
+        fetch.relationshipKeyPathsForPrefetching = [NSArray arrayWithObjects:@"addresses",
+                                                    @"workers.address",
+                                                    @"workers.phone",
+                                                    @"roles.manager.address",
+                                                    @"roles.manager.phone",
+                                                    nil];
+    });
 
     NSMutableDictionary *results = [NSMutableDictionary dictionary];
     
@@ -40,7 +55,13 @@
         
         NSURL *uri = [NSURL URLWithString:idString];
         NSManagedObjectID *objectID = [self.persistentStoreCoordinator managedObjectIDForURIRepresentation:uri];
+        NSEntityDescription *entity = [objectID entity];
         NSManagedObject *object = [self objectWithID:objectID];
+        
+        if([[entity name] isEqualToString:@"Company"]) {
+            fetch.predicate = [NSPredicate predicateWithFormat:@"name = %@", [(NULDBTestCompany *)object name]];
+            object = [[self executeFetchRequest:fetch error:NULL] lastObject];
+        }
         
         if(nil != object)
             [results setObject:object forKey:idString];
