@@ -34,7 +34,7 @@
 #define NULDBIsPropertyKey(_key_) ([_key_ hasSuffix:@"NUProperty"])
 #define NULDBPropertyIdentifierFromKey(_key_) ([_key_ substringToIndex:[_key_ rangeOfString:@"|"].location])
 
-#define NULDBArrayToken(_class_name_, _count_) ([NSString stringWithFormat:@"%u:%@|NUArray", _count_, _class_name_])
+#define NULDBArrayToken(_array_, _count_) ([NSString stringWithFormat:@"%u:%@|NUArray", _count_, NSStringFromClass([[_array_ lastObject] class])])
 #define NULDBIsArrayToken(_key_) ([_key_ hasSuffix:@"NUArray"])
 
 #define NULDBArrayIndexKey(_key_, _index_) ([NSString stringWithFormat:@"%u:%@:NUIndex", _index_, _key_])
@@ -200,7 +200,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     for(id object in array)
         [self storeObject:object forKey:NULDBArrayIndexKey(propertyFragment, i)], i++;
     
-    [self storeValue:NULDBArrayToken(NSStringFromClass([[array lastObject] class]), [array count]) forKey:key];
+    [self storeValue:NULDBArrayToken(array, [array count]) forKey:key];
 }
 
 - (NSArray *)unserializeArrayForKey:(NSString *)key {
