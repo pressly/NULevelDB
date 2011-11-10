@@ -15,52 +15,54 @@
 
 @implementation NUCoreDataTester
 
-- (void)setDatabase:(id)aDB {
-    NSParameterAssert([aDB isKindOfClass:[NSManagedObjectContext class]]);
-    if(aDB != database)
-        database = aDB;
-}
-
-- (id)database {
-    return database;
-}
+@synthesize database;
 
 @end
 
 
 @implementation NSManagedObjectContext (NUTestDatabase)
 
+static NSFetchRequest *personsFetch;
+static NSFetchRequest *addressesFetch;
+
++ (void)load {
+    @autoreleasepool {
+        personsFetch = [NSFetchRequest fetchRequestWithEntityName:@"Person"];
+        personsFetch.relationshipKeyPathsForPrefetching = [NSArray arrayWithObjects:@"company", @"address", @"phone", @"role", nil];
+        personsFetch.returnsObjectsAsFaults = NO;
+        addressesFetch = [NSFetchRequest fetchRequestWithEntityName:@"Address"];
+        addressesFetch.relationshipKeyPathsForPrefetching = [NSArray arrayWithObjects:@"company", @"person", nil];
+        addressesFetch.returnsObjectsAsFaults = NO;
+    }
+}
+
 - (void)saveObjects:(NSArray *)objects {
     [self save:NULL];
     [self reset];
 }
 
-- (NSDictionary *)loadObjects:(NSArray *)keysOrRIDs {
+- (NSDictionary *)loadObjects:(NSArray *)keysOrIDs {
     
-    static NSFetchRequest *fetch = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        fetch = [NSFetchRequest fetchRequestWithEntityName:@"Company"];
-        fetch.relationshipKeyPathsForPrefetching = [NSArray arrayWithObjects:@"addresses",
-                                                    @"workers.address",
-                                                    @"workers.phone",
-                                                    @"roles.manager.address",
-                                                    @"roles.manager.phone",
-                                                    nil];
-    });
-
     NSMutableDictionary *results = [NSMutableDictionary dictionary];
     
-    for(NSString *idString in keysOrRIDs) {
+    for(NSString *idString in keysOrIDs) {
         
-        NSURL *uri = [NSURL URLWithString:idString];
-        NSManagedObjectID *objectID = [self.persistentStoreCoordinator managedObjectIDForURIRepresentation:uri];
-        NSEntityDescription *entity = [objectID entity];
+        NSManagedObjectID *objectID = [self.persistentStoreCoordinator managedObjectIDForURIRepresentation:[NSURL URLWithString:idString]];
         NSManagedObject *object = [self objectWithID:objectID];
         
-        if([[entity name] isEqualToString:@"Company"]) {
-            fetch.predicate = [NSPredicate predicateWithFormat:@"name = %@", [(NULDBTestCompany *)object name]];
-            object = [[self executeFetchRequest:fetch error:NULL] lastObject];
+        if([[[objectID entity] name] isEqualToString:@"Company"]) {
+            
+            NSString *name = [(NULDBTestCompany *)object name];
+            
+            // load the workers
+            personsFetch.predicate = [NSPredicate predicateWithFormat:@"self in %@", [(NULDBTestCompany *)object workers]];
+            NSArray *workers = [self executeFetchRequest:personsFetch error:NULL];
+            NSAssert([workers count] > 0, @"no workers for company %@", name);
+            
+            // load the addresses
+            addressesFetch.predicate = [NSPredicate predicateWithFormat:@"self in %@", [(NULDBTestCompany *)object addresses]];
+            NSArray *addresses = [self executeFetchRequest:addressesFetch error:NULL];
+            NSAssert([addresses count] > 0, @"no addresses for company %@", name);
         }
         
         if(nil != object)
