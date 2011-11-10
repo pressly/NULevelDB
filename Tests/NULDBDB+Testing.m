@@ -28,7 +28,7 @@
     int width = (int)log10((double)count) + 1;
     
     for (NSUInteger i=0; i<count; ++i)
-        [d setObject:randomString(size) forKey:[NSString stringWithFormat:@"%0*d", width, i]];
+        [d setObject:newRandomString(size) forKey:[NSString stringWithFormat:@"%0*d", width, i]];
     
     NSLog(@"Starting put test with %u values of %u bytes", count, size);
     
