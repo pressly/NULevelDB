@@ -83,11 +83,8 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     NULDBLog(@" ARCHIVE %@", className);
     
     if(nil == properties) {
-        properties = [self storedValueForKey:classKey];
-        if(nil == properties) {
-            properties = [obj propertyNames];         
-            [self storeValue:properties forKey:classKey];
-        }
+        properties = [obj propertyNames];         
+        [self storeValue:properties forKey:classKey];
         [classProperties setObject:properties forKey:classKey];
     }
     
