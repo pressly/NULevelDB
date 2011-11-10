@@ -154,15 +154,18 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     for(id dictKey in [plist allKeys]) {
         
-        id value = [plist objectForKey:dictKey];
-        
-        // FIXME: this is lame, should always call the same wrapper
-        if([value conformsToProtocol:@protocol(NULDBPlistTransformable)])
-            value = [value plistRepresentation];
-        else if([value conformsToProtocol:@protocol(NULDBSerializable)])
-            value = [self _storeObject:value]; // store the object and replace it with it's lookup key
-        
-        [lookup setObject:value forKey:dictKey];
+        @autoreleasepool {
+            
+            id value = [plist objectForKey:dictKey];
+            
+            // FIXME: this is lame, should always call the same wrapper
+            if([value conformsToProtocol:@protocol(NULDBPlistTransformable)])
+                value = [value plistRepresentation];
+            else if([value conformsToProtocol:@protocol(NULDBSerializable)])
+                value = [self _storeObject:value]; // store the object and replace it with it's lookup key
+            
+            [lookup setObject:value forKey:dictKey];
+        }
     }
     
     [self storeValue:lookup forKey:key];
@@ -174,12 +177,14 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     for(NSString *key in [storedDict allKeys]) {
         
-        id value = [self storedObjectForKey:key];
-        
-        if(value)
-            [result setObject:value forKey:key];
-        else
-            [result setObject:[storedDict objectForKey:key] forKey:key];
+        @autoreleasepool {
+            id value = [self storedObjectForKey:key];
+            
+            if(value)
+                [result setObject:value forKey:key];
+            else
+                [result setObject:[storedDict objectForKey:key] forKey:key];
+        }
     }
     
     return result;
