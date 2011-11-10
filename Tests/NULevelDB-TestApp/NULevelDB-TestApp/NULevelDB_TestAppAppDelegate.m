@@ -165,65 +165,6 @@ typedef struct testResult {
     [self testPowersOf2FromA:4 toB:14  lowerLimit:4]; // 16 -> 16384
 }
 
-- (void)runIterationTest {
-    
-    [self put:1000 valuesOfSize:1000 data:NULL];
-    
-    NSLog(@"Iterating over some values");
-    
-    NSDictionary *sample = [self storedValuesFrom:@"0100" to:@"0120"];
-    
-    NSLog(@"%@", sample);
-}
-
-- (void)runGraphTests:(id)testDelegate {
-    
-    NSMutableDictionary *companies = [NSMutableDictionary dictionary];
-    
-    for(int i=0; i<5; ++i) {
-        
-        NULDBTestCompany *company = [NULDBTestCompany companyOf100];
-        
-        [companies setObject:company forKey:company.name];
-    }
-    
-    NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
-    
-    NSLog(@"Starting graph serialization test");
-    
-    for(id key in [companies allKeys])
-        [self storeObject:[companies objectForKey:key]];
-
-    NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
-
-    NSLog(@"Finished storing. Took %0.4f seconds. Starting loading.", end - start);
-        
-    NSMutableArray *companiesArray = [NSMutableArray array];
-    
-    start = [NSDate timeIntervalSinceReferenceDate];
-    for(id key in [companies allKeys])
-        [companiesArray addObject:[self storedObjectForKey:key]];
-    
-    end = [NSDate timeIntervalSinceReferenceDate];
-    NSLog(@"Finished loading. Took %0.4f seconds. Starting deleting.", end - start);
-
-    
-//    NSArray *sort = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
-
-//    for(NULDBTestCompany *company in [companiesArray sortedArrayUsingDescriptors:sort]) {
-//        NSLog(@"Workers for company %@:\n%@", company.name, [[[[company.workers valueForKey:@"fullName"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
-//        NSLog(@"Addresses for company %@:\n%@", company.name, [[[[company.addresses valueForKey:@"description"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@"\n"]);
-//    }
-    
-    start = [NSDate timeIntervalSinceReferenceDate];
-
-    for(id key in [companies allKeys])
-        [self deleteStoredObjectForKey:key];
-    
-    end = [NSDate timeIntervalSinceReferenceDate];
-    NSLog(@"Finished deleting. Took %0.4f seconds. Done testing", end - start);
-}
-
 
 #if TARGET_IPHONE_SIMULATOR
 #define test_count 10000
@@ -423,12 +364,8 @@ typedef struct testResult {
 //    [self run4By10Tests];
     
 //    [self run4By14Tests];
-    
-    [self runGraphTests:(id)testDelegate];
-    
+        
 //    [self runBulkOperationTests];
-    
-    NSLog(@"Testing finished");
 }
 
 @end
