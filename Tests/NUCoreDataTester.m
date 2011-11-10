@@ -24,6 +24,7 @@
 
 static NSFetchRequest *personsFetch;
 static NSFetchRequest *addressesFetch;
+static NSFetchRequest *phonesFetch;
 
 + (void)load {
     @autoreleasepool {
@@ -33,12 +34,15 @@ static NSFetchRequest *addressesFetch;
         addressesFetch = [NSFetchRequest fetchRequestWithEntityName:@"Address"];
         addressesFetch.relationshipKeyPathsForPrefetching = [NSArray arrayWithObjects:@"company", @"person", nil];
         addressesFetch.returnsObjectsAsFaults = NO;
+        phonesFetch = [NSFetchRequest fetchRequestWithEntityName:@"Phone"];
+        phonesFetch.relationshipKeyPathsForPrefetching = [NSArray arrayWithObject:@"person"];
+        phonesFetch.returnsObjectsAsFaults = NO;
     }
 }
 
 - (void)saveObjects:(NSArray *)objects {
     [self save:NULL];
-    [self reset];
+//    [self reset];
 }
 
 - (NSDictionary *)loadObjects:(NSArray *)keysOrIDs {
@@ -60,9 +64,14 @@ static NSFetchRequest *addressesFetch;
             NSAssert([workers count] > 0, @"no workers for company %@", name);
             
             // load the addresses
-            addressesFetch.predicate = [NSPredicate predicateWithFormat:@"self in %@", [(NULDBTestCompany *)object addresses]];
+            addressesFetch.predicate = [NSPredicate predicateWithFormat:@"self in %@ or self in %@", [(NULDBTestCompany *)object addresses], [workers valueForKey:@"address"]];
             NSArray *addresses = [self executeFetchRequest:addressesFetch error:NULL];
             NSAssert([addresses count] > 0, @"no addresses for company %@", name);
+            
+            // load the phones
+            phonesFetch.predicate = [NSPredicate predicateWithFormat:@"self in %@", [workers valueForKey:@"phone"]];
+            NSArray *phones = [self executeFetchRequest:phonesFetch error:NULL];
+            NSAssert([phones count] > 0, @"no phones for workers of company %@", name);
         }
         
         if(nil != object)
