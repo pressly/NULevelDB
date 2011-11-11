@@ -27,6 +27,7 @@ using namespace leveldb;
 extern Class stringClass;
 extern Class dataClass;
 extern Class dictClass;
+extern Class arrayClass;
 
 
 extern NSData *NULDBEncodedObject(id<NSCoding>object);

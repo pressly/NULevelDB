@@ -50,7 +50,13 @@ static NSArray *titles;
 }
 
 
-#ifndef NULDBTEST_CORE_DATA
+#ifdef NULDBTEST_CORE_DATA
+- (void)awakeFromInsert {
+    if(nil == self.primaryAddressID)
+        self.primaryAddressID = [[[[self.addresses anyObject] objectID] URIRepresentation] absoluteString];
+}
+
+#else
 - (NSArray *)mainAddress {
     return [[self.addresses filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"uniqueID = %@", self.primaryAddressID]] allObjects];
 }
@@ -70,7 +76,11 @@ static NSArray *titles;
 
 #pragma mark NULDBSerializable
 - (NSString *)storageKey {
+#ifdef NULDBTEST_CORE_DATA
+    return [[[self objectID] URIRepresentation] absoluteString];
+#else
     return self.name;
+#endif
 }
 
 - (NSArray *)propertyNames {
@@ -136,11 +146,10 @@ static NSArray *titles;
 #else
     NULDBTestCompany *result = [[NULDBTestCompany alloc] initWithName:name];
 #endif
-    NSMutableSet *set = [NSMutableSet setWithCapacity:wcount];
+    NSMutableSet *set = [[NSMutableSet alloc] initWithCapacity:wcount];
     
     for (int i = 0; i < wcount; ++i)
         [set addObject:[NULDBTestPerson randomPerson]];
-    
 //    result.supervisor = [NULDBTestPerson randomPerson];
     result.workers = set;
 
@@ -150,7 +159,7 @@ static NSArray *titles;
     if(mcount >= [titles count]) {
         [selectedTitles addObjectsFromArray:titles];
         for (int i=[titles count]; i<mcount; ++i)
-            [selectedTitles addObject:[NSString stringWithFormat:@"Boss %d", i]];
+            [selectedTitles addObject:[[NSString alloc] initWithFormat:@"Boss %d", i]];
     }
     else {
         while([selectedTitles count] < mcount)
@@ -158,7 +167,7 @@ static NSArray *titles;
     }
     
 
-    NSMutableDictionary *management = [NSMutableDictionary dictionaryWithCapacity:mcount];
+    NSMutableDictionary *management = [[NSMutableDictionary alloc] initWithCapacity:mcount];
     
     for(NSString *title in selectedTitles)
         [management setObject:[NULDBTestPerson randomPerson] forKey:title];
@@ -170,7 +179,7 @@ static NSArray *titles;
     result.management = management;
 #endif
 
-    NSMutableSet *adds = [NSMutableSet set];
+    NSMutableSet *adds = [[NSMutableSet alloc] initWithCapacity:acount];
     NULDBTestAddress *address = [NULDBTestAddress randomAddress];
     
     [adds addObject:address];
@@ -179,16 +188,8 @@ static NSArray *titles;
         [adds addObject:[NULDBTestAddress randomAddress]];
     
     result.addresses = adds;
-
-#ifdef NULDBTEST_CORE_DATA
-    [CDBSharedContext() save:NULL];
-    result.primaryAddressID = [[[address objectID] URIRepresentation] absoluteString];
-#else
+#if ! NULDBTEST_CORE_DATA
     result.primaryAddressID = [address uniqueID];
-#endif
-
-#if NULDBTEST_CORE_DATA
-    [CDBSharedContext() save:NULL];
 #endif
     
     return result;

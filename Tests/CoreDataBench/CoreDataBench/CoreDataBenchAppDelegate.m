@@ -11,6 +11,7 @@
 #import "MasterViewController.h"
 #import "NULDBTestCompany.h"
 #import "NULDBTestUtilities.h"
+#import "NUCoreDataTester.h"
 
 
 @interface CoreDataBenchAppDelegate ()
@@ -55,11 +56,21 @@
     
     NULDBTestCompany *company = [NULDBTestCompany randomCompanyWithWorkers:1 managers:1 addresses:1];
     
+    [self.managedObjectContext save:NULL];
+    
     NSLog(@"Company: %@", [company plistRepresentation]);
 }
 
 - (void)runTests {
     
+#if 1
+    NUCoreDataTester *tester = [[NUCoreDataTester alloc] init];
+    
+    [tester runBigTest:20];
+    NSLog(@"Results: %@", [tester resultsTableString]);
+
+    
+#else
     NSError *error = nil;
     
     if(![[NSFileManager defaultManager] removeItemAtURL:[self storeURL] error:&error])
@@ -81,6 +92,8 @@
         [names addObject:[company name]];
     }
     
+    [self.managedObjectContext save:NULL];
+    
     
     NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
 
@@ -100,19 +113,26 @@
                                                 nil];
     fetch.predicate = [NSPredicate predicateWithFormat:@"name in %@", names];
     
-    start = end;
-    
 
     NSArray *sort = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
-    NSArray *companies = [[self.managedObjectContext executeFetchRequest:fetch error:&error] sortedArrayUsingDescriptors:sort];
 
-    for(NULDBTestCompany *company in companies) {
-        NSLog(@"Workers for company %@:\n%@", company.name, [[[[company.workers valueForKey:@"fullName"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
-        NSLog(@"Addresses for company %@:\n%@", company.name, [[[[company.addresses valueForKey:@"description"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@"\n"]);
-    }
+    
+    start = [NSDate timeIntervalSinceReferenceDate];
+
+    NSArray *companies = [self.managedObjectContext executeFetchRequest:fetch error:&error];
     
     end = [NSDate timeIntervalSinceReferenceDate];
     NSLog(@"Finished loading. Took %0.4f seconds. Starting deleting.", end - start);
+    
+    
+    companies = [companies sortedArrayUsingDescriptors:sort];
+
+//    for(NULDBTestCompany *company in companies) {
+//        NSLog(@"Workers for company %@:\n%@", company.name, [[[[company.workers valueForKey:@"fullName"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
+//        NSLog(@"Addresses for company %@:\n%@", company.name, [[[[company.addresses valueForKey:@"description"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@"\n"]);
+//    }
+    
+    start = [NSDate timeIntervalSinceReferenceDate];
     
     for(NULDBTestCompany *company in companies) {
         [self.managedObjectContext deleteObject:company];
@@ -121,6 +141,7 @@
     
     end = [NSDate timeIntervalSinceReferenceDate];
     NSLog(@"Finished deleting. Took %0.4f seconds. Done testing", end - start);
+#endif
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
@@ -196,6 +217,7 @@
     {
         __managedObjectContext = [[NSManagedObjectContext alloc] init];
         [__managedObjectContext setPersistentStoreCoordinator:coordinator];
+        __managedObjectContext.undoManager = nil;
     }
     return __managedObjectContext;
 }

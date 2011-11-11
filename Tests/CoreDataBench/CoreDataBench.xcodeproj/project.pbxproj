@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4E0FE7D0146AD0D9001514F9 /* NUDatabaseTester.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E0FE7CD146AD0D9001514F9 /* NUDatabaseTester.m */; };
+		4E0FE7D1146AD0D9001514F9 /* NUCoreDataTester.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E0FE7CF146AD0D9001514F9 /* NUCoreDataTester.m */; };
+		4E0FE7D4146AD429001514F9 /* NULevelDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E0FE7D3146AD429001514F9 /* NULevelDB.framework */; };
 		4E221E1113EC6C4F00203E8D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E221E1013EC6C4F00203E8D /* UIKit.framework */; };
 		4E221E1313EC6C4F00203E8D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E221E1213EC6C4F00203E8D /* Foundation.framework */; };
 		4E221E1513EC6C4F00203E8D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E221E1413EC6C4F00203E8D /* CoreGraphics.framework */; };
@@ -31,9 +34,15 @@
 		4E221EAD13EC908700203E8D /* _NULDBTestPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221EA913EC908700203E8D /* _NULDBTestPhone.m */; };
 		4E221ECA13F0261400203E8D /* _NULDBTestRole.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221EC713F0261400203E8D /* _NULDBTestRole.m */; };
 		4E221ECB13F0261400203E8D /* NULDBTestRole.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221EC913F0261400203E8D /* NULDBTestRole.m */; };
+		4E6D7F56146C57B5009DC583 /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E6D7F55146C57B4009DC583 /* libstdc++.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4E0FE7CC146AD0D9001514F9 /* NUDatabaseTester.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NUDatabaseTester.h; path = ../NUDatabaseTester.h; sourceTree = "<group>"; };
+		4E0FE7CD146AD0D9001514F9 /* NUDatabaseTester.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NUDatabaseTester.m; path = ../NUDatabaseTester.m; sourceTree = "<group>"; };
+		4E0FE7CE146AD0D9001514F9 /* NUCoreDataTester.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NUCoreDataTester.h; path = ../NUCoreDataTester.h; sourceTree = "<group>"; };
+		4E0FE7CF146AD0D9001514F9 /* NUCoreDataTester.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NUCoreDataTester.m; path = ../NUCoreDataTester.m; sourceTree = "<group>"; };
+		4E0FE7D3146AD429001514F9 /* NULevelDB.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NULevelDB.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E221E0C13EC6C4F00203E8D /* CoreDataBench.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreDataBench.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E221E1013EC6C4F00203E8D /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		4E221E1213EC6C4F00203E8D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -76,6 +85,7 @@
 		4E221EC713F0261400203E8D /* _NULDBTestRole.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _NULDBTestRole.m; path = ../TestModel/_NULDBTestRole.m; sourceTree = "<group>"; };
 		4E221EC813F0261400203E8D /* NULDBTestRole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NULDBTestRole.h; path = ../TestModel/NULDBTestRole.h; sourceTree = "<group>"; };
 		4E221EC913F0261400203E8D /* NULDBTestRole.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NULDBTestRole.m; path = ../TestModel/NULDBTestRole.m; sourceTree = "<group>"; };
+		4E6D7F55146C57B4009DC583 /* libstdc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libstdc++.dylib"; path = "usr/lib/libstdc++.dylib"; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,10 +93,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E6D7F56146C57B5009DC583 /* libstdc++.dylib in Frameworks */,
 				4E221E1113EC6C4F00203E8D /* UIKit.framework in Frameworks */,
 				4E221E1313EC6C4F00203E8D /* Foundation.framework in Frameworks */,
 				4E221E1513EC6C4F00203E8D /* CoreGraphics.framework in Frameworks */,
 				4E221E1713EC6C4F00203E8D /* CoreData.framework in Frameworks */,
+				4E0FE7D4146AD429001514F9 /* NULevelDB.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,8 +108,9 @@
 		4E221E0113EC6C4E00203E8D = {
 			isa = PBXGroup;
 			children = (
-				4E221E4713EC77CE00203E8D /* TestModel */,
 				4E221E1813EC6C4F00203E8D /* CoreDataBench */,
+				4E6D7F53146C5775009DC583 /* Test Harness */,
+				4E221E4713EC77CE00203E8D /* TestModel */,
 				4E221E0F13EC6C4F00203E8D /* Frameworks */,
 				4E221E0D13EC6C4F00203E8D /* Products */,
 			);
@@ -114,6 +127,8 @@
 		4E221E0F13EC6C4F00203E8D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4E6D7F55146C57B4009DC583 /* libstdc++.dylib */,
+				4E0FE7D3146AD429001514F9 /* NULevelDB.framework */,
 				4E221E1013EC6C4F00203E8D /* UIKit.framework */,
 				4E221E1213EC6C4F00203E8D /* Foundation.framework */,
 				4E221E1413EC6C4F00203E8D /* CoreGraphics.framework */,
@@ -179,6 +194,17 @@
 				4E221E5313EC77E000203E8D /* NULDBTestUtilities.m */,
 			);
 			name = TestModel;
+			sourceTree = "<group>";
+		};
+		4E6D7F53146C5775009DC583 /* Test Harness */ = {
+			isa = PBXGroup;
+			children = (
+				4E0FE7CC146AD0D9001514F9 /* NUDatabaseTester.h */,
+				4E0FE7CD146AD0D9001514F9 /* NUDatabaseTester.m */,
+				4E0FE7CE146AD0D9001514F9 /* NUCoreDataTester.h */,
+				4E0FE7CF146AD0D9001514F9 /* NUCoreDataTester.m */,
+			);
+			name = "Test Harness";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -261,6 +287,8 @@
 				4E221EAD13EC908700203E8D /* _NULDBTestPhone.m in Sources */,
 				4E221ECA13F0261400203E8D /* _NULDBTestRole.m in Sources */,
 				4E221ECB13F0261400203E8D /* NULDBTestRole.m in Sources */,
+				4E0FE7D0146AD0D9001514F9 /* NUDatabaseTester.m in Sources */,
+				4E0FE7D1146AD0D9001514F9 /* NUCoreDataTester.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,6 +374,7 @@
 				GCC_PREFIX_HEADER = "CoreDataBench/CoreDataBench-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = NULDBTEST_CORE_DATA;
 				INFOPLIST_FILE = "CoreDataBench/CoreDataBench-Info.plist";
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -358,6 +387,7 @@
 				GCC_PREFIX_HEADER = "CoreDataBench/CoreDataBench-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = NULDBTEST_CORE_DATA;
 				INFOPLIST_FILE = "CoreDataBench/CoreDataBench-Info.plist";
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

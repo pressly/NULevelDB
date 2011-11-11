@@ -32,7 +32,7 @@ static NSArray *properties;
 - (id)init {
     self = [super init];
     if(self) {
-        self.uniqueID = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, CFUUIDCreate(NULL));
+        self.uniqueID = uuidString();
     }
     return self;
 }
@@ -50,7 +50,11 @@ static NSArray *properties;
 }
 
 - (NSString *)storageKey {
+#ifdef NULDBTEST_CORE_DATA
+    return [[[self objectID] URIRepresentation] absoluteString];
+#else
     return self.uniqueID;
+#endif
 }
 
 - (void)awakeFromStorage:(NSString *)storageKey {
@@ -97,10 +101,6 @@ static NSArray *properties;
     result.lastName = NULDBRandomName();
     result.address = [NULDBTestAddress randomAddress];
     result.phone = [NULDBTestPhone randomPhone];
-    
-#ifdef NULDBTEST_CORE_DATA
-    [CDBSharedContext() save:NULL];
-#endif
     
     return result;
 }

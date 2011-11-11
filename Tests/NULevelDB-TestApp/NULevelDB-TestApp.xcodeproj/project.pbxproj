@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4E0FE7D7146AE924001514F9 /* NUDatabaseTester.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E355C8C1469950B00FA26A3 /* NUDatabaseTester.m */; };
 		4E221E8513EC8FCC00203E8D /* NULDBTestAddress.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E7C13EC8FCC00203E8D /* NULDBTestAddress.m */; };
 		4E221E8613EC8FCC00203E8D /* NULDBTestCompany.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E7E13EC8FCC00203E8D /* NULDBTestCompany.m */; };
 		4E221E8713EC8FCC00203E8D /* NULDBTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E8013EC8FCC00203E8D /* NULDBTestModel.m */; };
@@ -17,6 +18,7 @@
 		4E221EA013EC907A00203E8D /* _NULDBTestPerson.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E9B13EC907A00203E8D /* _NULDBTestPerson.m */; };
 		4E221EA113EC907A00203E8D /* _NULDBTestPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E9D13EC907A00203E8D /* _NULDBTestPhone.m */; };
 		4E221EB213EC981600203E8D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E221EB113EC981600203E8D /* CoreData.framework */; };
+		4E355C901469975000FA26A3 /* NULevelDBTester.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E355C8F1469975000FA26A3 /* NULevelDBTester.m */; };
 		4E3CDCF113EB01D900366CD8 /* NULevelDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E3CDCF013EB01D900366CD8 /* NULevelDB.framework */; };
 		4E3CDD5313EB42AD00366CD8 /* NULDBTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E3CDD4C13EB42AD00366CD8 /* NULDBTestUtilities.m */; };
 		4E3CDD5913EC34A800366CD8 /* NULDBDB+Testing.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E3CDD5813EC34A800366CD8 /* NULDBDB+Testing.m */; };
@@ -83,6 +85,10 @@
 		4E221E9C13EC907A00203E8D /* _NULDBTestPhone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _NULDBTestPhone.h; sourceTree = "<group>"; };
 		4E221E9D13EC907A00203E8D /* _NULDBTestPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = _NULDBTestPhone.m; sourceTree = "<group>"; };
 		4E221EB113EC981600203E8D /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		4E355C8B1469950B00FA26A3 /* NUDatabaseTester.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NUDatabaseTester.h; sourceTree = "<group>"; };
+		4E355C8C1469950B00FA26A3 /* NUDatabaseTester.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NUDatabaseTester.m; sourceTree = "<group>"; };
+		4E355C8E1469975000FA26A3 /* NULevelDBTester.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULevelDBTester.h; sourceTree = "<group>"; };
+		4E355C8F1469975000FA26A3 /* NULevelDBTester.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NULevelDBTester.m; sourceTree = "<group>"; };
 		4E3CDCF013EB01D900366CD8 /* NULevelDB.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NULevelDB.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E3CDD1313EB066C00366CD8 /* NULevelDB.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NULevelDB.xcodeproj; path = ../../NULevelDB.xcodeproj; sourceTree = "<group>"; };
 		4E3CDD4B13EB42AD00366CD8 /* NULDBTestUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBTestUtilities.h; sourceTree = "<group>"; };
@@ -166,6 +172,10 @@
 				4E3CDD4C13EB42AD00366CD8 /* NULDBTestUtilities.m */,
 				4E3CDD5713EC34A800366CD8 /* NULDBDB+Testing.h */,
 				4E3CDD5813EC34A800366CD8 /* NULDBDB+Testing.m */,
+				4E355C8B1469950B00FA26A3 /* NUDatabaseTester.h */,
+				4E355C8C1469950B00FA26A3 /* NUDatabaseTester.m */,
+				4E355C8E1469975000FA26A3 /* NULevelDBTester.h */,
+				4E355C8F1469975000FA26A3 /* NULevelDBTester.m */,
 			);
 			name = Tests;
 			path = ../..;
@@ -256,6 +266,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0420;
+				ORGANIZATIONNAME = "NuLayer Inc";
 			};
 			buildConfigurationList = 4E68414E13E344F800D9EBCF /* Build configuration list for PBXProject "NULevelDB-TestApp" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -336,6 +347,8 @@
 				4E221E9F13EC907A00203E8D /* _NULDBTestCompany.m in Sources */,
 				4E221EA013EC907A00203E8D /* _NULDBTestPerson.m in Sources */,
 				4E221EA113EC907A00203E8D /* _NULDBTestPhone.m in Sources */,
+				4E355C901469975000FA26A3 /* NULevelDBTester.m in Sources */,
+				4E0FE7D7146AE924001514F9 /* NUDatabaseTester.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
