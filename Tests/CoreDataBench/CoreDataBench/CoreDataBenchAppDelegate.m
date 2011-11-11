@@ -217,6 +217,7 @@
     {
         __managedObjectContext = [[NSManagedObjectContext alloc] init];
         [__managedObjectContext setPersistentStoreCoordinator:coordinator];
+        __managedObjectContext.undoManager = nil;
     }
     return __managedObjectContext;
 }
