@@ -572,7 +572,6 @@ static NSString *bigString = @"Erlang looks weird to the uninitiated, so I'll st
 - (void)test60Slices {
     
     static char chars[8] = { '1', '2', '3', '4', '5', '6', '7', '8' };
-    
     NSString *string = @"NULevelDB";
     NSData *data = [NSData dataWithBytes:chars length:8];
     
@@ -584,18 +583,53 @@ static NSString *bigString = @"Erlang looks weird to the uninitiated, so I'll st
     
     type = [NULDBSlice typeForObject:data];
     STAssertTrue(kNULDBSliceTypeData == type, @"NSData type not recognized. Expected: %d; actual: %d", kNULDBSliceTypeData, type);
+}
+
+- (void)test61DataSlice {
+    
+    static char chars[8] = { '1', '2', '3', '4', '5', '6', '7', '8' };
+    NSData *data = [NSData dataWithBytes:chars length:8];
 
     NULDBSlice *e = [[[NULDBSlice alloc] initWithObject:data type:kNULDBSliceTypeUndefined] autorelease];
-    NULDBSlice *k = [[[NULDBSlice alloc] initWithObject:string type:kNULDBSliceTypeUndefined] autorelease];
+    NULDBSlice *k = [[[NULDBSlice alloc] initWithObject:@"data" type:kNULDBSliceTypeUndefined] autorelease];
     
     NSError *error = nil;
-    BOOL success = [db putValue:e forKey:k error:&error];
     
-    STAssertTrue(success, @"Failed to write slice; %@", error);
+    STAssertTrue([db putValue:e forKey:k error:&error], @"Failed to write data slice: %@", error);
     
     NULDBSlice *r = [db getValueForKey:k type:kNULDBSliceTypeData error:&error];
+    
+    STAssertEqualObjects(e.object, r.object, @"Slice get failed. Expected: %@; actual: %@. %@", e.object, r.object, error);
+}
 
-    STAssertEqualObjects(e.object, r.object, @"Slice get failed; Expected: %@; actual: %@; %@", e.object, r.object, error);
+- (void)test62StringSlice {
+    
+    NSString *value = randomTestValue(kString, 128);
+    NULDBSlice *e = [[[NULDBSlice alloc] initWithObject:value type:kNULDBSliceTypeUndefined] autorelease];
+    NULDBSlice *k = [[[NULDBSlice alloc] initWithObject:@"string" type:kNULDBSliceTypeUndefined] autorelease];
+    
+    NSError *error = nil;
+    
+    STAssertTrue([db putValue:e forKey:k error:&error], @"Failed to write string slice: %@", error);
+    
+    NULDBSlice *r = [db getValueForKey:k type:kNULDBSliceTypeString error:&error];
+    
+    STAssertEqualObjects(value, r.object, @"Slice get failed. Expected: %@; actual: %@. %@", value, r.object, error);
+}
+
+- (void)test63ArchiveSlice {
+    
+    NSNumber *value = [NSNumber numberWithInt:random()];
+    NULDBSlice *e = [[[NULDBSlice alloc] initWithObject:value type:kNULDBSliceTypeUndefined] autorelease];
+    NULDBSlice *k = [[[NULDBSlice alloc] initWithObject:@"value" type:kNULDBSliceTypeUndefined] autorelease];
+    
+    NSError *error = nil;
+    
+    STAssertTrue([db putValue:e forKey:k error:&error], @"Failed to write archive slice: %@", error);
+    
+    NULDBSlice *r = [db getValueForKey:k type:kNULDBSliceTypeArchive error:&error];
+
+    STAssertEqualObjects(value, r.object, @"Slice get failed. Expect: %@; actual: %@. %@", value, r.object, error);
 }
 
 //- (void)test70Batch {
