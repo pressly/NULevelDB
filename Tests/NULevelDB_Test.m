@@ -9,6 +9,9 @@
 #import "NULevelDB_Test.h"
 
 #import <NULevelDB/NULDBDB.h>
+#import <NULevelDB/NULDBSlice.h>
+#import <NULevelDB/NULDBWriteBatch.h>
+
 #import "NULDBDB+Testing.h"
 
 #import "NULDBTestPhone.h"
@@ -114,12 +117,6 @@ static NSString *bigString = @"Erlang looks weird to the uninitiated, so I'll st
     
     return data;
 }
-
-enum {
-    kGeneric,
-    kData,
-    kString
-};
 
 - (NSDictionary *)makeTestDictionary:(unsigned)type count:(NSUInteger)count {
     
@@ -572,4 +569,37 @@ enum {
 }
 */
 
+- (void)test60Slices {
+    
+    static char chars[8] = { '1', '2', '3', '4', '5', '6', '7', '8' };
+    
+    NSString *string = @"NULevelDB";
+    NSData *data = [NSData dataWithBytes:chars length:8];
+    
+    NULDBSliceType type = [NULDBSlice typeForObject:[NSNull null]];
+    STAssertTrue(kNULDBSliceTypeArchive == type, @"NSNull type not recognized. Expected: %d; actual: %d", kNULDBSliceTypeArchive, type);
+    
+    type = [NULDBSlice typeForObject:string];
+    STAssertTrue(kNULDBSliceTypeString == type, @"NSString type not recognized. Expected: %d; actual: %d", kNULDBSliceTypeString, type);
+    
+    type = [NULDBSlice typeForObject:data];
+    STAssertTrue(kNULDBSliceTypeData == type, @"NSData type not recognized. Expected: %d; actual: %d", kNULDBSliceTypeData, type);
+
+    NULDBSlice *e = [[[NULDBSlice alloc] initWithObject:data type:kNULDBSliceTypeUndefined] autorelease];
+    NULDBSlice *k = [[[NULDBSlice alloc] initWithObject:string type:kNULDBSliceTypeUndefined] autorelease];
+    
+    NSError *error = nil;
+    BOOL success = [db putValue:e forKey:k error:&error];
+    
+    STAssertTrue(success, @"Failed to write slice; %@", error);
+    
+    NULDBSlice *r = [db getValueForKey:k type:kNULDBSliceTypeData error:&error];
+
+    STAssertEqualObjects(e.object, r.object, @"Slice get failed; Expected: %@; actual: %@; %@", e.object, r.object, error);
+}
+
+//- (void)test70Batch {
+//    
+//}
+//
 @end

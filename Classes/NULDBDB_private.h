@@ -8,18 +8,43 @@
 
 
 #import "NULDBDB.h"
+#import "NULDBSlice.h"
+#import "NULDBWriteBatch.h"
 
 #import "NULDBUtilities.h"
 
 #include <leveldb/db.h>
+#include <leveldb/slice.h>
 #include <leveldb/options.h>
 #include <leveldb/comparator.h>
+#include <leveldb/write_batch.h>
 
 
 extern int logging;
 
 
 using namespace leveldb;
+
+
+@interface NULDBSlice ()
++ (id)objectWithSlice:(Slice&)slice type:(NULDBSliceType)sliceType;
++ (id)objectWithSlice:(Slice&)slice key:(Slice&)keySlice type:(NULDBSliceType *)type;
++ (BOOL)getSlice:(Slice *)slice forObject:(id)object type:(NULDBSliceType)sliceType;
+- (id)initWithSlice:(Slice&)slice key:(Slice&)key;
+- (id)initWithSlice:(Slice&)slice type:(NULDBSliceType)sliceType;
+- (void)getSlice:(Slice *)slice;
+@end
+
+
+@interface NULDBWriteBatch () {
+    WriteBatch *writeBatch;
+}
+
+@property (readonly) WriteBatch *writeBatch;
+
+- (void)close;
+
+@end
 
 
 @interface NULDBDB () {
