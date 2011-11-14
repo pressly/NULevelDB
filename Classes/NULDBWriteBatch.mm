@@ -41,7 +41,7 @@ using namespace leveldb;
     [value getSlice:&v];
     [key getSlice:&k];
     
-    writeBatch->Put(v, k);
+    writeBatch->Put(k, v);
 }
 
 - (void)deleteValueForKey:(NULDBSlice *)key {

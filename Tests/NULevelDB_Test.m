@@ -632,8 +632,26 @@ static NSString *bigString = @"Erlang looks weird to the uninitiated, so I'll st
     STAssertEqualObjects(value, r.object, @"Slice get failed. Expect: %@; actual: %@. %@", value, r.object, error);
 }
 
-//- (void)test70Batch {
-//    
-//}
-//
+- (void)test70Batch {
+
+    NULDBWriteBatch *batch = [[[NULDBWriteBatch alloc] init] autorelease];
+    NSDictionary *e = randomTestDictionary(kString, 10);
+    
+    for(NSString *key in [e allKeys])  {
+        
+        NULDBSlice *v = [[[NULDBSlice alloc] initWithObject:[e objectForKey:key] type:kNULDBSliceTypeUndefined] autorelease];
+        NULDBSlice *k = [[[NULDBSlice alloc] initWithObject:key type:kNULDBSliceTypeUndefined] autorelease];
+        
+        [batch putValue:v forKey:k];
+    }
+    
+    NSError *error = nil;
+    
+    STAssertTrue([db writeBatch:batch error:&error], @"Batch write failed: %@", error);
+    
+    NSDictionary *r = [db storedStringsForKeys:[e allKeys] error:&error];
+    
+    STAssertEqualObjects(r, e, @"Get failed after batch write.");
+}
+
 @end
