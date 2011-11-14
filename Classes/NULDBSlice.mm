@@ -8,64 +8,147 @@
 
 #import "NULDBSlice.h"
 
+#import "NULDBUtilities.h"
+
 #include <leveldb/slice.h>
 
 
 using namespace leveldb;
 
-@implementation NULDBSlice {
-    Slice *slice;
+
+@interface NULDBSlice ()
+@property (nonatomic, retain, readwrite) id object;
+@end
+
+
+@implementation NULDBSlice
+
+@synthesize object, type;
+
+#pragma mark - NULevelDBPrivate (see NULDBDB_private.h)
++ (NULDBSliceType)typeForObject:(id)object {
+    if([object isKindOfClass:[NSString class]])         return kNULDBSliceTypeString;
+    if([object isKindOfClass:[NSData class]])           return kNULDBSliceTypeData;
+    if([object conformsToProtocol:@protocol(NSCoding)]) return kNULDBSliceTypeArchive;
+    return kNULDBSliceTypeUndefined;
 }
 
-
-@dynamic data, string, propertyList, object;
-
-#pragma mark Accessors
-- (NSData *)data {
-    return [NSData dataWithBytes:slice->data() length:slice->size()];
++ (NULDBSliceType)typeForSlice:(Slice&)slice {
+    return kNULDBSliceTypeUndefined;
 }
 
-- (NSString *)string {
-    return [[[NSString alloc] initWithBytes:slice->data() length:slice->size() encoding:NSUTF8StringEncoding] autorelease];
++ (NULDBSliceType)valueTypeForKey:(Slice&)slice {
+    return kNULDBSliceTypeUndefined;
 }
 
-- (id)propertyList {
++ (id)objectWithSlice:(Slice&)slice type:(NULDBSliceType)sliceType {
     
-    NSError *error = nil;    
-    id plist = [NSPropertyListSerialization propertyListWithData:[self data]
-                                                         options:NSPropertyListImmutable
-                                                          format:NULL
-                                                           error:&error];
+    id result = nil;
+
+    if(kNULDBSliceTypeUndefined == sliceType) sliceType = [self typeForSlice:slice];
     
-    if(!plist)
-        NSLog(@"Error decoding plist %@", error);
+    switch (sliceType) {
+        case kNULDBSliceTypeArchive:
+            result = NULDBDecodedObject([NSData dataWithBytes:slice.data() length:slice.size()]);
+            break;
+            
+        case kNULDBSliceTypeData:
+            result = NULDBDataFromSlice(slice);
+            break;
+            
+        case kNULDBSliceTypeString:
+            result = NULDBStringFromSlice(slice);
+            break;
+            
+        case kNULDBSliceTypeUndefined:
+        default:
+            [NSException raise:NSInvalidArgumentException format:@"Cannot determine type of stored data"];
+            break;
+    }
     
-    return plist;
+    return result;
 }
 
-- (id<NSCoding>)object {
-    return [NSKeyedUnarchiver unarchiveObjectWithData:[self data]];
++ (id)objectWithSlice:(Slice&)slice key:(Slice&)keySlice type:(NULDBSliceType *)type {
+    NULDBSliceType sliceType = [self valueTypeForKey:keySlice];
+    if(NULL != type) *type = sliceType;
+    return [self objectWithSlice:slice type:sliceType];
 }
 
-- (void)finalize {
-    delete slice;
++ (BOOL)getSlice:(Slice *)slice forObject:(id)object type:(NULDBSliceType)sliceType {
+
+    NSParameterAssert(NULL != slice);
+    NSParameterAssert(nil != object);
+    
+    if(kNULDBSliceTypeUndefined == sliceType) sliceType = [self typeForObject:object];
+    
+    switch (sliceType) {
+        case kNULDBSliceTypeArchive:
+            *slice = NULDBSliceFromObject(object);
+            break;
+            
+        case kNULDBSliceTypeData:
+            *slice = NULDBSliceFromData(object);
+            break;
+            
+        case kNULDBSliceTypeString:
+            *slice = NULDBSliceFromString(object);
+            break;
+            
+        case kNULDBSliceTypeUndefined:
+        default:
+            [NSException raise:NSInvalidArgumentException format:@"Cannot determine storage type of provided object"];
+            break;
+    }
+
+    return NO;
+}
+
+- (id)initWithSlice:(Slice&)slice key:(Slice&)key {
+    NULDBSliceType sliceType;
+    return [self initWithObject:[NULDBSlice objectWithSlice:slice key:key type:&sliceType] type:sliceType];
+}
+
+- (id)initWithSlice:(Slice&)slice type:(NULDBSliceType)sliceType {
+    return [self initWithObject:[NULDBSlice objectWithSlice:slice type:sliceType] type:sliceType];
+}
+
+- (void)getSlice:(Slice *)slice {
+    [NULDBSlice getSlice:slice forObject:self.object type:self.type];
+}
+
+
+#pragma mark - NSObject
+- (void)dealloc {
+    self.object = nil;
+    type = kNULDBSliceTypeUndefined;
+    [super dealloc];
+}
+
+
+#pragma mark - Designated Initializer
+- (id)initWithObject:(id)obj type:(NULDBSliceType)sliceType {
+    self = [self init];
+    if(self) {
+        self.object = obj;
+        self.type = sliceType;
+    }
+    
+    return self;
+}
+
+
+#pragma mark - Convenience Initializers
+- (id)initWithPersistentObject:(id<NSCoding>)obj {
+    return [self initWithObject:obj type:kNULDBSliceTypeArchive];
 }
 
 - (id)initWithData:(NSData *)data {
-    self = [super init];
-    if (self) {
-        slice = new Slice((const char *)[data bytes], [data length]);
-    }
-    
-    return self;
+    return [self initWithObject:data type:kNULDBSliceTypeData];
 }
 
 - (id)initWithString:(NSString *)string {
-    self = [super init];
-    if(self) {
-        slice = new Slice([string UTF8String], [string length]);
-    }
-    return self;
+    return [self initWithObject:string type:kNULDBSliceTypeString];
 }
 
 - (id)initWithPropertyList:(id)plist {
@@ -77,31 +160,40 @@ using namespace leveldb;
                                                                error:&error];
     if(nil == error) {
         NSLog(@"Could not instantiate data for property list %@; error: %@", plist, error);
+        [self release];
         return nil;
     }
     
-    return [self initWithData:data];
+    return [self initWithObject:data type:kNULDBSliceTypeData];
 }
 
-- (id)initWithObject:(id<NSCoding>)object {
-    return [self initWithData:[NSKeyedArchiver archivedDataWithRootObject:object]];
-}
+@end
 
 
-+ (id)sliceWithData:(NSData *)data {
-    return [[[self alloc] initWithData:data] autorelease];
+@implementation NULDBKey
+
+- (id)initWithData:(NSData *)data {
+    [self release];
+    return nil;
 }
 
-+ (id)sliceWithString:(NSString *)string {
-    return [[[self alloc] initWithString:string] autorelease];
+- (id)initWithString:(NSString *)string {
+    [self release];
+    return nil;
 }
 
-+ (id)sliceWithPropertyList:(id)plist {
-    return [[[self alloc] initWithPropertyList:plist] autorelease];
-}
+@end
 
-+ (id)initWithObject:(id<NSCoding>)object {
-    return [[[self alloc] initWithObject:object] autorelease];
-}
+
+@implementation NULDBKeyEncoder
+
+
+
+@end
+
+
+@implementation NULDBKeyDecoder
+
+
 
 @end

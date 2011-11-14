@@ -34,7 +34,6 @@ static inline NSString *uuidString( void ) {
     CFStringRef string = CFUUIDCreateString(NULL, uuid);
     NSString *result = (__bridge NSString *)string;
 
-    CFRelease(string);
     CFRelease(uuid);
 
     return result;

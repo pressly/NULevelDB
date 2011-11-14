@@ -9,22 +9,56 @@
 #import <Foundation/Foundation.h>
 
 
-@interface NULDBSlice : NSObject
+typedef enum {
+    kNULDBSliceTypeUndefined = 0,
+    kNULDBSliceTypeArchive,
+    kNULDBSliceTypeString,
+    kNULDBSliceTypeData,
+    kNULDBSliceTypeIndex64,
+    kNULDBSliceTypeEncoded,
+} NULDBSliceType;
 
-// Ensure you know which type you encoded
-@property (readonly) NSData *data;
-@property (readonly) NSString *string;
-@property (readonly) id propertyList;
-@property (readonly) id<NSCoding> object;
+@interface NULDBSlice : NSObject {
+    id object;
+    NULDBSliceType type;
+}
 
+@property (nonatomic, retain, readonly) id object;
+@property (nonatomic, assign) NULDBSliceType type;
+
+/*
+ * if the type is undefined, it will be inferred;
+ * if the type is not supported (cannot be encoded as data), throws invalid argument exception
+ */
+- (id)initWithObject:(id)object type:(NULDBSliceType)sliceType;
+- (id)initWithPersistentObject:(id<NSCoding>)object;
 - (id)initWithData:(NSData *)data;
 - (id)initWithString:(NSString *)string;
 - (id)initWithPropertyList:(id)plist;
-- (id)initWithObject:(id<NSCoding>)object;
 
-+ (id)sliceWithData:(NSData *)data;
-+ (id)sliceWithString:(NSString *)string;
-+ (id)sliceWithPropertyList:(id)plist;
-+ (id)initWithObject:(id<NSCoding>)object;
++ (NULDBSliceType)typeForObject:(id)object;
+
+@end
+
+// 
+@interface NULDBKey : NULDBSlice
+@end
+
+
+@interface NULDBEntry : NSObject {
+@private
+    NULDBKey *key;
+    NULDBSlice *value;
+}
+@end
+
+
+@interface NULDBKeyEncoder : NSObject
+
+@end
+
+
+
+@interface NULDBKeyDecoder : NSObject
 
 @end

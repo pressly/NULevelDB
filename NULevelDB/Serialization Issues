@@ -1,0 +1,14 @@
+
+Should NULevelDB be responsible for encoding key and value types?
+
+Encoding and decoding data adds a performance penalty to using a database. Every object inserted must be encoded in the best format suited to it, and decoded objects must be re-encoded as the correct type.
+
+If the database is not responsible, then the application must be responsible. leveldb stores and retrieves sequences of bytes. It uses an abstract interface for this, but the important point is that the data is homogeneous from the leveldb db's point of view. Cocoa applications work with objects, so we have to convert between them.
+
+There are two ways to encode information about objects: in the data representing the object, or in the key. But this doesn't solve the problem of identifying what type a key is, unless we restrict it. Fortunately, it's very likely that applications would prefer one kind of key, and stick with it.
+
+There are an endless variety of ways to design keys. As a rule, a key is made up of two components: a namespace, and a unique identifier in that namespace. A namespace might be one level deep, or arbitrary levels. The namespace can encode metadata about the value of the database entry, or the key itself. It can specify things like the object class, a category, a virtual table, or anything else.
+
+A tradeoff in key design, like any encoding, is performance versus descriptiveness. For the best performance, keys should be of fixed length and as short as reasonably possible. In effect, they should be compressed. For convenience, the object identifier is usually something meaningful in the application context. But it might be an encoded version of a plain-text identifier, like a hash, digest or UUID. If the identifier is not encoded, it is likely a name, a URL, or other URI.
+
+
