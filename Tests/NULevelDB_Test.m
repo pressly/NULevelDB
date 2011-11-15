@@ -8,7 +8,10 @@
 
 #import "NULevelDB_Test.h"
 
-#import "NULDBDB.h"
+#import <NULevelDB/NULDBDB.h>
+#import <NULevelDB/NULDBSlice.h>
+#import <NULevelDB/NULDBWriteBatch.h>
+
 #import "NULDBDB+Testing.h"
 
 #import "NULDBTestPhone.h"
@@ -114,12 +117,6 @@ static NSString *bigString = @"Erlang looks weird to the uninitiated, so I'll st
     
     return data;
 }
-
-enum {
-    kGeneric,
-    kData,
-    kString
-};
 
 - (NSDictionary *)makeTestDictionary:(unsigned)type count:(NSUInteger)count {
     
@@ -571,5 +568,90 @@ enum {
     }
 }
 */
+
+- (void)test60Slices {
+    
+    static char chars[8] = { '1', '2', '3', '4', '5', '6', '7', '8' };
+    NSString *string = @"NULevelDB";
+    NSData *data = [NSData dataWithBytes:chars length:8];
+    
+    NULDBSliceType type = [NULDBSlice typeForObject:[NSNull null]];
+    STAssertTrue(kNULDBSliceTypeArchive == type, @"NSNull type not recognized. Expected: %d; actual: %d", kNULDBSliceTypeArchive, type);
+    
+    type = [NULDBSlice typeForObject:string];
+    STAssertTrue(kNULDBSliceTypeString == type, @"NSString type not recognized. Expected: %d; actual: %d", kNULDBSliceTypeString, type);
+    
+    type = [NULDBSlice typeForObject:data];
+    STAssertTrue(kNULDBSliceTypeData == type, @"NSData type not recognized. Expected: %d; actual: %d", kNULDBSliceTypeData, type);
+}
+
+- (void)test61DataSlice {
+    
+    static char chars[8] = { '1', '2', '3', '4', '5', '6', '7', '8' };
+    NSData *data = [NSData dataWithBytes:chars length:8];
+
+    NULDBSlice *e = [[[NULDBSlice alloc] initWithObject:data type:kNULDBSliceTypeUndefined] autorelease];
+    NULDBSlice *k = [[[NULDBSlice alloc] initWithObject:@"data" type:kNULDBSliceTypeUndefined] autorelease];
+    
+    NSError *error = nil;
+    
+    STAssertTrue([db putValue:e forKey:k error:&error], @"Failed to write data slice: %@", error);
+    
+    NULDBSlice *r = [db getValueForKey:k type:kNULDBSliceTypeData error:&error];
+    
+    STAssertEqualObjects(e.object, r.object, @"Slice get failed. Expected: %@; actual: %@. %@", e.object, r.object, error);
+}
+
+- (void)test62StringSlice {
+    
+    NSString *value = randomTestValue(kString, 128);
+    NULDBSlice *e = [[[NULDBSlice alloc] initWithObject:value type:kNULDBSliceTypeUndefined] autorelease];
+    NULDBSlice *k = [[[NULDBSlice alloc] initWithObject:@"string" type:kNULDBSliceTypeUndefined] autorelease];
+    
+    NSError *error = nil;
+    
+    STAssertTrue([db putValue:e forKey:k error:&error], @"Failed to write string slice: %@", error);
+    
+    NULDBSlice *r = [db getValueForKey:k type:kNULDBSliceTypeString error:&error];
+    
+    STAssertEqualObjects(value, r.object, @"Slice get failed. Expected: %@; actual: %@. %@", value, r.object, error);
+}
+
+- (void)test63ArchiveSlice {
+    
+    NSNumber *value = [NSNumber numberWithInt:random()];
+    NULDBSlice *e = [[[NULDBSlice alloc] initWithObject:value type:kNULDBSliceTypeUndefined] autorelease];
+    NULDBSlice *k = [[[NULDBSlice alloc] initWithObject:@"value" type:kNULDBSliceTypeUndefined] autorelease];
+    
+    NSError *error = nil;
+    
+    STAssertTrue([db putValue:e forKey:k error:&error], @"Failed to write archive slice: %@", error);
+    
+    NULDBSlice *r = [db getValueForKey:k type:kNULDBSliceTypeArchive error:&error];
+
+    STAssertEqualObjects(value, r.object, @"Slice get failed. Expect: %@; actual: %@. %@", value, r.object, error);
+}
+
+- (void)test70Batch {
+
+    NULDBWriteBatch *batch = [[[NULDBWriteBatch alloc] init] autorelease];
+    NSDictionary *e = randomTestDictionary(kString, 10);
+    
+    for(NSString *key in [e allKeys])  {
+        
+        NULDBSlice *v = [[[NULDBSlice alloc] initWithObject:[e objectForKey:key] type:kNULDBSliceTypeUndefined] autorelease];
+        NULDBSlice *k = [[[NULDBSlice alloc] initWithObject:key type:kNULDBSliceTypeUndefined] autorelease];
+        
+        [batch putValue:v forKey:k];
+    }
+    
+    NSError *error = nil;
+    
+    STAssertTrue([db writeBatch:batch error:&error], @"Batch write failed: %@", error);
+    
+    NSDictionary *r = [db storedStringsForKeys:[e allKeys] error:&error];
+    
+    STAssertEqualObjects(r, e, @"Get failed after batch write.");
+}
 
 @end

@@ -12,6 +12,7 @@
 Class stringClass;
 Class dataClass;
 Class dictClass;
+Class arrayClass;
 
 
 NSData *NULDBEncodedObject(id<NSCoding>object) {
@@ -20,7 +21,7 @@ NSData *NULDBEncodedObject(id<NSCoding>object) {
     
     if([(id)object isKindOfClass:stringClass])    type = 's';
     else if([(id)object isKindOfClass:dataClass]) type = 'd';
-    else if([(id)object isKindOfClass:dictClass]) type = 'h';
+    else if([(id)object isKindOfClass:dictClass] || [(id)object isKindOfClass:arrayClass]) type = 'h';
     
     NSMutableData *d = [NSMutableData dataWithBytes:&type length:1];
     
@@ -55,7 +56,7 @@ extern id NULDBDecodedObject(NSData *data) {
     
     switch (type) {
         case 's':
-            return [[NSString alloc] initWithData:value encoding:NSUTF8StringEncoding];
+            return [[[NSString alloc] initWithData:value encoding:NSUTF8StringEncoding] autorelease];
             break;
             
         case 'd':

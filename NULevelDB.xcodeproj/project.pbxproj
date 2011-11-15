@@ -22,6 +22,8 @@
 		4E221EDF13F2D0C200203E8D /* NULDBSerializable.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E221EDE13F2D07D00203E8D /* NULDBSerializable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4E221EE013F2D0CD00203E8D /* NULDBStorageKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E221ED813F2BE7700203E8D /* NULDBStorageKey.h */; };
 		4E221EE113F2D0D500203E8D /* NULDBUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E221ED913F2C40900203E8D /* NULDBUtilities.h */; };
+		4E34E7041471765D00945FDB /* NULDBWriteBatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E34E6F814715FAB00945FDB /* NULDBWriteBatch.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4E34E7051471766300945FDB /* NULDBWriteBatch.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E34E6F914715FAB00945FDB /* NULDBWriteBatch.mm */; };
 		4E3CDCF213EB020D00366CD8 /* libleveldb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82780113EAF4A600C64821 /* libleveldb.a */; };
 		4E3CDD5613EC319F00366CD8 /* NULDBDB+Testing.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E82784F13EAF85500C64821 /* NULDBDB+Testing.m */; };
 		4E7D08B81464625D001F4447 /* NULDBDB+Enumeration.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E7D08B61464625D001F4447 /* NULDBDB+Enumeration.mm */; };
@@ -139,6 +141,9 @@
 		4E221ED913F2C40900203E8D /* NULDBUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBUtilities.h; sourceTree = "<group>"; };
 		4E221EDA13F2C40A00203E8D /* NULDBUtilities.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NULDBUtilities.mm; sourceTree = "<group>"; };
 		4E221EDE13F2D07D00203E8D /* NULDBSerializable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBSerializable.h; sourceTree = "<group>"; };
+		4E34E6F814715FAB00945FDB /* NULDBWriteBatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBWriteBatch.h; sourceTree = "<group>"; };
+		4E34E6F914715FAB00945FDB /* NULDBWriteBatch.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NULDBWriteBatch.mm; sourceTree = "<group>"; };
+		4E34E6FD1471737900945FDB /* Serialization Issues */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Serialization Issues"; sourceTree = "<group>"; };
 		4E7D08B314646094001F4447 /* NULDBDB_private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NULDBDB_private.h; sourceTree = "<group>"; };
 		4E7D08B61464625D001F4447 /* NULDBDB+Enumeration.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NULDBDB+Enumeration.mm"; sourceTree = "<group>"; };
 		4E7D08BA1464644B001F4447 /* NULDBDB+SizeEstimation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NULDBDB+SizeEstimation.mm"; sourceTree = "<group>"; };
@@ -386,6 +391,7 @@
 			children = (
 				4E82784713EAF85500C64821 /* Classes */,
 				4E82772B13EAF44500C64821 /* Supporting Files */,
+				4E34E6FD1471737900945FDB /* Serialization Issues */,
 			);
 			path = NULevelDB;
 			sourceTree = "<group>";
@@ -595,14 +601,14 @@
 			children = (
 				4E7D08B314646094001F4447 /* NULDBDB_private.h */,
 				4E221EDE13F2D07D00203E8D /* NULDBSerializable.h */,
-				4E82784813EAF85500C64821 /* NSLDBIterator.h */,
-				4E82784913EAF85500C64821 /* NSLDBIterator.mm */,
 				4E82784A13EAF85500C64821 /* NULDBCache.h */,
 				4E82784B13EAF85500C64821 /* NULDBCache.mm */,
 				4E82784C13EAF85500C64821 /* NULDBComparator.h */,
 				4E82784D13EAF85500C64821 /* NULDBComparator.mm */,
 				4E82785013EAF85500C64821 /* NULDBDB.h */,
 				4E82785113EAF85500C64821 /* NULDBDB.mm */,
+				4E82784813EAF85500C64821 /* NSLDBIterator.h */,
+				4E82784913EAF85500C64821 /* NSLDBIterator.mm */,
 				4E82785213EAF85500C64821 /* NULDBSlice.h */,
 				4E82785313EAF85500C64821 /* NULDBSlice.mm */,
 				4E82785413EAF85500C64821 /* NULDBStatus.h */,
@@ -617,6 +623,8 @@
 				4E7D08BA1464644B001F4447 /* NULDBDB+SizeEstimation.mm */,
 				4E7D08BE146465D8001F4447 /* NULDBDB+BulkAccess.mm */,
 				4E7D08C2146466D6001F4447 /* NULDBDB+Serializing.mm */,
+				4E34E6F814715FAB00945FDB /* NULDBWriteBatch.h */,
+				4E34E6F914715FAB00945FDB /* NULDBWriteBatch.mm */,
 			);
 			path = Classes;
 			sourceTree = SOURCE_ROOT;
@@ -653,6 +661,7 @@
 				4E221EDF13F2D0C200203E8D /* NULDBSerializable.h in Headers */,
 				4E221EE013F2D0CD00203E8D /* NULDBStorageKey.h in Headers */,
 				4E221EE113F2D0D500203E8D /* NULDBUtilities.h in Headers */,
+				4E34E7041471765D00945FDB /* NULDBWriteBatch.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -831,6 +840,7 @@
 				4E7D08BC1464644B001F4447 /* NULDBDB+SizeEstimation.mm in Sources */,
 				4E7D08C0146465D8001F4447 /* NULDBDB+BulkAccess.mm in Sources */,
 				4E7D08C4146466D6001F4447 /* NULDBDB+Serializing.mm in Sources */,
+				4E34E7051471766300945FDB /* NULDBWriteBatch.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

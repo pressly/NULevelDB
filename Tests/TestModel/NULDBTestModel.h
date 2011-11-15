@@ -8,30 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-#ifdef NULDBTEST_CORE_DATA
+#import <NULevelDB/NULDBDB.h>
 
-@protocol NULDBSerializable <NSObject>
-
-- (NSString *)storageKey;
-- (NSArray *)propertyNames;
-
-@optional
-- (void)awakeFromStorage:(NSString *)storageKey;
-
-@end
-
-// Protocol suitable for serializing internal/leaf nodes
-@protocol NULDBPlistTransformable <NSObject>
-
-- (id)initWithPropertyList:(NSDictionary *)values;
-- (NSDictionary *)plistRepresentation;
-
-@end
-
-#else
-
-#import "NULDBDB.h"
-#endif
 
 @interface NULDBTestModel :
 
@@ -39,7 +17,7 @@
 NSManagedObject
 
 #else
-NSObject
+NSObject<NULDBSerializable>
 
 - (id)objectID;
 - (void)willAccessValueForKey:(NSString *)key;

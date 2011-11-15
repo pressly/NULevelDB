@@ -14,6 +14,8 @@
 - (id)objectID { return nil; }
 - (void)willAccessValueForKey:(NSString *)key {}
 - (void)didAccessValueForKey:(NSString *)key {}
+- (NSString *)storageKey { return nil; }
+- (NSArray *)propertyNames { return nil; }
 #endif
 
 @end

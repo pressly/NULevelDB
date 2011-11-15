@@ -8,7 +8,7 @@
 #warning "This project uses features only available in iOS SDK 4.0 and later."
 #endif
 
-#define STRICT_RELATIONAL 1
+#define STRICT_RELATIONAL 0
 
 #ifdef __OBJC__
     #import <UIKit/UIKit.h>

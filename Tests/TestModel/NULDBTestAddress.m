@@ -36,7 +36,7 @@ static NSArray *roads;
 - (id)init {
     self = [super init];
     if(self)
-        self.uniqueID = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, CFUUIDCreate(NULL));
+        self.uniqueID = uuidString();
 
     return self;
 }
@@ -67,7 +67,11 @@ static NSArray *roads;
 #if STRICT_RELATIONAL
 #pragma mark NULDBSerializable
 - (NSString *)storageKey {
+#ifdef NULDBTEST_CORE_DATA
+    return [[[self objectID] URIRepresentation] absoluteString];
+#else
     return self.uniqueID;
+#endif
 }
 
 - (NSArray *)propertyNames {
@@ -82,7 +86,7 @@ static NSArray *roads;
 
 #pragma mark NULDBPlistTransformable
 - (id)initWithPropertyList:(NSDictionary *)values {
-    self = [self init];
+    self = [super init];
     if(self) {
         self.street = [values objectForKey:@"street"];
         self.city = [values objectForKey:@"city"];
@@ -136,10 +140,6 @@ static inline NSString *randomPostalCode () {
     result.city = NULDBRandomName();
     result.state = NULDBRandomName();
     result.postalCode = randomPostalCode();
-    
-#if NULDBTEST_CORE_DATA
-    [CDBSharedContext() save:NULL];
-#endif
     
     return result;
 }

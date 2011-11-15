@@ -8,14 +8,18 @@
 
 #import <Foundation/Foundation.h>
 
+#import <NULevelDB/NULDBSlice.h>
 #import <NULevelDB/NULDBSerializable.h>
 
 
 extern NSString *NULDBErrorDomain;
 
 
+@class NULDBWriteBatch;
+
 @interface NULDBDB : NSObject
 
+//@property (nonatomic, assign) NULDBSliceType keyType;
 @property (nonatomic, retain) NSString *location;
 @property (nonatomic) BOOL sync;
 @property (nonatomic, getter=isCacheEnabled) BOOL cacheEnabled;
@@ -38,6 +42,12 @@ extern NSString *NULDBErrorDomain;
 // Erases the database files (files are created automatically)
 + (void)destroyDatabase:(NSString *)path;
 
+//// Batch write support
+- (BOOL)putValue:(NULDBSlice *)value forKey:(NULDBSlice *)key error:(NSError **)error;
+- (NULDBSlice *)getValueForKey:(NULDBSlice *)key type:(NULDBSliceType)type error:(NSError **)error;
+//- (NULDBSlice *)getValueForKey:(NULDBKey *)key error:(NSError **)error; // infers from key - TODO
+- (BOOL)deleteValueForKey:(NULDBSlice *)key error:(NSError **)error;
+- (BOOL)writeBatch:(NULDBWriteBatch *)writeBatch error:(NSError **)error;
 
 //// Basic key-value support
 - (BOOL)storeValue:(id<NSCoding>)value forKey:(id<NSCoding>)key;
@@ -105,6 +115,7 @@ extern NSString *NULDBErrorDomain;
 
 @interface NULDBDB (Enumeration)
 
+// nil start value means start at first key; nil limit means proceed to last key
 - (void)enumerateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block;
 - (NSDictionary *)storedValuesFrom:(id<NSCoding>)start to:(id<NSCoding>)limit;
 

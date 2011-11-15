@@ -91,7 +91,11 @@ static NSArray *propertyNames;
 #pragma mark NULDBSerializable
 #if STRICT_RELATIONAL
 - (NSString *)storageKey {
+#ifdef NULDBTEST_CORE_DATA
+    return [[[self objectID] URIRepresentation] absoluteString];
+#else
     return [self string];
+#endif
 }
 
 - (NSArray *)propertyNames {
@@ -112,7 +116,6 @@ static NSArray *propertyNames;
     phone.areaCodeValue = a;
     phone.exchangeValue = x;
     phone.lineValue = l;
-    [CDBSharedContext() save:NULL];
     return phone;
 #else
     return [[NULDBTestPhone alloc] initWithAreaCode:a exchange:x line:l];

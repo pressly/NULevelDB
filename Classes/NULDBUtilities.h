@@ -27,15 +27,15 @@ using namespace leveldb;
 extern Class stringClass;
 extern Class dataClass;
 extern Class dictClass;
+extern Class arrayClass;
 
 
 extern NSData *NULDBEncodedObject(id<NSCoding>object);
 extern id NULDBDecodedObject(NSData *data);
 
 static inline Slice NULDBSliceFromObject(id<NSCoding> object) {
-    
+    if(nil == object) return Slice();
     NSData *d = NULDBEncodedObject(object);
-    
     return Slice((const char *)[d bytes], (size_t)[d length]);
 }
 

@@ -9,6 +9,7 @@
 #import "NULDBDB.h"
 
 #import "NULDBUtilities.h"
+#import "NULDBWriteBatch.h"
 #import "NULDBDB_private.h"
 
 
@@ -16,13 +17,6 @@ int logging = 0;
 
 
 static NSUInteger defaultBufferSize = 1<<22; // 1024 * 1024 * 4 => 4MB
-
-
-void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(Slice &key, Slice &value));
-void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(id<NSCoding>, id<NSCoding>value));
-void NULDBIterateKeys(DB*db, Slice &start, Slice &limit, BOOL (^block)(NSString *key, NSData *value));
-void NULDBIterateData(DB*db, Slice &start, Slice &limit, BOOL (^block)(NSData *key, NSData *value));
-void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(uint64_t, NSData *value));
 
 
 using namespace leveldb;
@@ -40,6 +34,7 @@ using namespace leveldb;
 @implementation NULDBDB
 
 @synthesize db, location, compacting;
+//@synthesize keyType;
 
 
 NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
@@ -50,6 +45,7 @@ NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
     stringClass = [NSString class];
     dataClass = [NSData class];
     dictClass = [NSDictionary class];
+    arrayClass = [NSArray class];
 }
 
 - (id)init {
@@ -201,6 +197,90 @@ NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
 //                              NSLocalizedString(@"", @""), NSLocalizedRecoverySuggestionErrorKey,
                               nil];
     return [NSError errorWithDomain:NULDBErrorDomain code:1 userInfo:userInfo];
+}
+
+
+#pragma mark - Slice Access
+- (BOOL)putValue:(NULDBSlice *)value forKey:(NULDBSlice *)key error:(NSError **)error {
+    
+    Slice k, v;
+    [key getSlice:&k];
+    [value getSlice:&v];
+    
+    Status status = db->Put(writeOptions, k, v);
+    
+    if(!status.ok()) {
+        if(NULL != error)
+            *error = [NULDBDB errorForStatus:&status];
+        else
+            NSLog(@"Failed to put entry in database: %s", status.ToString().c_str());
+        
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (NULDBSlice *)getValueForKey:(NULDBSlice *)key type:(NULDBSliceType)type error:(NSError **)error {
+    
+    Slice k;
+    [key getSlice:&k];
+  
+    std::string v_string;
+    Status status = db->Get(readOptions, k, &v_string);
+    
+    if(!status.ok()) {
+        if(NULL != error)
+            *error = [NULDBDB errorForStatus:&status];
+        else
+            NSLog(@"Failed to get entry from database: %s", status.ToString().c_str());
+        
+        return nil;
+    }
+    
+    Slice v = v_string;
+
+    return [[[NULDBSlice alloc] initWithSlice:v type:type] autorelease];
+}
+
+- (BOOL)deleteValueForKey:(NULDBSlice *)key error:(NSError **)error {
+    
+    Slice k;
+    [key getSlice:&k];
+    
+    Status status = db->Delete(writeOptions, k);
+    
+    if(!status.ok()) {
+        if(NULL != error)
+            *error = [NULDBDB errorForStatus:&status];
+        else
+            NSLog(@"Failed to delete entry from database: %s", status.ToString().c_str());
+        
+        return NO;
+    }
+
+    return YES;
+}
+
+- (BOOL)writeBatch:(NULDBWriteBatch *)writeBatch error:(NSError **)error {
+    
+    if(writeBatch.written)
+        [NSException raise:NSInternalInconsistencyException format:@"Asked to write a batch that was already written"];
+    
+    Status status = db->Write(writeOptions, writeBatch.writeBatch);
+    
+    if(!status.ok()) {
+        if(NULL != error)
+            *error = [NULDBDB errorForStatus:&status];
+        else
+            NSLog(@"Failed to commit batch write to database: %s", status.ToString().c_str());
+
+        return NO;
+    }
+    
+    [writeBatch close];
+    
+    return YES;
 }
 
 

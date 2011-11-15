@@ -9,9 +9,11 @@
 #import "NULevelDB_TestAppAppDelegate.h"
 
 #import "NULevelDB_TestAppViewController.h"
-#import "NULDBDB.h"
+#import <NULevelDB/NULDBDB.h>
 #import "NULDBDB+Testing.h"
 #import "NULDBTestUtilities.h"
+#import "NULevelDBTester.h"
+#import "NUCoreDataTester.h"
 
 #import "NULDBTestCompany.h"
 #import "NULDBTestAddress.h"
@@ -19,7 +21,7 @@
 
 
 @interface NULDBDB (Tests)
-- (void)runTests;
+- (void)runTests:(id)testDelegate;
 @end
 
 
@@ -61,135 +63,55 @@
     NSLog(@"Company: %@", [company plistRepresentation]);
 }
 
-- (void)applicationWillResignActive:(UIApplication *)application
-{
-    /*
-     Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-     Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
-     */
-}
-
-- (void)applicationDidEnterBackground:(UIApplication *)application
-{
-    /*
-     Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
-     If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-     */
-}
-
-- (void)applicationWillEnterForeground:(UIApplication *)application
-{
-    /*
-     Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-     */
-}
-
-- (void)applicationDidBecomeActive:(UIApplication *)application
-{
-    /*
-     Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-     */
-}
-
-- (void)applicationWillTerminate:(UIApplication *)application
-{
-    /*
-     Called when the application is about to terminate.
-     Save data if appropriate.
-     See also applicationDidEnterBackground:.
-     */
-}
-
 - (void)runTests {
     
-    NSString *testPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"test.storage"];
+    NSString *docPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *testPath = [docPath stringByAppendingPathComponent:@"test.storage"];
+    // TODO add support for changing location of the test results database
+//    NSString *resultsPath = [docPath stringByAppendingPathComponent:@"results.storage"];
     
     if([[NSFileManager defaultManager] removeItemAtPath:testPath error:NULL])
-        NSLog(@"Deleted test db");
+        NSLog(@"Deleted previous test db.");
     
+
     NULDBDB *db = [[NULDBDB alloc] initWithLocation:testPath];
     
-    [db runTests];
-    [db destroy];
+#if 1
+    NULevelDBTester *tester = [[NULevelDBTester alloc] init];
+    
+    tester.database = db;
+
+    const int testCount = 1000;
+    const int size = 256;
+
+    NSUInteger tests[] = { 6, 7, 8 };
+
+    for(NSUInteger i=0; i<sizeof(tests)/sizeof(NSUInteger); ++i) {
+        switch (tests[i]) {
+            case 0: [tester runPhoneTest:testCount];            break;
+            case 1: [tester runAddressTest:testCount];          break;
+            case 2: [tester runPersonTest:testCount];           break;
+            case 3: [tester runCompanyTest:testCount];          break;
+            case 4: [tester runBigTest:testCount];              break;
+            case 5: [tester runFineGrainedTests:testCount];     break;
+            case 6: [tester runValuesTest:testCount size:size]; break;
+            case 7: [tester runDataTest:testCount size:size];   break;
+            case 8: [tester runStringTest:testCount size:size]; break;
+            default: break;
+        }
+    }
+    
+    NSLog(@"Results: %@", [tester resultsTableString]);
+    
+#else
+    [db runTests:self];
+#endif
+
+    [NULDBDB destroyDatabase:testPath];
 }
 
 @end
 
-
-@implementation NULDBDB (Tests)
-
-- (NSData *)makeTestData {
-    
-    static NSData *data;
-    static dispatch_once_t onceToken;
-    
-    dispatch_once(&onceToken, ^{
-        
-        NSError *error = nil;
-        data = [NSPropertyListSerialization dataWithPropertyList:[[NULDBTestAddress randomAddress] plistRepresentation]
-                                                          format:NSPropertyListBinaryFormat_v1_0
-                                                         options:0
-                                                           error:&error];
-        if(nil == data)
-            NSLog(@"Failed to make data; %@", error);
-    });
-    
-    return data;
-}
-
-enum {
-    kGeneric,
-    kData,
-    kString
-};
-
-#if TARGET_IPHONE_SIMULATOR
-#define test_count 10000
-#else
-#define test_count 1000
-#endif
-
-- (NSDictionary *)makeTestDictionary:(unsigned)type {
-    
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:test_count];
-    
-    for(int i = 0; i<test_count; ++i) {
-        
-        NULDBTestPerson *person = [NULDBTestPerson randomPerson];
-        NSDictionary *plist = [person plistRepresentation];
-        NSData *plistData = nil;
-        id key = [person uniqueID];
-        id value;
-        
-        if(type > 0) {
-            int plistType = NSPropertyListBinaryFormat_v1_0;
-            if(type > 1)
-                plistType = NSPropertyListXMLFormat_v1_0;
-            plistData = [NSPropertyListSerialization dataWithPropertyList:plist format:plistType options:0 error:NULL];
-        }
-        
-        switch (type) {
-                
-            case kString:
-                value = [[NSString alloc] initWithData:plistData encoding:NSUTF8StringEncoding];
-                break;
-                
-            case kData:
-                value = plistData;
-                key = [key dataUsingEncoding:NSUTF8StringEncoding];
-                break;
-                
-            case kGeneric:
-            default:
-                value = plist;
-                break;
-        }
-        
-        [dict setObject:value forKey:key];
-    }
-    
-    return [NSDictionary dictionaryWithDictionary:dict];
-}
 
 typedef struct testResult {
     BOOL failed;
@@ -200,6 +122,8 @@ typedef struct testResult {
     NSTimeInterval delete;
 } TestResult;
 
+
+@implementation NULDBDB (Tests)
 
 // a^2 is the number of keys, b^2 is the size
 // a counts up by powers of 2 and by counts down by powers of 2
@@ -241,68 +165,18 @@ typedef struct testResult {
     [self testPowersOf2FromA:4 toB:14  lowerLimit:4]; // 16 -> 16384
 }
 
-- (void)runIterationTest {
-    
-    [self put:1000 valuesOfSize:1000 data:NULL];
-    
-    NSLog(@"Iterating over some values");
-    
-    NSDictionary *sample = [self storedValuesFrom:@"0100" to:@"0120"];
-    
-    NSLog(@"%@", sample);
-}
 
-- (void)runGraphTests {
-    
-    NSMutableDictionary *companies = [NSMutableDictionary dictionary];
-    
-    for(int i=0; i<5; ++i) {
-        
-        NULDBTestCompany *company = [NULDBTestCompany companyOf100];
-        
-        [companies setObject:company forKey:company.name];
-    }
-    
-    NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
-    
-    NSLog(@"Starting graph serialization test");
-    
-    for(id key in [companies allKeys])
-        [self storeObject:[companies objectForKey:key]];
+#if TARGET_IPHONE_SIMULATOR
+#define test_count 10000
+#else
+#define test_count 1000
+#endif
 
-    NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
-
-    NSLog(@"Finished storing. Took %0.4f seconds. Starting loading.", end - start);
-    
-    start = end;
-    
-    NSMutableArray *companiesArray = [NSMutableArray array];
-    
-    for(id key in [companies allKeys])
-        [companiesArray addObject:[self storedObjectForKey:key]];
-    
-    NSArray *sort = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
-
-    for(NULDBTestCompany *company in [companiesArray sortedArrayUsingDescriptors:sort]) {
-        NSLog(@"Workers for company %@:\n%@", company.name, [[[[company.workers valueForKey:@"fullName"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
-        NSLog(@"Addresses for company %@:\n%@", company.name, [[[[company.addresses valueForKey:@"description"] allObjects] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@"\n"]);
-    }
-
-    
-    end = [NSDate timeIntervalSinceReferenceDate];
-    NSLog(@"Finished loading. Took %0.4f seconds. Starting deleting.", end - start);
-    
-    for(id key in [companies allKeys])
-        [self deleteStoredObjectForKey:key];
-    
-    end = [NSDate timeIntervalSinceReferenceDate];
-    NSLog(@"Finished deleting. Took %0.4f seconds. Done testing", end - start);
-}
 
 - (BOOL)runBulkGenericTests:(TestResult *)testResult {
     
     NSTimeInterval start, end;
-    NSDictionary *testData = [self makeTestDictionary:kGeneric];
+    NSDictionary *testData = randomTestDictionary(kGeneric, test_count);
     
     testResult->count = [testData count];
     
@@ -328,7 +202,7 @@ typedef struct testResult {
     
     NSError *error = nil;
     NSTimeInterval start, end;
-    NSDictionary *testData = [self makeTestDictionary:kData];
+    NSDictionary *testData = randomTestDictionary(kData, test_count);
     
     testResult->count = [testData count];
     
@@ -369,7 +243,7 @@ typedef struct testResult {
     
     NSError *error = nil;
     NSTimeInterval start, end;
-    NSDictionary *testData = [self makeTestDictionary:kString];
+    NSDictionary *testData = randomTestDictionary(kString, test_count);
     
     testResult->count = [testData count];
     
@@ -410,7 +284,7 @@ typedef struct testResult {
     
     NSError *error = nil;
     NSTimeInterval start, end;
-    NSDictionary *testData = [self makeTestDictionary:kData];
+    NSDictionary *testData = randomTestDictionary(kData, test_count);
     NSUInteger count = [testData count];
     
     uint64_t *indices = malloc(sizeof(uint64_t)*count);
@@ -483,19 +357,15 @@ typedef struct testResult {
     }
 }
 
-- (void)runTests {
+- (void)runTests:(id)testDelegate {
     
 //    [self run4By8Tests];
     
 //    [self run4By10Tests];
     
 //    [self run4By14Tests];
-    
-//    [self runGraphTests];
-    
-    [self runBulkOperationTests];
-    
-    NSLog(@"Testing finished");
+        
+//    [self runBulkOperationTests];
 }
 
 @end

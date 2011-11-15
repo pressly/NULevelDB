@@ -57,7 +57,7 @@
 #define NULDBIsPropertyKey(_key_) ([_key_ hasSuffix:@"NUProperty"])
 #define NULDBPropertyIdentifierFromKey(_key_) ([_key_ substringToIndex:[_key_ rangeOfString:@"|"].location])
 
-#define NULDBArrayToken(_class_name_, _count_) ([NSString stringWithFormat:@"%u:%@|NUArray", _count_, _class_name_])
+#define NULDBArrayToken(_array_, _count_) ([NSString stringWithFormat:@"%u:%@|NUArray", _count_, NSStringFromClass([[_array_ lastObject] class])])
 #define NULDBIsArrayToken(_key_) ([_key_ hasSuffix:@"NUArray"])
 
 #define NULDBArrayIndexKey(_key_, _index_) ([NSString stringWithFormat:@"%u:%@:NUIndex", _index_, _key_])
@@ -67,6 +67,13 @@
 
 #define NULDBWrappedObject(_object_) ([NSDictionary dictionaryWithObjectsAndKeys:NSStringFromClass([_object_ class]), @"class", [_object_ plistRepresentation], @"object", nil])
 #define NULDBUnwrappedObject(_dict_, _class_) ([[_class_ alloc] initWithPropertyList:[(NSDictionary *)_dict_ objectForKey:@"object"]])
+
+
+static NSMutableDictionary *classProperties;
+
++ (void)load {
+    classProperties = [[NSMutableDictionary alloc] initWithCapacity:100];
+}
 
 
 static inline NSString *NULDBClassFromPropertyKey(NSString *key) {
@@ -224,7 +231,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     NSString *className = NSStringFromClass([obj class]);
     NSString *classKey = NULDBClassToken(className);
-    NSArray *properties = [self storedValueForKey:classKey];
+    NSArray *properties = [classProperties objectForKey:classKey];
     
     NSAssert1(nil != classKey, @"No key for class %@", className);
     NSAssert1(nil != key, @"No storage key for object %@", obj);
@@ -232,8 +239,9 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     NULDBLog(@" ARCHIVE %@", className);
     
     if(nil == properties) {
-        properties = [obj propertyNames];
+        properties = [obj propertyNames];         
         [self storeValue:properties forKey:classKey];
+        [classProperties setObject:properties forKey:classKey];
     }
     
     [self storeValue:classKey forKey:key];
@@ -268,6 +276,30 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
         [self storeValue:obj forKey:key];
 }
 
+- (id)unserializeObjectForClass:(NSString *)className key:(NSString *)key {
+    
+    NSString *classKey = NULDBClassToken(className);
+    NSArray *properties = [classProperties objectForKey:classKey];
+    
+    if(nil == properties)
+        properties = [self storedValueForKey:classKey];
+    
+    if([properties count] < 1)
+        return nil;
+    
+    
+    id obj = [[NSClassFromString(className) alloc] init];
+    
+    
+    NULDBLog(@" RESTORE %@", className);
+    
+    for(NSString *property in properties)
+        [obj setValue:[self storedObjectForKey:NULDBPropertyKey(className, property, key)] forKey:property];
+    
+    return [obj autorelease];
+}
+
+#pragma mark Dictionaries
 // Support for NULDBSerializable objects in the dictionary
 - (void)storeDictionary:(NSDictionary *)plist forKey:(NSString *)key {
     
@@ -275,15 +307,18 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     for(id dictKey in [plist allKeys]) {
         
-        id value = [plist objectForKey:dictKey];
-        
-        // FIXME: this is lame, should always call the same wrapper
-        if([value conformsToProtocol:@protocol(NULDBPlistTransformable)])
-            value = [value plistRepresentation];
-        else if([value conformsToProtocol:@protocol(NULDBSerializable)])
-            value = [self _storeObject:value]; // store the object and replace it with it's lookup key
-        
-        [lookup setObject:value forKey:dictKey];
+        @autoreleasepool {
+            
+            id value = [plist objectForKey:dictKey];
+            
+            // FIXME: this is lame, should always call the same wrapper
+            if([value conformsToProtocol:@protocol(NULDBPlistTransformable)])
+                value = [value plistRepresentation];
+            else if([value conformsToProtocol:@protocol(NULDBSerializable)])
+                value = [self _storeObject:value]; // store the object and replace it with it's lookup key
+            
+            [lookup setObject:value forKey:dictKey];
+        }
     }
     
     [self storeValue:lookup forKey:key];
@@ -295,12 +330,14 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     
     for(NSString *key in [storedDict allKeys]) {
         
-        id value = [self storedObjectForKey:key];
-        
-        if(value)
-            [result setObject:value forKey:key];
-        else
-            [result setObject:[storedDict objectForKey:key] forKey:key];
+        @autoreleasepool {
+            id value = [self storedObjectForKey:key];
+            
+            if(value)
+                [result setObject:value forKey:key];
+            else
+                [result setObject:[storedDict objectForKey:key] forKey:key];
+        }
     }
     
     return result;
@@ -321,7 +358,7 @@ static inline NSString *NULDBClassFromArrayToken(NSString *token) {
     for(id object in array)
         [self storeObject:object forKey:NULDBArrayIndexKey(propertyFragment, i)], i++;
     
-    [self storeValue:NULDBArrayToken(NSStringFromClass([[array lastObject] class]), [array count]) forKey:key];
+    [self storeValue:NULDBArrayToken(array, [array count]) forKey:key];
 }
 
 - (NSArray *)unserializeArrayForKey:(NSString *)key {
