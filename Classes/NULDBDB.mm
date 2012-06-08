@@ -52,11 +52,11 @@ NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
     return [self initWithLocation:[NULDBDB defaultLocation] bufferSize:defaultBufferSize];
 }
 
-- (void)finalize {
+- (void)dealloc {
     self.db = NULL;
     delete classIndexKey;
     self.location = nil;
-    [super finalize];
+    [super dealloc];
 }
 
 
