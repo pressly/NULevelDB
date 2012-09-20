@@ -137,7 +137,7 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     NSMutableDictionary *tuples = [NSMutableDictionary dictionary];
     
     [self iterateFrom:start to:limit block:^(id<NSCoding>key, id<NSCoding>value) {
-        [tuples setObject:value forKey:key];
+        [tuples setObject:value forKey:(id)key];
         return YES;
     }];
     
