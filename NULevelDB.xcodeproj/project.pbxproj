@@ -7,6 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2EE6007D160AE7CC00CD86D6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82772813EAF44500C64821 /* Foundation.framework */; };
+		2EE60095160AE7EF00CD86D6 /* NSLDBIterator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EE60088160AE7EF00CD86D6 /* NSLDBIterator.mm */; };
+		2EE60096160AE7EF00CD86D6 /* NULDBCache.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EE60089160AE7EF00CD86D6 /* NULDBCache.mm */; };
+		2EE60097160AE7EF00CD86D6 /* NULDBComparator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EE6008A160AE7EF00CD86D6 /* NULDBComparator.mm */; };
+		2EE60098160AE7EF00CD86D6 /* NULDBDB.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EE6008B160AE7EF00CD86D6 /* NULDBDB.mm */; };
+		2EE60099160AE7EF00CD86D6 /* NULDBDB+BulkAccess.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EE6008C160AE7EF00CD86D6 /* NULDBDB+BulkAccess.mm */; };
+		2EE6009A160AE7EF00CD86D6 /* NULDBDB+Enumeration.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EE6008D160AE7EF00CD86D6 /* NULDBDB+Enumeration.mm */; };
+		2EE6009B160AE7EF00CD86D6 /* NULDBDB+Serializing.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EE6008E160AE7EF00CD86D6 /* NULDBDB+Serializing.mm */; };
+		2EE6009C160AE7EF00CD86D6 /* NULDBDB+SizeEstimation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EE6008F160AE7EF00CD86D6 /* NULDBDB+SizeEstimation.mm */; };
+		2EE6009D160AE7EF00CD86D6 /* NULDBSlice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EE60090160AE7EF00CD86D6 /* NULDBSlice.mm */; };
+		2EE6009E160AE7EF00CD86D6 /* NULDBStatus.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EE60091160AE7EF00CD86D6 /* NULDBStatus.mm */; };
+		2EE6009F160AE7EF00CD86D6 /* NULDBTable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EE60092160AE7EF00CD86D6 /* NULDBTable.mm */; };
+		2EE600A0160AE7EF00CD86D6 /* NULDBUtilities.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EE60093160AE7EF00CD86D6 /* NULDBUtilities.mm */; };
+		2EE600A1160AE7EF00CD86D6 /* NULDBWriteBatch.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EE60094160AE7EF00CD86D6 /* NULDBWriteBatch.mm */; };
+		2EE600AE160AE85100CD86D6 /* NSLDBIterator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2EE600A5160AE85100CD86D6 /* NSLDBIterator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2EE600AF160AE85100CD86D6 /* NULDBCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 2EE600A6160AE85100CD86D6 /* NULDBCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2EE600B0160AE85100CD86D6 /* NULDBComparator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2EE600A7160AE85100CD86D6 /* NULDBComparator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2EE600B1160AE85100CD86D6 /* NULDBDB.h in Headers */ = {isa = PBXBuildFile; fileRef = 2EE600A8160AE85100CD86D6 /* NULDBDB.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2EE600B2160AE85100CD86D6 /* NULDBSerializable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2EE600A9160AE85100CD86D6 /* NULDBSerializable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2EE600B3160AE85100CD86D6 /* NULDBSlice.h in Headers */ = {isa = PBXBuildFile; fileRef = 2EE600AA160AE85100CD86D6 /* NULDBSlice.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2EE600B4160AE85100CD86D6 /* NULDBStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 2EE600AB160AE85100CD86D6 /* NULDBStatus.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2EE600B5160AE85100CD86D6 /* NULDBTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2EE600AC160AE85100CD86D6 /* NULDBTable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2EE600B6160AE85100CD86D6 /* NULDBWriteBatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 2EE600AD160AE85100CD86D6 /* NULDBWriteBatch.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2EE600B8160AE87800CD86D6 /* NULDBUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 2EE600B7160AE87800CD86D6 /* NULDBUtilities.h */; };
+		2EE600DE160AEB1800CD86D6 /* libleveldb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82780113EAF4A600C64821 /* libleveldb.a */; };
 		4E221E7213EC8FBF00203E8D /* NULDBTestAddress.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E6913EC8FBF00203E8D /* NULDBTestAddress.m */; };
 		4E221E7313EC8FBF00203E8D /* NULDBTestCompany.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E6B13EC8FBF00203E8D /* NULDBTestCompany.m */; };
 		4E221E7413EC8FBF00203E8D /* NULDBTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E221E6D13EC8FBF00203E8D /* NULDBTestModel.m */; };
@@ -22,13 +47,11 @@
 		4E221EE113F2D0D500203E8D /* NULDBUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E221ED913F2C40900203E8D /* NULDBUtilities.h */; };
 		4E34E7041471765D00945FDB /* NULDBWriteBatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E34E6F814715FAB00945FDB /* NULDBWriteBatch.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4E34E7051471766300945FDB /* NULDBWriteBatch.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E34E6F914715FAB00945FDB /* NULDBWriteBatch.mm */; };
-		4E3CDCF213EB020D00366CD8 /* libleveldb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82780113EAF4A600C64821 /* libleveldb.a */; };
 		4E3CDD5613EC319F00366CD8 /* NULDBDB+Testing.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E82784F13EAF85500C64821 /* NULDBDB+Testing.m */; };
 		4E7D08B81464625D001F4447 /* NULDBDB+Enumeration.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E7D08B61464625D001F4447 /* NULDBDB+Enumeration.mm */; };
 		4E7D08BC1464644B001F4447 /* NULDBDB+SizeEstimation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E7D08BA1464644B001F4447 /* NULDBDB+SizeEstimation.mm */; };
 		4E7D08C0146465D8001F4447 /* NULDBDB+BulkAccess.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E7D08BE146465D8001F4447 /* NULDBDB+BulkAccess.mm */; };
 		4E7D08C4146466D6001F4447 /* NULDBDB+Serializing.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E7D08C2146466D6001F4447 /* NULDBDB+Serializing.mm */; };
-		4E82772913EAF44500C64821 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82772813EAF44500C64821 /* Foundation.framework */; };
 		4E82772F13EAF44500C64821 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4E82772D13EAF44500C64821 /* InfoPlist.strings */; };
 		4E82773813EAF44500C64821 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82773713EAF44500C64821 /* SenTestingKit.framework */; };
 		4E82773A13EAF44500C64821 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E82773913EAF44500C64821 /* UIKit.framework */; };
@@ -90,6 +113,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2EE600A2160AE80200CD86D6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4E82771913EAF44500C64821 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4E82780013EAF4A600C64821;
+			remoteInfo = leveldb;
+		};
 		4E82773E13EAF44500C64821 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4E82771913EAF44500C64821 /* Project object */;
@@ -114,6 +144,30 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2EE6007C160AE7CC00CD86D6 /* liblibNULevelDB.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibNULevelDB.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2EE60088160AE7EF00CD86D6 /* NSLDBIterator.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NSLDBIterator.mm; path = Classes/NSLDBIterator.mm; sourceTree = "<group>"; };
+		2EE60089160AE7EF00CD86D6 /* NULDBCache.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NULDBCache.mm; path = Classes/NULDBCache.mm; sourceTree = "<group>"; };
+		2EE6008A160AE7EF00CD86D6 /* NULDBComparator.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NULDBComparator.mm; path = Classes/NULDBComparator.mm; sourceTree = "<group>"; };
+		2EE6008B160AE7EF00CD86D6 /* NULDBDB.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NULDBDB.mm; path = Classes/NULDBDB.mm; sourceTree = "<group>"; };
+		2EE6008C160AE7EF00CD86D6 /* NULDBDB+BulkAccess.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "NULDBDB+BulkAccess.mm"; path = "Classes/NULDBDB+BulkAccess.mm"; sourceTree = "<group>"; };
+		2EE6008D160AE7EF00CD86D6 /* NULDBDB+Enumeration.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "NULDBDB+Enumeration.mm"; path = "Classes/NULDBDB+Enumeration.mm"; sourceTree = "<group>"; };
+		2EE6008E160AE7EF00CD86D6 /* NULDBDB+Serializing.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "NULDBDB+Serializing.mm"; path = "Classes/NULDBDB+Serializing.mm"; sourceTree = "<group>"; };
+		2EE6008F160AE7EF00CD86D6 /* NULDBDB+SizeEstimation.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "NULDBDB+SizeEstimation.mm"; path = "Classes/NULDBDB+SizeEstimation.mm"; sourceTree = "<group>"; };
+		2EE60090160AE7EF00CD86D6 /* NULDBSlice.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NULDBSlice.mm; path = Classes/NULDBSlice.mm; sourceTree = "<group>"; };
+		2EE60091160AE7EF00CD86D6 /* NULDBStatus.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NULDBStatus.mm; path = Classes/NULDBStatus.mm; sourceTree = "<group>"; };
+		2EE60092160AE7EF00CD86D6 /* NULDBTable.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NULDBTable.mm; path = Classes/NULDBTable.mm; sourceTree = "<group>"; };
+		2EE60093160AE7EF00CD86D6 /* NULDBUtilities.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NULDBUtilities.mm; path = Classes/NULDBUtilities.mm; sourceTree = "<group>"; };
+		2EE60094160AE7EF00CD86D6 /* NULDBWriteBatch.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NULDBWriteBatch.mm; path = Classes/NULDBWriteBatch.mm; sourceTree = "<group>"; };
+		2EE600A5160AE85100CD86D6 /* NSLDBIterator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NSLDBIterator.h; path = Classes/NSLDBIterator.h; sourceTree = "<group>"; };
+		2EE600A6160AE85100CD86D6 /* NULDBCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NULDBCache.h; path = Classes/NULDBCache.h; sourceTree = "<group>"; };
+		2EE600A7160AE85100CD86D6 /* NULDBComparator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NULDBComparator.h; path = Classes/NULDBComparator.h; sourceTree = "<group>"; };
+		2EE600A8160AE85100CD86D6 /* NULDBDB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NULDBDB.h; path = Classes/NULDBDB.h; sourceTree = "<group>"; };
+		2EE600A9160AE85100CD86D6 /* NULDBSerializable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NULDBSerializable.h; path = Classes/NULDBSerializable.h; sourceTree = "<group>"; };
+		2EE600AA160AE85100CD86D6 /* NULDBSlice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NULDBSlice.h; path = Classes/NULDBSlice.h; sourceTree = "<group>"; };
+		2EE600AB160AE85100CD86D6 /* NULDBStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NULDBStatus.h; path = Classes/NULDBStatus.h; sourceTree = "<group>"; };
+		2EE600AC160AE85100CD86D6 /* NULDBTable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NULDBTable.h; path = Classes/NULDBTable.h; sourceTree = "<group>"; };
+		2EE600AD160AE85100CD86D6 /* NULDBWriteBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NULDBWriteBatch.h; path = Classes/NULDBWriteBatch.h; sourceTree = "<group>"; };
+		2EE600B7160AE87800CD86D6 /* NULDBUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NULDBUtilities.h; path = Classes/NULDBUtilities.h; sourceTree = "<group>"; };
 		4E221E6813EC8FBF00203E8D /* NULDBTestAddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBTestAddress.h; sourceTree = "<group>"; };
 		4E221E6913EC8FBF00203E8D /* NULDBTestAddress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NULDBTestAddress.m; sourceTree = "<group>"; };
 		4E221E6A13EC8FBF00203E8D /* NULDBTestCompany.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NULDBTestCompany.h; sourceTree = "<group>"; };
@@ -218,7 +272,6 @@
 		4E8277C713EAF49500C64821 /* sha1_portable.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sha1_portable.cc; sourceTree = "<group>"; };
 		4E8277C813EAF49500C64821 /* sha1_portable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sha1_portable.h; sourceTree = "<group>"; };
 		4E8277C913EAF49500C64821 /* sha1_test.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sha1_test.cc; sourceTree = "<group>"; };
-		4E8277CB13EAF49500C64821 /* stdint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdint.h; sourceTree = "<group>"; };
 		4E8277CC13EAF49500C64821 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		4E8277CE13EAF49500C64821 /* block.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = block.cc; sourceTree = "<group>"; };
 		4E8277CF13EAF49500C64821 /* block.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = block.h; sourceTree = "<group>"; };
@@ -289,12 +342,12 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		4E82772013EAF44500C64821 /* Frameworks */ = {
+		2EE60079160AE7CC00CD86D6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4E82772913EAF44500C64821 /* Foundation.framework in Frameworks */,
-				4E3CDCF213EB020D00366CD8 /* libleveldb.a in Frameworks */,
+				2EE600DE160AEB1800CD86D6 /* libleveldb.a in Frameworks */,
+				2EE6007D160AE7CC00CD86D6 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -349,6 +402,29 @@
 		4E82771713EAF44500C64821 = {
 			isa = PBXGroup;
 			children = (
+				2EE600B7160AE87800CD86D6 /* NULDBUtilities.h */,
+				2EE600A5160AE85100CD86D6 /* NSLDBIterator.h */,
+				2EE600A6160AE85100CD86D6 /* NULDBCache.h */,
+				2EE600A7160AE85100CD86D6 /* NULDBComparator.h */,
+				2EE600A8160AE85100CD86D6 /* NULDBDB.h */,
+				2EE600A9160AE85100CD86D6 /* NULDBSerializable.h */,
+				2EE600AA160AE85100CD86D6 /* NULDBSlice.h */,
+				2EE600AB160AE85100CD86D6 /* NULDBStatus.h */,
+				2EE600AC160AE85100CD86D6 /* NULDBTable.h */,
+				2EE600AD160AE85100CD86D6 /* NULDBWriteBatch.h */,
+				2EE60088160AE7EF00CD86D6 /* NSLDBIterator.mm */,
+				2EE60089160AE7EF00CD86D6 /* NULDBCache.mm */,
+				2EE6008A160AE7EF00CD86D6 /* NULDBComparator.mm */,
+				2EE6008B160AE7EF00CD86D6 /* NULDBDB.mm */,
+				2EE6008C160AE7EF00CD86D6 /* NULDBDB+BulkAccess.mm */,
+				2EE6008D160AE7EF00CD86D6 /* NULDBDB+Enumeration.mm */,
+				2EE6008E160AE7EF00CD86D6 /* NULDBDB+Serializing.mm */,
+				2EE6008F160AE7EF00CD86D6 /* NULDBDB+SizeEstimation.mm */,
+				2EE60090160AE7EF00CD86D6 /* NULDBSlice.mm */,
+				2EE60091160AE7EF00CD86D6 /* NULDBStatus.mm */,
+				2EE60092160AE7EF00CD86D6 /* NULDBTable.mm */,
+				2EE60093160AE7EF00CD86D6 /* NULDBUtilities.mm */,
+				2EE60094160AE7EF00CD86D6 /* NULDBWriteBatch.mm */,
 				4E221ED513F07B2700203E8D /* README.md */,
 				4E82775513EAF49500C64821 /* leveldb */,
 				4E82772A13EAF44500C64821 /* NULevelDB */,
@@ -364,6 +440,7 @@
 				4E82772513EAF44500C64821 /* NULevelDB.framework */,
 				4E82773613EAF44500C64821 /* NULevelDBTests.octest */,
 				4E82780113EAF4A600C64821 /* libleveldb.a */,
+				2EE6007C160AE7CC00CD86D6 /* liblibNULevelDB.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -518,17 +595,8 @@
 				4E8277C713EAF49500C64821 /* sha1_portable.cc */,
 				4E8277C813EAF49500C64821 /* sha1_portable.h */,
 				4E8277C913EAF49500C64821 /* sha1_test.cc */,
-				4E8277CA13EAF49500C64821 /* win */,
 			);
 			path = port;
-			sourceTree = "<group>";
-		};
-		4E8277CA13EAF49500C64821 /* win */ = {
-			isa = PBXGroup;
-			children = (
-				4E8277CB13EAF49500C64821 /* stdint.h */,
-			);
-			path = win;
 			sourceTree = "<group>";
 		};
 		4E8277CD13EAF49500C64821 /* table */ = {
@@ -638,6 +706,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		2EE600A4160AE82500CD86D6 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2EE600AE160AE85100CD86D6 /* NSLDBIterator.h in Headers */,
+				2EE600AF160AE85100CD86D6 /* NULDBCache.h in Headers */,
+				2EE600B0160AE85100CD86D6 /* NULDBComparator.h in Headers */,
+				2EE600B1160AE85100CD86D6 /* NULDBDB.h in Headers */,
+				2EE600B2160AE85100CD86D6 /* NULDBSerializable.h in Headers */,
+				2EE600B3160AE85100CD86D6 /* NULDBSlice.h in Headers */,
+				2EE600B4160AE85100CD86D6 /* NULDBStatus.h in Headers */,
+				2EE600B5160AE85100CD86D6 /* NULDBTable.h in Headers */,
+				2EE600B6160AE85100CD86D6 /* NULDBWriteBatch.h in Headers */,
+				2EE600B8160AE87800CD86D6 /* NULDBUtilities.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4E82772113EAF44500C64821 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -666,16 +751,32 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		2EE6007B160AE7CC00CD86D6 /* libNULevelDB */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2EE60085160AE7CC00CD86D6 /* Build configuration list for PBXNativeTarget "libNULevelDB" */;
+			buildPhases = (
+				2EE600A4160AE82500CD86D6 /* Headers */,
+				2EE60078160AE7CC00CD86D6 /* Sources */,
+				2EE60079160AE7CC00CD86D6 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2EE600A3160AE80200CD86D6 /* PBXTargetDependency */,
+			);
+			name = libNULevelDB;
+			productName = libNULevelDB;
+			productReference = 2EE6007C160AE7CC00CD86D6 /* liblibNULevelDB.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		4E82772413EAF44500C64821 /* NULevelDB */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4E82774F13EAF44500C64821 /* Build configuration list for PBXNativeTarget "NULevelDB" */;
 			buildPhases = (
 				4E82772113EAF44500C64821 /* Headers */,
-				4E82771E13EAF44500C64821 /* ShellScript */,
 				4E82771F13EAF44500C64821 /* Sources */,
-				4E82772013EAF44500C64821 /* Frameworks */,
 				4E82772213EAF44500C64821 /* Resources */,
-				4E82772313EAF44500C64821 /* ShellScript */,
+				4E82772313EAF44500C64821 /* Package to Framework */,
 			);
 			buildRules = (
 			);
@@ -748,6 +849,7 @@
 				4E82780013EAF4A600C64821 /* leveldb */,
 				4E82772413EAF44500C64821 /* NULevelDB */,
 				4E82773513EAF44500C64821 /* NULevelDBTests */,
+				2EE6007B160AE7CC00CD86D6 /* libNULevelDB */,
 			);
 		};
 /* End PBXProject section */
@@ -772,31 +874,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4E82771E13EAF44500C64821 /* ShellScript */ = {
+		4E82772313EAF44500C64821 /* Package to Framework */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Package to Framework";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\nset +u\nif [[ $UFW_MASTER_SCRIPT_RUNNING ]]\nthen\n    # Nothing for the slave script to do\n    exit 0\nfi\nset -u\n\nif [[ \"$SDK_NAME\" =~ ([A-Za-z]+) ]]\nthen\n    UFW_SDK_PLATFORM=${BASH_REMATCH[1]}\nelse\n    echo \"Could not find platform name from SDK_NAME: $SDK_NAME\"\n    exit 1\nfi\n\nif [[ \"$SDK_NAME\" =~ ([0-9]+.*$) ]]\nthen\n\tUFW_SDK_VERSION=${BASH_REMATCH[1]}\nelse\n    echo \"Could not find sdk version  from SDK_NAME: $SDK_NAME\"\n    exit 1\nfi\n\nif [[ \"$UFW_SDK_PLATFORM\" = \"iphoneos\" ]]\nthen\n    UFW_OTHER_PLATFORM=iphonesimulator\n    ARCH_FLAG=\"-arch \\\"armv6 armv7\\\"\"\nelse\n    UFW_OTHER_PLATFORM=iphoneos\nfi\n\nif [[ \"$BUILT_PRODUCTS_DIR\" =~ (.*)$UFW_SDK_PLATFORM$ ]]\nthen\n    UFW_OTHER_BUILT_PRODUCTS_DIR=\"${BASH_REMATCH[1]}${UFW_OTHER_PLATFORM}\"\nelse\n    echo \"Could not find $UFW_SDK_PLATFORM in $BUILT_PRODUCTS_DIR\"\n    exit 1\nfi\n\n\n# Short-circuit if all binaries are up to date\n\nif [[ -f \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" ]] && \\\n   [[ -f \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/${EXECUTABLE_PATH}\" ]] && \\\n   [[ ! \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" -nt \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/${EXECUTABLE_PATH}\" ]]\n   [[ -f \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" ]] && \\\n   [[ -f \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/${EXECUTABLE_PATH}\" ]] && \\\n   [[ ! \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" -nt \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/${EXECUTABLE_PATH}\" ]]\nthen\n    exit 0\nfi\n\n\n# Clean other platform if needed\n\nif [[ ! -f \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" ]]\nthen\n\techo \"Platform \\\"$UFW_SDK_PLATFORM\\\" was cleaned recently. Cleaning \\\"$UFW_OTHER_PLATFORM\\\" as well\"\n\techo xcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${TARGET_NAME}\" -configuration \"${CONFIGURATION}\" -sdk ${UFW_OTHER_PLATFORM}${UFW_SDK_VERSION} BUILD_DIR=\"${BUILD_DIR}\" CONFIGURATION_TEMP_DIR=\"${PROJECT_TEMP_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\" clean\n\txcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${TARGET_NAME}\" -configuration \"${CONFIGURATION}\" -sdk ${UFW_OTHER_PLATFORM}${UFW_SDK_VERSION} BUILD_DIR=\"${BUILD_DIR}\" CONFIGURATION_TEMP_DIR=\"${PROJECT_TEMP_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\" clean\nfi\n\n\n# Make sure we are building from fresh binaries\n\nrm -rf \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\"\nrm -rf \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework\"\nrm -rf \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\"\nrm -rf \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework\"\n";
-		};
-		4E82772313EAF44500C64821 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\n\nset +u\nif [[ $UFW_MASTER_SCRIPT_RUNNING ]]\nthen\n    # Nothing for the slave script to do\n    exit 0\nfi\nset -u\nexport UFW_MASTER_SCRIPT_RUNNING=1\n\n\n# Functions\n\n## List files in the specified directory, storing to the specified array.\n#\n# @param $1 The path to list\n# @param $2 The name of the array to fill\n#\n##\nlist_files ()\n{\n    filelist=$(ls \"$1\")\n    while read line\n    do\n        eval \"$2[\\${#$2[*]}]=\\\"\\$line\\\"\"\n    done <<< \"$filelist\"\n}\n\n\n# Sanity check\n\nif [[ ! -f \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" ]]\nthen\n    echo \"Framework target \\\"${TARGET_NAME}\\\" had no source files to build from. Make sure your source files have the correct target membership\"\n    exit 1\nfi\n\n\n# Gather information\n\nif [[ \"$SDK_NAME\" =~ ([A-Za-z]+) ]]\nthen\n    UFW_SDK_PLATFORM=${BASH_REMATCH[1]}\nelse\n    echo \"Could not find platform name from SDK_NAME: $SDK_NAME\"\n    exit 1\nfi\n\nif [[ \"$SDK_NAME\" =~ ([0-9]+.*$) ]]\nthen\n    UFW_SDK_VERSION=${BASH_REMATCH[1]}\nelse\n    echo \"Could not find sdk version from SDK_NAME: $SDK_NAME\"\n    exit 1\nfi\n\nif [[ \"$UFW_SDK_PLATFORM\" = \"iphoneos\" ]]\nthen\n    UFW_OTHER_PLATFORM=iphonesimulator\nelse\n    UFW_OTHER_PLATFORM=iphoneos\nfi\n\nif [[ \"$BUILT_PRODUCTS_DIR\" =~ (.*)$UFW_SDK_PLATFORM$ ]]\nthen\n    UFW_OTHER_BUILT_PRODUCTS_DIR=\"${BASH_REMATCH[1]}${UFW_OTHER_PLATFORM}\"\nelse\n    echo \"Could not find $UFW_SDK_PLATFORM in $BUILT_PRODUCTS_DIR\"\n    exit 1\nfi\n\n\n# Short-circuit if all binaries are up to date.\n# We already checked the other platform in the prerun script.\n\nif [[ -f \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" ]] && [[ -f \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/${EXECUTABLE_PATH}\" ]] && [[ ! \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" -nt \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/${EXECUTABLE_PATH}\" ]]\nthen\n    exit 0\nfi\n\n\n# Make sure the other platform gets built\n\necho \"Build other platform\"\n\necho xcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${TARGET_NAME}\" -configuration \"${CONFIGURATION}\" -sdk ${UFW_OTHER_PLATFORM}${UFW_SDK_VERSION} BUILD_DIR=\"${BUILD_DIR}\" CONFIGURATION_TEMP_DIR=\"${PROJECT_TEMP_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\" $ACTION\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${TARGET_NAME}\" -configuration \"${CONFIGURATION}\" -sdk ${UFW_OTHER_PLATFORM}${UFW_SDK_VERSION} BUILD_DIR=\"${BUILD_DIR}\" CONFIGURATION_TEMP_DIR=\"${PROJECT_TEMP_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\" $ACTION\n\n\n# Build the fat static library binary\n\necho \"Create universal static library\"\n\necho \"$PLATFORM_DEVELOPER_BIN_DIR/libtool\" -static \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" -o \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}.temp\"\n\"$PLATFORM_DEVELOPER_BIN_DIR/libtool\" -static \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" -o \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}.temp\"\n\necho mv \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}.temp\" \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\"\nmv \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}.temp\" \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\"\n\n\n# Build embedded framework structure\n\necho \"Build Embedded Framework\"\n\necho rm -rf \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework\"\nrm -rf \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework\"\necho mkdir -p \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/Resources\"\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/Resources\"\necho cp -a \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/\"\ncp -a \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/\"\n\ndeclare -a UFW_FILE_LIST\nlist_files \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" UFW_FILE_LIST\nfor filename in \"${UFW_FILE_LIST[@]}\"\ndo\n    if [[ \"${filename}\" != \"Info.plist\" ]] && [[ ! \"${filename}\" =~ .*\\.lproj$ ]]\n    then\n        echo ln -sf \"../${WRAPPER_NAME}/Resources/${filename}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/Resources/${filename}\"\n        ln -sf \"../${WRAPPER_NAME}/Resources/${filename}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/Resources/${filename}\"\n    fi\ndone\n\n\n# Replace other platform's framework with a copy of this one (so that both have the same universal binary)\n\necho \"Copy from $UFW_SDK_PLATFORM to $UFW_OTHER_PLATFORM\"\n\necho rm -rf \"${BUILD_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\"\nrm -rf \"${BUILD_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\"\necho cp -a \"${BUILD_DIR}/${CONFIGURATION}-${UFW_SDK_PLATFORM}\" \"${BUILD_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\"\ncp -a \"${BUILD_DIR}/${CONFIGURATION}-${UFW_SDK_PLATFORM}\" \"${BUILD_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\"\n";
+			shellScript = "# Environment Variables\nFRAMEWORK_NAME=${PROJECT_NAME}\nFRAMEWORK_VERSION=A\nFRAMEWORK_VERSION_NUMBER=1.0\nFRAMEWORK_BUILD_PATH=\"${SRCROOT}/build/${CONFIGURATION}-framework\"\nFRAMEWORK_DIR=\"${FRAMEWORK_BUILD_PATH}/${FRAMEWORK_NAME}.framework\"\nFRAMEWORK_PACKAGE_NAME=\"${FRAMEWORK_NAME}.${FRAMEWORK_VERSION_NUMBER}.zip\"\n\n# Clean directories\nrm -rf \"${FRAMEWORK_BUILD_PATH}\"\nrm -rf dist/${CONFIGURATION}\n\n# Build simulator and device binaries.\nxcodebuild -project ${PROJECT_NAME}.xcodeproj -sdk iphonesimulator5.1 -target \"${PROJECT_NAME}\" -configuration ${CONFIGURATION} build\nxcodebuild -project ${PROJECT_NAME}.xcodeproj -sdk iphoneos5.1 -target \"${PROJECT_NAME}\" -configuration ${CONFIGURATION} build\n\n# create framework directories.\nmkdir -p ${FRAMEWORK_DIR}\nmkdir -p ${FRAMEWORK_DIR}/Versions\nmkdir -p ${FRAMEWORK_DIR}/Versions/${FRAMEWORK_VERSION}\nmkdir -p ${FRAMEWORK_DIR}/Versions/${FRAMEWORK_VERSION}/Resources\nmkdir -p ${FRAMEWORK_DIR}/Versions/${FRAMEWORK_VERSION}/Headers\n\n# create symlinks\nln -s ${FRAMEWORK_VERSION} ${FRAMEWORK_DIR}/Versions/Current\nln -s Versions/Current/Headers ${FRAMEWORK_DIR}/Headers\nln -s Versions/Current/Resources ${FRAMEWORK_DIR}/Resources\nln -s Versions/Current/${FRAMEWORK_NAME} ${FRAMEWORK_DIR}/${FRAMEWORK_NAME}\n\n# create the universal library\nlipo ${SRCROOT}/build/${CONFIGURATION}-iphoneos/lib${FRAMEWORK_NAME}.a ${SRCROOT}/build/${CONFIGURATION}-iphonesimulator/lib${FRAMEWORK_NAME}.a -create -output \"${FRAMEWORK_DIR}/Versions/Current/${FRAMEWORK_NAME}\"\n\n# copy files\ncp ${SRCROOT}/build/${CONFIGURATION}-iphoneos/Headers/*.h ${FRAMEWORK_DIR}/Headers/\ncp Info.plist ${FRAMEWORK_DIR}/Resources\n                                                      \n# zip (配布用に UbireciFore.framework ディレクトリをZIP圧縮するだけなので、配布しないなら\n# 以下はコメントアウトしてもよい)\n                                                      \nmkdir -p dist\nmkdir -p dist/${CONFIGURATION}\nrm -rf dist/${CONFIGURATION}/${FRAMEWORK_NAME}.framework\ncp -R ${FRAMEWORK_DIR} dist/${CONFIGURATION}/${FRAMEWORK_NAME}.framework";
 		};
 		4E82773413EAF44500C64821 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -814,6 +904,26 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2EE60078160AE7CC00CD86D6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2EE60095160AE7EF00CD86D6 /* NSLDBIterator.mm in Sources */,
+				2EE60096160AE7EF00CD86D6 /* NULDBCache.mm in Sources */,
+				2EE60097160AE7EF00CD86D6 /* NULDBComparator.mm in Sources */,
+				2EE60098160AE7EF00CD86D6 /* NULDBDB.mm in Sources */,
+				2EE60099160AE7EF00CD86D6 /* NULDBDB+BulkAccess.mm in Sources */,
+				2EE6009A160AE7EF00CD86D6 /* NULDBDB+Enumeration.mm in Sources */,
+				2EE6009B160AE7EF00CD86D6 /* NULDBDB+Serializing.mm in Sources */,
+				2EE6009C160AE7EF00CD86D6 /* NULDBDB+SizeEstimation.mm in Sources */,
+				2EE6009D160AE7EF00CD86D6 /* NULDBSlice.mm in Sources */,
+				2EE6009E160AE7EF00CD86D6 /* NULDBStatus.mm in Sources */,
+				2EE6009F160AE7EF00CD86D6 /* NULDBTable.mm in Sources */,
+				2EE600A0160AE7EF00CD86D6 /* NULDBUtilities.mm in Sources */,
+				2EE600A1160AE7EF00CD86D6 /* NULDBWriteBatch.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4E82771F13EAF44500C64821 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -897,6 +1007,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2EE600A3160AE80200CD86D6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4E82780013EAF4A600C64821 /* leveldb */;
+			targetProxy = 2EE600A2160AE80200CD86D6 /* PBXContainerItemProxy */;
+		};
 		4E82773F13EAF44500C64821 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4E82772413EAF44500C64821 /* NULevelDB */;
@@ -934,6 +1049,48 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		2EE60086160AE7CC00CD86D6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DSTROOT = /tmp/libNULevelDB.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "NULevelDB/NULevelDB-Prefix.pch";
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				HEADER_SEARCH_PATHS = leveldb/include;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		2EE60087160AE7CC00CD86D6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DSTROOT = /tmp/libNULevelDB.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "NULevelDB/NULevelDB-Prefix.pch";
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				HEADER_SEARCH_PATHS = leveldb/include;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
 		4E82774D13EAF44500C64821 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1105,6 +1262,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2EE60085160AE7CC00CD86D6 /* Build configuration list for PBXNativeTarget "libNULevelDB" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2EE60086160AE7CC00CD86D6 /* Debug */,
+				2EE60087160AE7CC00CD86D6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		4E82771C13EAF44500C64821 /* Build configuration list for PBXProject "NULevelDB" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
