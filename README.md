@@ -6,6 +6,7 @@ For an introduction to leveldb and NULevelDB, see [Introducing NULevelDB for iOS
 
 
 ## Installation
+In order to build the NULevelDB framework you will need to install the [iOS Universal Framework ](https://github.com/kstenerud/iOS-Universal-Framework) which are Xcode project templates and extensions that allow you to compile a static framework.
 
 Once you've cloned the repository, open **NULevelDB.xcworkspace**, select the **NULevelDB** target, and hit build. (For release builds, choose **"Build for Profiling"** from the **"Product"** menu.) The result is a universal static framework which you can add to your project. Because it is universal, the same framework will work with the simulator and devices. The NULevelDB framework includes the leveldb static library, so you don't have to add that separately.
 
