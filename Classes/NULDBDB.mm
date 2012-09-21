@@ -451,7 +451,7 @@ NSString *NULDBErrorDomain = @"NULevelDBErrorDomain";
 
 #pragma mark -
 @implementation NULDBDB (Deprecated)
-- (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block {
+- (void)iterateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding, NSCopying>key, id<NSCoding>value))block {
     [self enumerateFrom:start to:limit block:block];
 }
 - (void)iterateFromKey:(NSString *)start toKey:(NSString *)limit block:(BOOL (^)(NSString *key, NSData *value))block {

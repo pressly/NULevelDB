@@ -33,7 +33,7 @@ inline void NULDBIterateSlice(DB*db, Slice &start, Slice &limit, BOOL (^block)(S
     delete iter;
 }
 
-inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(id<NSCoding>, id<NSCoding>value)) {
+inline void NULDBIterateCoded(DB*db, Slice &start, Slice &limit, BOOL (^block)(id<NSCoding, NSCopying>, id<NSCoding>value)) {
     
     ReadOptions readopts;
     const Comparator *comp = limit.size() > 0 ? BytewiseComparator() : NULL;
@@ -126,7 +126,7 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
 
 @implementation NULDBDB (Enumeration)
 
-- (void)enumerateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding>key, id<NSCoding>value))block {
+- (void)enumerateFrom:(id<NSCoding>)start to:(id<NSCoding>)limit block:(BOOL (^)(id<NSCoding, NSCopying>key, id<NSCoding>value))block {
     Slice startSlice = NULDBSliceFromObject(start);
     Slice limitSlice = NULDBSliceFromObject(limit);
     NULDBIterateCoded(db, startSlice, limitSlice, block);
@@ -136,7 +136,7 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
     
     NSMutableDictionary *tuples = [NSMutableDictionary dictionary];
     
-    [self iterateFrom:start to:limit block:^(id<NSCoding>key, id<NSCoding>value) {
+    [self iterateFrom:start to:limit block:^(id<NSCoding, NSCopying>key, id<NSCoding>value) {
         [tuples setObject:value forKey:key];
         return YES;
     }];
