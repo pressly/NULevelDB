@@ -5,6 +5,7 @@
 #ifndef STORAGE_LEVELDB_DB_DB_IMPL_H_
 #define STORAGE_LEVELDB_DB_DB_IMPL_H_
 
+#include <deque>
 #include <set>
 #include "db/dbformat.h"
 #include "db/log_writer.h"
@@ -12,6 +13,7 @@
 #include "leveldb/db.h"
 #include "leveldb/env.h"
 #include "port/port.h"
+#include "port/thread_annotations.h"
 
 namespace leveldb {
 
@@ -59,6 +61,8 @@ class DBImpl : public DB {
 
  private:
   friend class DB;
+  struct CompactionState;
+  struct Writer;
 
   Iterator* NewInternalIterator(const ReadOptions&,
                                 SequenceNumber* latest_snapshot);
@@ -68,7 +72,7 @@ class DBImpl : public DB {
   // Recover the descriptor from persistent storage.  May do a significant
   // amount of work to recover recently logged updates.  Any changes to
   // be made to the descriptor are added to *edit.
-  Status Recover(VersionEdit* edit);
+  Status Recover(VersionEdit* edit) EXCLUSIVE_LOCKS_REQUIRED(mutex_);
 
   void MaybeIgnoreError(Status* s) const;
 
@@ -77,37 +81,39 @@ class DBImpl : public DB {
 
   // Compact the in-memory write buffer to disk.  Switches to a new
   // log-file/memtable and writes a new descriptor iff successful.
-  Status CompactMemTable();
+  Status CompactMemTable()
+      EXCLUSIVE_LOCKS_REQUIRED(mutex_);
 
   Status RecoverLogFile(uint64_t log_number,
                         VersionEdit* edit,
-                        SequenceNumber* max_sequence);
+                        SequenceNumber* max_sequence)
+      EXCLUSIVE_LOCKS_REQUIRED(mutex_);
 
-  Status WriteLevel0Table(MemTable* mem, VersionEdit* edit, Version* base);
+  Status WriteLevel0Table(MemTable* mem, VersionEdit* edit, Version* base)
+      EXCLUSIVE_LOCKS_REQUIRED(mutex_);
 
-  // Only thread is allowed to log at a time.
-  struct LoggerId { };          // Opaque identifier for logging thread
-  void AcquireLoggingResponsibility(LoggerId* self);
-  void ReleaseLoggingResponsibility(LoggerId* self);
+  Status MakeRoomForWrite(bool force /* compact even if there is room? */)
+      EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+  WriteBatch* BuildBatchGroup(Writer** last_writer);
 
-  Status MakeRoomForWrite(bool force /* compact even if there is room? */);
-
-  struct CompactionState;
-
-  void MaybeScheduleCompaction();
+  void MaybeScheduleCompaction() EXCLUSIVE_LOCKS_REQUIRED(mutex_);
   static void BGWork(void* db);
   void BackgroundCall();
-  void BackgroundCompaction();
-  void CleanupCompaction(CompactionState* compact);
-  Status DoCompactionWork(CompactionState* compact);
+  Status BackgroundCompaction() EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+  void CleanupCompaction(CompactionState* compact)
+      EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+  Status DoCompactionWork(CompactionState* compact)
+      EXCLUSIVE_LOCKS_REQUIRED(mutex_);
 
   Status OpenCompactionOutputFile(CompactionState* compact);
   Status FinishCompactionOutputFile(CompactionState* compact, Iterator* input);
-  Status InstallCompactionResults(CompactionState* compact);
+  Status InstallCompactionResults(CompactionState* compact)
+      EXCLUSIVE_LOCKS_REQUIRED(mutex_);
 
   // Constant after construction
   Env* const env_;
   const InternalKeyComparator internal_comparator_;
+  const InternalFilterPolicy internal_filter_policy_;
   const Options options_;  // options_.comparator == &internal_comparator_
   bool owns_info_log_;
   bool owns_cache_;
@@ -129,8 +135,11 @@ class DBImpl : public DB {
   WritableFile* logfile_;
   uint64_t logfile_number_;
   log::Writer* log_;
-  LoggerId* logger_;            // NULL, or the id of the current logging thread
-  port::CondVar logger_cv_;     // For threads waiting to log
+
+  // Queue of writers.
+  std::deque<Writer*> writers_;
+  WriteBatch* tmp_batch_;
+
   SnapshotList snapshots_;
 
   // Set of table files to protect from deletion because they are
@@ -185,6 +194,7 @@ class DBImpl : public DB {
 // it is not equal to src.info_log.
 extern Options SanitizeOptions(const std::string& db,
                                const InternalKeyComparator* icmp,
+                               const InternalFilterPolicy* ipolicy,
                                const Options& src);
 
 }  // namespace leveldb

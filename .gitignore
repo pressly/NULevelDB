@@ -1,6 +1,8 @@
 .DS_Store
 */.DS_Store
 */build/*
+*/build
+build
 *.pbxuser
 *.perspectivev3
 *.mode1v3

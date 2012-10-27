@@ -181,8 +181,9 @@ inline void NULDBIterateIndex(DB*db, Slice &start, Slice &limit, BOOL (^block)(u
 }
 
 - (void)enumerateFromIndex:(uint64_t)start to:(uint64_t)limit block:(BOOL (^)(uint64_t key, NSData *value))block {
-    Slice startSlice((char *)start, sizeof(uint64_t));
-    Slice limitSlice((char *)limit, sizeof(uint64_t));
+    Slice startSlice((char *)&start, sizeof(uint64_t));
+    Slice limitSlice((char *)&limit, sizeof(uint64_t));
+
     NULDBIterateIndex(db, startSlice, limitSlice, block);
 }
 
