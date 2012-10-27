@@ -28,6 +28,7 @@
   be true on entry:
      *errptr == NULL
      *errptr points to a malloc()ed null-terminated error message
+       (On Windows, *errptr must have been malloc()-ed by this library.)
   On success, a leveldb routine leaves *errptr unchanged.
   On failure, leveldb frees the old value of *errptr and
   set *errptr to a malloc()ed error message.
@@ -55,6 +56,7 @@ typedef struct leveldb_cache_t         leveldb_cache_t;
 typedef struct leveldb_comparator_t    leveldb_comparator_t;
 typedef struct leveldb_env_t           leveldb_env_t;
 typedef struct leveldb_filelock_t      leveldb_filelock_t;
+typedef struct leveldb_filterpolicy_t  leveldb_filterpolicy_t;
 typedef struct leveldb_iterator_t      leveldb_iterator_t;
 typedef struct leveldb_logger_t        leveldb_logger_t;
 typedef struct leveldb_options_t       leveldb_options_t;
@@ -127,6 +129,11 @@ extern void leveldb_approximate_sizes(
     const char* const* range_limit_key, const size_t* range_limit_key_len,
     uint64_t* sizes);
 
+extern void leveldb_compact_range(
+    leveldb_t* db,
+    const char* start_key, size_t start_key_len,
+    const char* limit_key, size_t limit_key_len);
+
 /* Management operations */
 
 extern void leveldb_destroy_db(
@@ -177,6 +184,9 @@ extern void leveldb_options_destroy(leveldb_options_t*);
 extern void leveldb_options_set_comparator(
     leveldb_options_t*,
     leveldb_comparator_t*);
+extern void leveldb_options_set_filter_policy(
+    leveldb_options_t*,
+    leveldb_filterpolicy_t*);
 extern void leveldb_options_set_create_if_missing(
     leveldb_options_t*, unsigned char);
 extern void leveldb_options_set_error_if_exists(
@@ -209,6 +219,26 @@ extern leveldb_comparator_t* leveldb_comparator_create(
     const char* (*name)(void*));
 extern void leveldb_comparator_destroy(leveldb_comparator_t*);
 
+/* Filter policy */
+
+extern leveldb_filterpolicy_t* leveldb_filterpolicy_create(
+    void* state,
+    void (*destructor)(void*),
+    char* (*create_filter)(
+        void*,
+        const char* const* key_array, const size_t* key_length_array,
+        int num_keys,
+        size_t* filter_length),
+    unsigned char (*key_may_match)(
+        void*,
+        const char* key, size_t length,
+        const char* filter, size_t filter_length),
+    const char* (*name)(void*));
+extern void leveldb_filterpolicy_destroy(leveldb_filterpolicy_t*);
+
+extern leveldb_filterpolicy_t* leveldb_filterpolicy_create_bloom(
+    int bits_per_key);
+
 /* Read options */
 
 extern leveldb_readoptions_t* leveldb_readoptions_create();
@@ -238,6 +268,21 @@ extern void leveldb_cache_destroy(leveldb_cache_t* cache);
 
 extern leveldb_env_t* leveldb_create_default_env();
 extern void leveldb_env_destroy(leveldb_env_t*);
+
+/* Utility */
+
+/* Calls free(ptr).
+   REQUIRES: ptr was malloc()-ed and returned by one of the routines
+   in this file.  Note that in certain cases (typically on Windows), you
+   may need to call this routine instead of free(ptr) to dispose of
+   malloc()-ed memory returned by this library. */
+extern void leveldb_free(void* ptr);
+
+/* Return the major version number for this release. */
+extern int leveldb_major_version();
+
+/* Return the minor version number for this release. */
+extern int leveldb_minor_version();
 
 #ifdef __cplusplus
 }  /* end extern "C" */

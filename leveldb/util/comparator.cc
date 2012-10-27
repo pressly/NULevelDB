@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "leveldb/comparator.h"
 #include "leveldb/slice.h"
+#include "port/port.h"
 #include "util/logging.h"
 
 namespace leveldb {
@@ -64,10 +65,17 @@ class BytewiseComparatorImpl : public Comparator {
   }
 };
 }  // namespace
-static const BytewiseComparatorImpl bytewise;
+
+static port::OnceType once = LEVELDB_ONCE_INIT;
+static const Comparator* bytewise;
+
+static void InitModule() {
+  bytewise = new BytewiseComparatorImpl;
+}
 
 const Comparator* BytewiseComparator() {
-  return &bytewise;
+  port::InitOnce(&once, InitModule);
+  return bytewise;
 }
 
 }  // namespace leveldb
